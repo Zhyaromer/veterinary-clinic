@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:vet_clinic/screens/contact_us.dart';
+import 'package:vet_clinic/screens/medicine_management_page.dart';
 import 'package:vet_clinic/screens/medicines_page.dart';
 import 'package:vet_clinic/screens/Putting_pets_for_adoption.dart';
 import 'package:vet_clinic/screens/pet_guide_page.dart';
@@ -441,7 +442,7 @@ class _HomeScreenState extends State<HomeScreen> {
       case 'Sales Report':
         return MedicinesPage();
       case 'Manage Medicines':
-        return MedicinesPage();
+        return MedicineManagementPage();
       case 'Manage Animals':
         return MedicinesPage();
       case 'Manage Resources':

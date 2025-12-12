@@ -1,6 +1,7 @@
 // screens/pet_resources_page.dart
 import 'package:flutter/material.dart';
 import 'package:vet_clinic/screens/cages_page.dart';
+import 'package:vet_clinic/screens/pet_food_page.dart';
 import 'pet_toys_page.dart';
 
 class PetResourcesPage extends StatelessWidget {
@@ -110,9 +111,7 @@ class PetResourcesPage extends StatelessWidget {
                     subtitle: 'Nutrition and snacks',
                     icon: Icons.restaurant,
                     color: const Color(0xFF4CAF50),
-                    page: const Scaffold(
-                      body: Center(child: Text('Food Page Coming Soon')),
-                    ),
+                    page: const PetFoodPage(),
                   ),
                   _buildCategoryCard(
                     context: context,
