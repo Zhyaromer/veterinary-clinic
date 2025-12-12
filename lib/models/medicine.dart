@@ -174,7 +174,7 @@ List<Medicine> medicines = [
     stock: 40,
     expiryDate: "2026-07-10",
     imageUrl:
-        "https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80",
+        "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRZziobKqyqnZ211QL6pGctxrmU3d825urtxw&s",
   ),
   Medicine(
     id: 2,
@@ -230,7 +230,7 @@ List<Medicine> medicines = [
     stock: 125,
     expiryDate: "2025-12-15",
     imageUrl:
-        "https://images.unsplash.com/photo-1559757148-5c350d0d3c56?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80",
+        "https://5.imimg.com/data5/SELLER/Default/2024/5/422250798/QF/UG/MH/15333893/almox-250-mg-capsule-amoxycillin-250mg.jpg",
   ),
   Medicine(
     id: 3,
@@ -279,7 +279,7 @@ List<Medicine> medicines = [
     stock: 75,
     expiryDate: "2025-10-20",
     imageUrl:
-        "https://images.unsplash.com/photo-1622686711415-d7921a6c7b6c?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80",
+        "https://cdn11.bigcommerce.com/s-jie5o9x4em/images/stencil/1280x1280/products/127/386/RevolutionFelinePlus__99956.1687616722.PNG?c=1",
   ),
   Medicine(
     id: 4,
@@ -334,7 +334,7 @@ List<Medicine> medicines = [
     stock: 30,
     expiryDate: "2026-03-15",
     imageUrl:
-        "https://images.unsplash.com/photo-1583339793403-3d9b001b6008?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80",
+        "https://pilldroppets.co.nz/cdn/shop/products/PillDrop_Rimadyl100.jpg?crop=center&height=540&v=1654305534&width=540",
   ),
   Medicine(
     id: 5,
@@ -384,7 +384,7 @@ List<Medicine> medicines = [
     stock: 55,
     expiryDate: "2025-09-30",
     imageUrl:
-        "https://images.unsplash.com/photo-1551632436-cbf8dd35adfa?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80",
+        "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRljduaUknkE1q-NFK_iYE7xBdjOuWPzzczbg&s",
   ),
   Medicine(
     id: 6,
@@ -430,7 +430,7 @@ List<Medicine> medicines = [
     stock: 90,
     expiryDate: "2026-05-10",
     imageUrl:
-        "https://images.unsplash.com/photo-1559757148-5c350d0d3c56?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80",
+        "https://www.vetnpetdirect.com.au/cdn/shop/products/759736_1200x.jpg?v=1569369288",
   ),
   Medicine(
     id: 7,
@@ -474,7 +474,7 @@ List<Medicine> medicines = [
     stock: 65,
     expiryDate: "2025-07-20",
     imageUrl:
-        "https://images.unsplash.com/photo-1583339522870-0d4c87e32d7d?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80",
+        "https://imagedelivery.net/OWeDZSTbTyzlX4Fsq0SDAw/10074/w=700,h=700,q=80",
   ),
   Medicine(
     id: 8,
@@ -516,6 +516,6 @@ List<Medicine> medicines = [
     stock: 120,
     expiryDate: "2026-01-30",
     imageUrl:
-        "https://images.unsplash.com/photo-1622686711415-d7921a6c7b6c?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80",
+        "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQG9MnWSsNov39HKOkpSK_2ObGS2R2BZUBROQ&s",
   ),
 ];

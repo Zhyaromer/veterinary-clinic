@@ -16,7 +16,7 @@ class MedicineDetailPage extends StatelessWidget {
         slivers: [
           // App Bar with Medicine Image
           SliverAppBar(
-            expandedHeight: 250,
+            expandedHeight: 400,
             floating: false,
             pinned: true,
             flexibleSpace: FlexibleSpaceBar(
@@ -135,19 +135,6 @@ class MedicineDetailPage extends StatelessWidget {
               ),
               onPressed: () => Navigator.pop(context),
             ),
-            actions: [
-              IconButton(
-                icon: Container(
-                  padding: const EdgeInsets.all(8),
-                  decoration: BoxDecoration(
-                    color: Colors.white.withOpacity(0.2),
-                    shape: BoxShape.circle,
-                  ),
-                  child: const Icon(Icons.share, color: Colors.white),
-                ),
-                onPressed: () {},
-              ),
-            ],
           ),
 
           // Medicine Details
@@ -440,28 +427,13 @@ class MedicineDetailPage extends StatelessWidget {
                             style: ElevatedButton.styleFrom(
                               backgroundColor: const Color(0xFF4A6FA5),
                               foregroundColor: Colors.white,
-                              padding: const EdgeInsets.symmetric(vertical: 16),
+                              padding: const EdgeInsets.symmetric(vertical: 20),
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(12),
                               ),
                             ),
                             icon: const Icon(Icons.shopping_cart),
                             label: const Text('Add to Cart'),
-                          ),
-                        ),
-                        const SizedBox(width: 12),
-                        Expanded(
-                          child: OutlinedButton.icon(
-                            onPressed: () {},
-                            style: OutlinedButton.styleFrom(
-                              side: const BorderSide(color: Color(0xFF4A6FA5)),
-                              padding: const EdgeInsets.symmetric(vertical: 16),
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(12),
-                              ),
-                            ),
-                            icon: const Icon(Icons.print),
-                            label: const Text('Print Label'),
                           ),
                         ),
                       ],
