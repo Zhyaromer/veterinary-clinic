@@ -24,7 +24,6 @@ class _AddEditMedicinePageState extends State<AddEditMedicinePage> {
   late TextEditingController _formController;
   late TextEditingController _routeController;
   late TextEditingController _animalTypeController;
-  late TextEditingController _categoryController;
   late TextEditingController _dosageController;
   late TextEditingController _adminInstructionsController;
   late TextEditingController _usageController;
@@ -328,7 +327,10 @@ class _AddEditMedicinePageState extends State<AddEditMedicinePage> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(isEditing ? 'Edit Medicine' : 'Add New Medicine'),
+        title: Text(
+          isEditing ? 'Edit Medicine' : 'Add New Medicine',
+          style: TextStyle(color: Colors.white),
+        ),
         backgroundColor: const Color(0xFF4A6FA5),
         iconTheme: const IconThemeData(color: Colors.white),
         actions: [

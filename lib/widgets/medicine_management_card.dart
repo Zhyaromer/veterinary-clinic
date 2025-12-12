@@ -142,78 +142,6 @@ class MedicineManagementCard extends StatelessWidget {
                       ],
                     ),
                   ),
-
-                  // Quick Actions
-                  PopupMenuButton<String>(
-                    icon: const Icon(Icons.more_vert, color: Colors.grey),
-                    itemBuilder: (context) => [
-                      PopupMenuItem(
-                        value: 'edit',
-                        child: Row(
-                          children: const [
-                            Icon(Icons.edit, size: 18, color: Colors.blue),
-                            SizedBox(width: 8),
-                            Text('Edit'),
-                          ],
-                        ),
-                      ),
-                      PopupMenuItem(
-                        value: 'duplicate',
-                        child: Row(
-                          children: const [
-                            Icon(
-                              Icons.content_copy,
-                              size: 18,
-                              color: Colors.orange,
-                            ),
-                            SizedBox(width: 8),
-                            Text('Duplicate'),
-                          ],
-                        ),
-                      ),
-                      PopupMenuItem(
-                        value: 'reset_stock',
-                        child: Row(
-                          children: const [
-                            Icon(
-                              Icons.inventory,
-                              size: 18,
-                              color: Colors.green,
-                            ),
-                            SizedBox(width: 8),
-                            Text('Reset Stock'),
-                          ],
-                        ),
-                      ),
-                      const PopupMenuDivider(),
-                      PopupMenuItem(
-                        value: 'delete',
-                        child: Row(
-                          children: const [
-                            Icon(Icons.delete, size: 18, color: Colors.red),
-                            SizedBox(width: 8),
-                            Text('Delete'),
-                          ],
-                        ),
-                      ),
-                    ],
-                    onSelected: (value) {
-                      switch (value) {
-                        case 'edit':
-                          onEdit();
-                          break;
-                        case 'duplicate':
-                          onDuplicate();
-                          break;
-                        case 'reset_stock':
-                          onResetStock();
-                          break;
-                        case 'delete':
-                          onDelete();
-                          break;
-                      }
-                    },
-                  ),
                 ],
               ),
             ),
@@ -258,8 +186,9 @@ class MedicineManagementCard extends StatelessWidget {
 
                   // Manufacturer and Barcode
                   Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Expanded(
+                      Container(
                         child: _buildDetailItem(
                           icon: Icons.business,
                           label: 'Manufacturer',
@@ -269,7 +198,7 @@ class MedicineManagementCard extends StatelessWidget {
                         ),
                       ),
                       const SizedBox(width: 16),
-                      Expanded(
+                      Container(
                         child: _buildDetailItem(
                           icon: Icons.barcode_reader,
                           label: 'Barcode',
