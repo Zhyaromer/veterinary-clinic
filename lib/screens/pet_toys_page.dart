@@ -1,64 +1,61 @@
-// screens/medicines_page.dart
+// screens/pet_toys_page.dart
 import 'package:flutter/material.dart';
-import '../models/medicine.dart';
-import '../widgets/medicine_card.dart';
-import 'medicine_detail_page.dart';
+import '../models/pet_toy.dart';
+import '../widgets/pet_toy_card.dart';
+import 'pet_toy_detail_page.dart';
 
-class MedicinesPage extends StatefulWidget {
-  const MedicinesPage({super.key});
+class PetToysPage extends StatefulWidget {
+  const PetToysPage({super.key});
 
   @override
-  State<MedicinesPage> createState() => _MedicinesPageState();
+  State<PetToysPage> createState() => _PetToysPageState();
 }
 
-class _MedicinesPageState extends State<MedicinesPage> {
+class _PetToysPageState extends State<PetToysPage> {
   final TextEditingController _searchController = TextEditingController();
-  List<Medicine> filteredMedicines = List.from(medicines);
+  List<PetToy> filteredToys = List.from(petToys);
 
   // Filter states
-  String _selectedAnimalType = 'All';
+  String _selectedPetType = 'All';
   String _selectedCategory = 'All';
-  String _selectedManufacturer = 'All';
-  String _selectedForm = 'All';
+  String _selectedBrand = 'All';
   double _minPrice = 0;
   double _maxPrice = 100;
+  bool _isPriceFiltered = false;
 
-  final List<String> animalTypes = ['All', 'Dogs', 'Cats', 'Dogs, Cats'];
+  final List<String> petTypes = ['All', 'Dog', 'Cat', 'Bird', 'Small Animal'];
   final List<String> categories = [
     'All',
-    'Antibiotic',
-    'Anti-parasitic',
-    'Flea & Tick',
-    'Pain Relief',
-    'Anti-inflammatory',
-    'Heartworm Prevention',
+    'Puzzle Toy',
+    'Kicker Toy',
+    'Chew Toy',
+    'Interactive Wand',
+    'Plush Toy',
+    'Foraging Toy',
+    'Electronic Toy',
+    'Rope Toy',
   ];
-  final List<String> manufacturers = [
+  final List<String> brands = [
     'All',
-    'VetPharm International',
-    'PetMed Pharmaceuticals',
-    'Zoetis Animal Health',
-    'Pfizer Animal Health',
-    'Boehringer Ingelheim',
-    'Merial',
-  ];
-  final List<String> forms = [
-    'All',
-    'Injection',
-    'Tablet',
-    'Chewable Tablet',
-    'Oral Suspension',
-    'Topical Solution',
+    'Pawfect Play',
+    'Meow Magic',
+    'ChewMaster',
+    'Whisker Wonder',
+    'Playful Paws',
+    'Avian Adventures',
+    'TechCat',
+    'Natural Pup',
   ];
 
   @override
   void initState() {
     super.initState();
-    _searchController.addListener(_filterMedicines);
+    _searchController.addListener(_filterToys);
 
-    if (medicines.isNotEmpty) {
-      final maxPriceInList = medicines
-          .map((m) => m.price)
+    // Calculate max price
+    if (petToys.isNotEmpty) {
+      final maxPriceInList = petToys
+          .map((t) => t.price)
           .reduce((a, b) => a > b ? a : b);
       _maxPrice = (maxPriceInList + 20).ceilToDouble();
     }
@@ -70,41 +67,36 @@ class _MedicinesPageState extends State<MedicinesPage> {
     super.dispose();
   }
 
-  void _filterMedicines() {
+  void _filterToys() {
     setState(() {
-      filteredMedicines = medicines.where((medicine) {
+      filteredToys = petToys.where((toy) {
         final matchesSearch =
             _searchController.text.isEmpty ||
-            medicine.name.toLowerCase().contains(
+            toy.name.toLowerCase().contains(
               _searchController.text.toLowerCase(),
             ) ||
-            medicine.category.toLowerCase().contains(
+            toy.description.toLowerCase().contains(
+              _searchController.text.toLowerCase(),
+            ) ||
+            toy.category.toLowerCase().contains(
               _searchController.text.toLowerCase(),
             );
 
-        final matchesAnimalType =
-            _selectedAnimalType == 'All' ||
-            medicine.animalType.contains(_selectedAnimalType);
+        final matchesPetType =
+            _selectedPetType == 'All' || toy.petType == _selectedPetType;
 
         final matchesCategory =
-            _selectedCategory == 'All' ||
-            medicine.category == _selectedCategory;
+            _selectedCategory == 'All' || toy.category == _selectedCategory;
 
-        final matchesManufacturer =
-            _selectedManufacturer == 'All' ||
-            medicine.manufacturer.name == _selectedManufacturer;
+        final matchesBrand =
+            _selectedBrand == 'All' || toy.brand == _selectedBrand;
 
-        final matchesForm =
-            _selectedForm == 'All' || medicine.form == _selectedForm;
-
-        final matchesPrice =
-            medicine.price >= _minPrice && medicine.price <= _maxPrice;
+        final matchesPrice = toy.price >= _minPrice && toy.price <= _maxPrice;
 
         return matchesSearch &&
-            matchesAnimalType &&
+            matchesPetType &&
             matchesCategory &&
-            matchesManufacturer &&
-            matchesForm &&
+            matchesBrand &&
             matchesPrice;
       }).toList();
     });
@@ -113,35 +105,34 @@ class _MedicinesPageState extends State<MedicinesPage> {
   void _resetFilters() {
     setState(() {
       _searchController.clear();
-      _selectedAnimalType = 'All';
+      _selectedPetType = 'All';
       _selectedCategory = 'All';
-      _selectedManufacturer = 'All';
-      _selectedForm = 'All';
+      _selectedBrand = 'All';
       _minPrice = 0;
-      // Reset max price to actual max from medicines
-      final maxPriceInList = medicines
-          .map((m) => m.price)
+      final maxPriceInList = petToys
+          .map((t) => t.price)
           .reduce((a, b) => a > b ? a : b);
       _maxPrice = (maxPriceInList + 20).ceilToDouble();
-      _filterMedicines();
+      _isPriceFiltered = false;
+      _filterToys();
     });
   }
 
   void _showFilterDialog() {
-    final maxPriceInList = medicines
-        .map((m) => m.price)
+    final maxPriceInList = petToys
+        .map((t) => t.price)
         .reduce((a, b) => a > b ? a : b);
     final sliderMaxPrice = (maxPriceInList + 20).ceilToDouble();
 
     // Local dialog variables
-    String dialogAnimalType = _selectedAnimalType;
+    String dialogPetType = _selectedPetType;
     String dialogCategory = _selectedCategory;
-    String dialogManufacturer = _selectedManufacturer;
-    String dialogForm = _selectedForm;
+    String dialogBrand = _selectedBrand;
     double dialogMinPrice = _minPrice;
     double dialogMaxPrice = _maxPrice > sliderMaxPrice
         ? sliderMaxPrice
         : _maxPrice;
+    bool isPriceFiltered = _isPriceFiltered;
 
     showDialog(
       context: context,
@@ -154,7 +145,7 @@ class _MedicinesPageState extends State<MedicinesPage> {
               return ConstrainedBox(
                 constraints: const BoxConstraints(
                   maxWidth: 600,
-                  maxHeight: 730,
+                  maxHeight: 640,
                 ),
                 child: Padding(
                   padding: const EdgeInsets.all(16),
@@ -167,7 +158,7 @@ class _MedicinesPageState extends State<MedicinesPage> {
                           Icon(Icons.filter_list, color: Color(0xFF4A6FA5)),
                           SizedBox(width: 10),
                           Text(
-                            'Filter Medicines',
+                            'Filter Toys',
                             style: TextStyle(
                               fontSize: 18,
                               fontWeight: FontWeight.bold,
@@ -181,24 +172,22 @@ class _MedicinesPageState extends State<MedicinesPage> {
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              // Animal Type
+                              // Pet Type Filter
                               const Text(
-                                'Animal Type:',
+                                'Pet Type:',
                                 style: TextStyle(fontWeight: FontWeight.bold),
                               ),
                               const SizedBox(height: 10),
                               Wrap(
                                 spacing: 12,
                                 runSpacing: 5,
-                                children: animalTypes.map((type) {
+                                children: petTypes.map((type) {
                                   return ChoiceChip(
                                     label: Text(type),
-                                    selected: dialogAnimalType == type,
+                                    selected: dialogPetType == type,
                                     onSelected: (selected) {
                                       setState(() {
-                                        dialogAnimalType = selected
-                                            ? type
-                                            : 'All';
+                                        dialogPetType = selected ? type : 'All';
                                       });
                                     },
                                   );
@@ -206,7 +195,7 @@ class _MedicinesPageState extends State<MedicinesPage> {
                               ),
                               const SizedBox(height: 16),
 
-                              // Category
+                              // Category Filter
                               const Text(
                                 'Category:',
                                 style: TextStyle(fontWeight: FontWeight.bold),
@@ -231,24 +220,24 @@ class _MedicinesPageState extends State<MedicinesPage> {
                               ),
                               const SizedBox(height: 16),
 
-                              // Manufacturer
+                              // Brand Filter
                               const Text(
-                                'Manufacturer:',
+                                'Brand:',
                                 style: TextStyle(fontWeight: FontWeight.bold),
                               ),
                               SizedBox(
                                 height: 150,
                                 child: ListView.builder(
                                   shrinkWrap: true,
-                                  itemCount: manufacturers.length,
+                                  itemCount: brands.length,
                                   itemBuilder: (context, index) {
                                     return RadioListTile(
-                                      title: Text(manufacturers[index]),
-                                      value: manufacturers[index],
-                                      groupValue: dialogManufacturer,
+                                      title: Text(brands[index]),
+                                      value: brands[index],
+                                      groupValue: dialogBrand,
                                       onChanged: (value) {
                                         setState(() {
-                                          dialogManufacturer = value.toString();
+                                          dialogBrand = value.toString();
                                         });
                                       },
                                     );
@@ -257,34 +246,12 @@ class _MedicinesPageState extends State<MedicinesPage> {
                               ),
                               const SizedBox(height: 16),
 
-                              // Form
-                              const Text(
-                                'Form:',
-                                style: TextStyle(fontWeight: FontWeight.bold),
-                              ),
-                              const SizedBox(height: 10),
-                              Wrap(
-                                spacing: 8,
-                                runSpacing: 5,
-                                children: forms.map((form) {
-                                  return ChoiceChip(
-                                    label: Text(form),
-                                    selected: dialogForm == form,
-                                    onSelected: (selected) {
-                                      setState(() {
-                                        dialogForm = selected ? form : 'All';
-                                      });
-                                    },
-                                  );
-                                }).toList(),
-                              ),
-                              const SizedBox(height: 16),
-
                               // Price Range
                               const Text(
                                 'Price Range:',
                                 style: TextStyle(fontWeight: FontWeight.bold),
                               ),
+                              const SizedBox(height: 10),
                               RangeSlider(
                                 values: RangeValues(
                                   dialogMinPrice,
@@ -301,6 +268,7 @@ class _MedicinesPageState extends State<MedicinesPage> {
                                   setState(() {
                                     dialogMinPrice = values.start;
                                     dialogMaxPrice = values.end;
+                                    isPriceFiltered = true;
                                   });
                                 },
                               ),
@@ -310,9 +278,17 @@ class _MedicinesPageState extends State<MedicinesPage> {
                                 children: [
                                   Text(
                                     'Min: \$${dialogMinPrice.toStringAsFixed(2)}',
+                                    style: const TextStyle(
+                                      fontSize: 14,
+                                      fontWeight: FontWeight.w600,
+                                    ),
                                   ),
                                   Text(
                                     'Max: \$${dialogMaxPrice.toStringAsFixed(2)}',
+                                    style: const TextStyle(
+                                      fontSize: 14,
+                                      fontWeight: FontWeight.w600,
+                                    ),
                                   ),
                                 ],
                               ),
@@ -342,15 +318,16 @@ class _MedicinesPageState extends State<MedicinesPage> {
                           ElevatedButton(
                             onPressed: () {
                               setState(() {
-                                _selectedAnimalType = dialogAnimalType;
+                                _selectedPetType = dialogPetType;
                                 _selectedCategory = dialogCategory;
-                                _selectedManufacturer = dialogManufacturer;
-                                _selectedForm = dialogForm;
+                                _selectedBrand = dialogBrand;
                                 _minPrice = dialogMinPrice;
                                 _maxPrice = dialogMaxPrice;
+                                _isPriceFiltered = isPriceFiltered && 
+                                    (dialogMinPrice > 0 || dialogMaxPrice < sliderMaxPrice);
                               });
                               Navigator.pop(context);
-                              _filterMedicines();
+                              _filterToys();
                             },
                             style: ElevatedButton.styleFrom(
                               backgroundColor: const Color(0xFF4A6FA5),
@@ -377,10 +354,7 @@ class _MedicinesPageState extends State<MedicinesPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text(
-          'Medicines Inventory',
-          style: TextStyle(color: Colors.white),
-        ),
+        title: const Text('Pet Toys', style: TextStyle(color: Colors.white)),
         backgroundColor: const Color(0xFF4A6FA5),
         iconTheme: const IconThemeData(color: Colors.white),
         actions: [
@@ -393,12 +367,13 @@ class _MedicinesPageState extends State<MedicinesPage> {
       ),
       body: Column(
         children: [
+          // Search Bar
           Padding(
             padding: const EdgeInsets.all(16),
             child: TextField(
               controller: _searchController,
               decoration: InputDecoration(
-                hintText: 'Search medicines by name or category...',
+                hintText: 'Search toys by name, category, or description...',
                 prefixIcon: const Icon(Icons.search),
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(12),
@@ -410,24 +385,22 @@ class _MedicinesPageState extends State<MedicinesPage> {
                         icon: const Icon(Icons.clear),
                         onPressed: () {
                           _searchController.clear();
-                          _filterMedicines();
+                          _filterToys();
                         },
                       )
                     : null,
               ),
               onChanged: (value) {
-                _filterMedicines();
+                _filterToys();
               },
             ),
           ),
 
           // Active Filters (Only show if any filter is active)
-          if (_selectedAnimalType != 'All' ||
+          if (_selectedPetType != 'All' ||
               _selectedCategory != 'All' ||
-              _selectedManufacturer != 'All' ||
-              _selectedForm != 'All' ||
-              _minPrice > 0 ||
-              _maxPrice < 100)
+              _selectedBrand != 'All' ||
+              _isPriceFiltered)
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16),
               child: Column(
@@ -446,14 +419,14 @@ class _MedicinesPageState extends State<MedicinesPage> {
                     spacing: 8,
                     runSpacing: 8,
                     children: [
-                      if (_selectedAnimalType != 'All')
+                      if (_selectedPetType != 'All')
                         Chip(
-                          label: Text('Animal: $_selectedAnimalType'),
+                          label: Text('Pet: $_selectedPetType'),
                           deleteIcon: const Icon(Icons.close, size: 16),
                           onDeleted: () {
                             setState(() {
-                              _selectedAnimalType = 'All';
-                              _filterMedicines();
+                              _selectedPetType = 'All';
+                              _filterToys();
                             });
                           },
                         ),
@@ -464,33 +437,22 @@ class _MedicinesPageState extends State<MedicinesPage> {
                           onDeleted: () {
                             setState(() {
                               _selectedCategory = 'All';
-                              _filterMedicines();
+                              _filterToys();
                             });
                           },
                         ),
-                      if (_selectedManufacturer != 'All')
+                      if (_selectedBrand != 'All')
                         Chip(
-                          label: Text('Manufacturer: $_selectedManufacturer'),
+                          label: Text('Brand: $_selectedBrand'),
                           deleteIcon: const Icon(Icons.close, size: 16),
                           onDeleted: () {
                             setState(() {
-                              _selectedManufacturer = 'All';
-                              _filterMedicines();
+                              _selectedBrand = 'All';
+                              _filterToys();
                             });
                           },
                         ),
-                      if (_selectedForm != 'All')
-                        Chip(
-                          label: Text('Form: $_selectedForm'),
-                          deleteIcon: const Icon(Icons.close, size: 16),
-                          onDeleted: () {
-                            setState(() {
-                              _selectedForm = 'All';
-                              _filterMedicines();
-                            });
-                          },
-                        ),
-                      if (_minPrice > 0 || _maxPrice < 100)
+                      if (_isPriceFiltered)
                         Chip(
                           label: Text(
                             'Price: \$${_minPrice.toStringAsFixed(2)} - \$${_maxPrice.toStringAsFixed(2)}',
@@ -499,11 +461,12 @@ class _MedicinesPageState extends State<MedicinesPage> {
                           onDeleted: () {
                             setState(() {
                               _minPrice = 0;
-                              final maxPriceInList = medicines
-                                  .map((m) => m.price)
+                              final maxPriceInList = petToys
+                                  .map((t) => t.price)
                                   .reduce((a, b) => a > b ? a : b);
                               _maxPrice = (maxPriceInList + 20).ceilToDouble();
-                              _filterMedicines();
+                              _isPriceFiltered = false;
+                              _filterToys();
                             });
                           },
                         ),
@@ -521,19 +484,17 @@ class _MedicinesPageState extends State<MedicinesPage> {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(
-                  '${filteredMedicines.length} Medicines Found',
+                  '${filteredToys.length} Toys Found',
                   style: const TextStyle(
                     fontSize: 14,
                     fontWeight: FontWeight.w600,
                     color: Colors.grey,
                   ),
                 ),
-                if (_selectedAnimalType != 'All' ||
+                if (_selectedPetType != 'All' ||
                     _selectedCategory != 'All' ||
-                    _selectedManufacturer != 'All' ||
-                    _selectedForm != 'All' ||
-                    _minPrice > 0 ||
-                    _maxPrice < 100 ||
+                    _selectedBrand != 'All' ||
+                    _isPriceFiltered ||
                     _searchController.text.isNotEmpty)
                   TextButton.icon(
                     onPressed: _resetFilters,
@@ -544,23 +505,19 @@ class _MedicinesPageState extends State<MedicinesPage> {
             ),
           ),
 
-          // Medicines Grid
+          // Toys Grid
           Expanded(
             child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16),
-              child: filteredMedicines.isEmpty
+              child: filteredToys.isEmpty
                   ? const Center(
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          Icon(
-                            Icons.medication_liquid,
-                            size: 80,
-                            color: Colors.grey,
-                          ),
+                          Icon(Icons.toys, size: 80, color: Colors.grey),
                           SizedBox(height: 16),
                           Text(
-                            'No medicines found',
+                            'No toys found',
                             style: TextStyle(fontSize: 18, color: Colors.grey),
                           ),
                           Text(
@@ -574,21 +531,21 @@ class _MedicinesPageState extends State<MedicinesPage> {
                       gridDelegate:
                           const SliverGridDelegateWithFixedCrossAxisCount(
                             crossAxisCount: 2,
-                            crossAxisSpacing: 0,
-                            mainAxisSpacing: 0,
-                            childAspectRatio: 0.88,
+                            crossAxisSpacing: 16,
+                            mainAxisSpacing: 16,
+                            childAspectRatio: 0.79,
                           ),
-                      itemCount: filteredMedicines.length,
+                      itemCount: filteredToys.length,
                       itemBuilder: (context, index) {
-                        final medicine = filteredMedicines[index];
-                        return MedicineCard(
-                          medicine: medicine,
+                        final toy = filteredToys[index];
+                        return PetToyCard(
+                          petToy: toy,
                           onTap: () {
                             Navigator.push(
                               context,
                               MaterialPageRoute(
                                 builder: (context) =>
-                                    MedicineDetailPage(medicine: medicine),
+                                    PetToyDetailPage(petToy: toy),
                               ),
                             );
                           },
