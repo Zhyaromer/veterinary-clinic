@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:vet_clinic/screens/medicines_page.dart';
+import 'package:vet_clinic/screens/Putting_pets_for_adoption.dart';
 
 void main() {
   runApp(const VeterinaryClinicApp());
@@ -433,7 +434,7 @@ class _HomeScreenState extends State<HomeScreen> {
       case 'Animal Breeds':
         return MedicinesPage();
       case 'Put for Adoption':
-        return MedicinesPage();
+        return PutForAdoptionPage();
       case 'Sales Report':
         return MedicinesPage();
       case 'Manage Medicines':

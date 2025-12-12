@@ -30,7 +30,7 @@ class MedicineCard extends StatelessWidget {
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
-          mainAxisSize: MainAxisSize.min, // Important: make Column fit content
+          mainAxisSize: MainAxisSize.min,
           children: [
             // Top Image Section
             Stack(
