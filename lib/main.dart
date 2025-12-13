@@ -6,6 +6,7 @@ import 'package:vet_clinic/screens/Putting_pets_for_adoption.dart';
 import 'package:vet_clinic/screens/pet_guide_page.dart';
 import 'package:vet_clinic/screens/pet_resources_page.dart';
 import 'package:vet_clinic/screens/resources_management_page.dart';
+import 'package:vet_clinic/screens/animal_types_page.dart';
 
 void main() {
   runApp(const VeterinaryClinicApp());
@@ -437,7 +438,7 @@ class _HomeScreenState extends State<HomeScreen> {
       case 'Raising a Pet':
         return PetGuidePage();
       case 'Animal Breeds':
-        return MedicinesPage();
+        return AnimalTypesPage();
       case 'Put for Adoption':
         return PutForAdoptionPage();
       case 'Sales Report':
