@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:vet_clinic/screens/appointments_screen.dart';
 import 'package:vet_clinic/screens/contact_us.dart';
 import 'package:vet_clinic/screens/medicine_management_page.dart';
 import 'package:vet_clinic/screens/medicines_page.dart';
@@ -117,13 +118,6 @@ class _HomeScreenState extends State<HomeScreen> {
       const Color(0xFF00BCD4),
     ),
     ServiceItem(
-      Icons.calendar_month,
-      'Book Appointment',
-      const Color(0xFFFFF8E1),
-      const Color(0xFFFF8F00),
-      const Color(0xFFFFC107),
-    ),
-    ServiceItem(
       Icons.contact_support,
       'Contact Us',
       const Color(0xFFFBE9E7),
@@ -153,7 +147,7 @@ class _HomeScreenState extends State<HomeScreen> {
           borderRadius: BorderRadius.vertical(bottom: Radius.circular(20)),
         ),
       ),
-      body: _selectedIndex == 0 ? _buildHomeContent() : _buildOtherContent(),
+      body: _selectedIndex == 0 ? _buildHomeContent() : AppointmentsScreen(),
       bottomNavigationBar: Container(
         decoration: BoxDecoration(
           borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
@@ -386,47 +380,6 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  Widget _buildOtherContent() {
-    return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Container(
-            width: 100,
-            height: 100,
-            decoration: BoxDecoration(
-              color: const Color(0xFF4A6FA5).withOpacity(0.1),
-              shape: BoxShape.circle,
-            ),
-            child: Icon(
-              _selectedIndex == 1
-                  ? Icons.app_registration_rounded
-                  : Icons.settings,
-              size: 50,
-              color: const Color(0xFF4A6FA5).withOpacity(0.7),
-            ),
-          ),
-          const SizedBox(height: 24),
-          Text(
-            _selectedIndex == 1 ? 'Appointments' : 'Settings',
-            style: const TextStyle(
-              fontSize: 28,
-              fontWeight: FontWeight.w700,
-              color: Color(0xFF333333),
-            ),
-          ),
-          const SizedBox(height: 12),
-          Text(
-            _selectedIndex == 1
-                ? 'No new updates at the moment'
-                : 'Configure your app preferences',
-            style: TextStyle(fontSize: 16, color: Colors.grey[600]),
-          ),
-        ],
-      ),
-    );
-  }
-
   Widget _getPage(String title) {
     switch (title) {
       case 'Medicines':
@@ -449,8 +402,6 @@ class _HomeScreenState extends State<HomeScreen> {
         return MedicinesPage();
       case 'Manage Resources':
         return ResourcesManagementPage();
-      case 'Book Appointment':
-        return MedicinesPage();
       case 'Contact Us':
         return ContactUsPage();
       default:

@@ -1,0 +1,1181 @@
+import 'package:flutter/material.dart';
+import '../models/appointment.dart';
+import 'package:intl/intl.dart';
+
+class BookAppointmentScreen extends StatefulWidget {
+  const BookAppointmentScreen({Key? key}) : super(key: key);
+
+  @override
+  _BookAppointmentScreenState createState() => _BookAppointmentScreenState();
+}
+
+class _BookAppointmentScreenState extends State<BookAppointmentScreen> {
+  final _formKey = GlobalKey<FormState>();
+  final TextEditingController _dateController = TextEditingController();
+  final TextEditingController _timeController = TextEditingController();
+
+  // Focus nodes
+  final FocusNode _petNameFocus = FocusNode();
+  final FocusNode _ownerNameFocus = FocusNode();
+  final FocusNode _phoneFocus = FocusNode();
+  final FocusNode _emailFocus = FocusNode();
+  final FocusNode _petAgeFocus = FocusNode();
+
+  // Form fields
+  String _petName = '';
+  String _ownerName = '';
+  String _phoneNumber = '';
+  String _email = '';
+  String _petType = 'Dog';
+  String _petBreed = 'Golden Retriever';
+  String _petAge = '';
+  DateTime? _selectedDate;
+  TimeOfDay? _selectedTime;
+  String _reason = 'Annual Checkup';
+  String _symptoms = '';
+  bool _emergency = false;
+  String _vetPreference = 'Any Available Veterinarian';
+  bool _termsAccepted = false;
+
+  // Available options
+  final List<String> _petTypes = ['Dog', 'Cat', 'Bird', 'Rabbit', 'Other'];
+  final List<String> _reasons = [
+    'Annual Checkup',
+    'Vaccination',
+    'Dental Care',
+    'Surgery',
+    'Emergency',
+    'Skin Issues',
+    'Digestive Problems',
+    'Behavioral Consultation',
+    'Other',
+  ];
+
+  final List<String> _vetPreferences = [
+    'Any Available Veterinarian',
+    'Dr. Sarah Johnson',
+    'Dr. Michael Chen',
+    'Dr. Emily Parker',
+    'Dr. Robert Williams',
+  ];
+
+  // Breed options
+  final Map<String, List<String>> _breedOptions = {
+    'Dog': [
+      'Golden Retriever',
+      'German Shepherd',
+      'Bulldog',
+      'Poodle',
+      'Beagle',
+      'Other',
+    ],
+    'Cat': [
+      'Siamese',
+      'Persian',
+      'Maine Coon',
+      'Bengal',
+      'British Shorthair',
+      'Other',
+    ],
+    'Bird': ['Parrot', 'Cockatiel', 'Canary', 'Finch', 'Budgerigar', 'Other'],
+    'Rabbit': ['Dutch', 'Mini Lop', 'Angora', 'Rex', 'Lionhead', 'Other'],
+    'Other': ['Other'],
+  };
+
+  @override
+  void initState() {
+    super.initState();
+    // Initialize with empty date - let user choose
+    _dateController.text = 'Tap to select date';
+    _timeController.text = 'Tap to select time';
+
+    // Initialize breed
+    _petBreed = _breedOptions[_petType]?.first ?? 'Other';
+  }
+
+  @override
+  void dispose() {
+    _dateController.dispose();
+    _timeController.dispose();
+    _petNameFocus.dispose();
+    _ownerNameFocus.dispose();
+    _phoneFocus.dispose();
+    _emailFocus.dispose();
+    _petAgeFocus.dispose();
+    super.dispose();
+  }
+
+  void _selectDate() async {
+    final now = DateTime.now();
+
+    final DateTime? picked = await showDatePicker(
+      context: context,
+      initialDate: now.add(const Duration(days: 1)),
+      firstDate: now.add(const Duration(days: 1)),
+      lastDate: now.add(const Duration(days: 7)),
+    );
+
+    if (picked != null) {
+      setState(() {
+        _selectedDate = picked;
+        _dateController.text = DateFormat('EEEE, MMMM d, yyyy').format(picked);
+      });
+    }
+  }
+
+  void _selectTime() async {
+    final TimeOfDay? picked = await showTimePicker(
+      context: context,
+      initialTime: TimeOfDay.now(),
+      builder: (context, child) {
+        return Theme(
+          data: Theme.of(context).copyWith(
+            colorScheme: const ColorScheme.light(
+              primary: Color(0xFF4A6FA5),
+              onPrimary: Colors.white,
+              surface: Colors.white,
+              onSurface: Colors.black87,
+            ),
+          ),
+          child: MediaQuery(
+            data: MediaQuery.of(context).copyWith(alwaysUse24HourFormat: false),
+            child: child!,
+          ),
+        );
+      },
+    );
+
+    if (picked != null) {
+      setState(() {
+        _selectedTime = picked;
+        _timeController.text = _formatTime(picked);
+      });
+    }
+  }
+
+  String _formatTime(TimeOfDay time) {
+    final hour = time.hourOfPeriod;
+    final minute = time.minute.toString().padLeft(2, '0');
+    final period = time.period == DayPeriod.am ? 'AM' : 'PM';
+    return '$hour:$minute $period';
+  }
+
+  bool get _isFormValid {
+    return _petName.isNotEmpty &&
+        _ownerName.isNotEmpty &&
+        _phoneNumber.isNotEmpty &&
+        _email.isNotEmpty &&
+        _petAge.isNotEmpty &&
+        _selectedDate != null &&
+        _selectedTime != null &&
+        _termsAccepted;
+  }
+
+  void _submitForm() {
+    if (_formKey.currentState!.validate()) {
+      _formKey.currentState!.save();
+
+      if (_selectedDate == null || _selectedTime == null) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: const Text('Please select date and time'),
+            backgroundColor: Colors.red[400],
+            behavior: SnackBarBehavior.floating,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(10),
+            ),
+          ),
+        );
+        return;
+      }
+
+      if (!_termsAccepted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: const Text('Please accept the terms and conditions'),
+            backgroundColor: Colors.red[400],
+            behavior: SnackBarBehavior.floating,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(10),
+            ),
+          ),
+        );
+        return;
+      }
+
+      // Create appointment
+      final appointment = Appointment(
+        id: DateTime.now().millisecondsSinceEpoch.toString(),
+        petName: _petName,
+        ownerName: _ownerName,
+        phoneNumber: _phoneNumber,
+        email: _email,
+        petType: _petType,
+        petBreed: _petBreed,
+        petAge: _petAge,
+        appointmentDate: _selectedDate!,
+        appointmentTime: _selectedTime!,
+        reason: _reason,
+        symptoms: _symptoms,
+        emergency: _emergency,
+        vetPreference: _vetPreference,
+        createdAt: DateTime.now(),
+      );
+
+      // Show success dialog
+      showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder: (context) {
+          return Dialog(
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(20),
+            ),
+            child: Container(
+              padding: const EdgeInsets.all(30),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(20),
+              ),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Container(
+                    width: 80,
+                    height: 80,
+                    decoration: BoxDecoration(
+                      color: Colors.green.shade100,
+                      shape: BoxShape.circle,
+                    ),
+                    child: const Icon(
+                      Icons.check,
+                      color: Colors.green,
+                      size: 40,
+                    ),
+                  ),
+                  const SizedBox(height: 20),
+                  const Text(
+                    'Appointment Booked!',
+                    style: TextStyle(
+                      fontSize: 22,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.black87,
+                    ),
+                  ),
+                  const SizedBox(height: 15),
+                  Text(
+                    'for $_petName',
+                    style: TextStyle(fontSize: 18, color: Colors.grey.shade700),
+                  ),
+                  const SizedBox(height: 20),
+                  Container(
+                    padding: const EdgeInsets.all(15),
+                    decoration: BoxDecoration(
+                      color: Colors.grey.shade50,
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: Column(
+                      children: [
+                        _buildDetailRow(
+                          icon: Icons.calendar_today,
+                          text: _dateController.text,
+                        ),
+                        const SizedBox(height: 8),
+                        _buildDetailRow(
+                          icon: Icons.access_time,
+                          text: _timeController.text,
+                        ),
+                        const SizedBox(height: 8),
+                        _buildDetailRow(
+                          icon: Icons.person,
+                          text: _vetPreference,
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 25),
+                  Text(
+                    'A confirmation email has been sent to $_email',
+                    textAlign: TextAlign.center,
+                    style: const TextStyle(fontSize: 14, color: Colors.grey),
+                  ),
+                  const SizedBox(height: 20),
+                  ElevatedButton(
+                    onPressed: () {
+                      Navigator.pop(context); // Close dialog
+                      Navigator.pop(
+                        context,
+                        appointment,
+                      ); // Return to appointments
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xFF4A6FA5),
+                      foregroundColor: Colors.white,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 30,
+                        vertical: 12,
+                      ),
+                    ),
+                    child: const Text('Done'),
+                  ),
+                ],
+              ),
+            ),
+          );
+        },
+      );
+    }
+  }
+
+  Widget _buildDetailRow({required IconData icon, required String text}) {
+    return Row(
+      children: [
+        Icon(icon, size: 18, color: const Color(0xFF4A6FA5)),
+        const SizedBox(width: 10),
+        Expanded(
+          child: Text(
+            text,
+            style: const TextStyle(fontSize: 14, color: Colors.black87),
+          ),
+        ),
+      ],
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: () => FocusScope.of(context).unfocus(),
+      child: Scaffold(
+        backgroundColor: Colors.white,
+        appBar: AppBar(
+          title: const Text(
+            'Book Appointment',
+            style: TextStyle(
+              fontSize: 20,
+              fontWeight: FontWeight.w600,
+              color: Colors.black87,
+            ),
+          ),
+          centerTitle: true,
+          backgroundColor: Colors.white,
+          elevation: 0,
+          leading: IconButton(
+            icon: const Icon(Icons.arrow_back, color: Colors.black87),
+            onPressed: () => Navigator.pop(context),
+          ),
+        ),
+        body: Container(
+          decoration: const BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.topCenter,
+              end: Alignment.bottomCenter,
+              colors: [Colors.white, Color(0xFFF0F4FF)],
+            ),
+          ),
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.all(20),
+            child: Form(
+              key: _formKey,
+              autovalidateMode: AutovalidateMode.onUserInteraction,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // Header
+                  Container(
+                    margin: const EdgeInsets.only(bottom: 20),
+                    padding: const EdgeInsets.all(16),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFE8F1FF),
+                      borderRadius: BorderRadius.circular(15),
+                    ),
+                    child: Row(
+                      children: [
+                        Icon(
+                          Icons.info_outline,
+                          color: const Color(0xFF4A6FA5),
+                        ),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: Text(
+                            'Appointments can be booked up to 7 days in advance. Monday - Friday only.',
+                            style: TextStyle(
+                              fontSize: 13,
+                              color: const Color(0xFF4A6FA5),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+
+                  // Pet Information Section
+                  _buildSectionHeader('Pet Information'),
+                  _buildTextField(
+                    focusNode: _petNameFocus,
+                    label: 'Pet Name *',
+                    hint: 'Enter your pet\'s name',
+                    icon: Icons.pets,
+                    onChanged: (value) {
+                      setState(() {
+                        _petName = value;
+                      });
+                    },
+                    validator: (value) => value!.trim().isEmpty
+                        ? 'Please enter your pet\'s name'
+                        : null,
+                  ),
+
+                  const SizedBox(height: 16),
+                  _buildDropdown(
+                    label: 'Pet Type *',
+                    value: _petType,
+                    items: _petTypes,
+                    icon: Icons.category,
+                    onChanged: (value) {
+                      setState(() {
+                        _petType = value!;
+                        _petBreed = _breedOptions[value]?.first ?? 'Other';
+                      });
+                    },
+                  ),
+
+                  const SizedBox(height: 16),
+                  _buildDropdown(
+                    label: 'Pet Breed *',
+                    value: _petBreed,
+                    items: _breedOptions[_petType] ?? ['Other'],
+                    icon: Icons.diversity_3,
+                    onChanged: (value) => setState(() => _petBreed = value!),
+                  ),
+
+                  const SizedBox(height: 16),
+                  _buildTextField(
+                    focusNode: _petAgeFocus,
+                    label: 'Pet Age *',
+                    hint: 'e.g., 3 years, 6 months',
+                    icon: Icons.cake,
+                    onChanged: (value) {
+                      setState(() {
+                        _petAge = value;
+                      });
+                    },
+                    validator: (value) => value!.trim().isEmpty
+                        ? 'Please enter your pet\'s age'
+                        : null,
+                  ),
+
+                  const SizedBox(height: 24),
+
+                  // Owner Information Section
+                  _buildSectionHeader('Owner Information'),
+                  _buildTextField(
+                    focusNode: _ownerNameFocus,
+                    label: 'Owner Name *',
+                    hint: 'Enter your full name',
+                    icon: Icons.person_outline,
+                    onChanged: (value) {
+                      setState(() {
+                        _ownerName = value;
+                      });
+                    },
+                    validator: (value) =>
+                        value!.trim().isEmpty ? 'Please enter your name' : null,
+                  ),
+
+                  const SizedBox(height: 16),
+                  _buildTextField(
+                    focusNode: _phoneFocus,
+                    label: 'Phone Number *',
+                    hint: 'Enter your phone number',
+                    icon: Icons.phone,
+                    keyboardType: TextInputType.phone,
+                    onChanged: (value) {
+                      setState(() {
+                        _phoneNumber = value;
+                      });
+                    },
+                    validator: (value) {
+                      if (value!.trim().isEmpty) {
+                        return 'Please enter your phone number';
+                      }
+                      if (!RegExp(r'^[0-9+\-\s]{10,}$').hasMatch(value)) {
+                        return 'Please enter a valid phone number';
+                      }
+                      return null;
+                    },
+                  ),
+
+                  const SizedBox(height: 16),
+                  _buildTextField(
+                    focusNode: _emailFocus,
+                    label: 'Email Address *',
+                    hint: 'Enter your email address',
+                    icon: Icons.email_outlined,
+                    keyboardType: TextInputType.emailAddress,
+                    onChanged: (value) {
+                      setState(() {
+                        _email = value;
+                      });
+                    },
+                    validator: (value) {
+                      if (value!.trim().isEmpty) {
+                        return 'Please enter your email address';
+                      }
+                      if (!RegExp(
+                        r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$',
+                      ).hasMatch(value)) {
+                        return 'Please enter a valid email address';
+                      }
+                      return null;
+                    },
+                  ),
+
+                  const SizedBox(height: 24),
+
+                  // Appointment Details Section
+                  _buildSectionHeader('Appointment Details'),
+
+                  // Date Picker
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Text(
+                        'Appointment Date *',
+                        style: TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w500,
+                          color: Colors.black87,
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      InkWell(
+                        onTap: () {
+                          _selectDate();
+                        },
+                        borderRadius: BorderRadius.circular(12),
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 16,
+                            vertical: 16,
+                          ),
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(12),
+                            border: Border.all(
+                              color: _selectedDate == null
+                                  ? Colors.grey.shade300
+                                  : const Color(0xFF4A6FA5),
+                              width: _selectedDate == null ? 1 : 2,
+                            ),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.grey.shade100,
+                                blurRadius: 5,
+                                spreadRadius: 1,
+                              ),
+                            ],
+                          ),
+                          child: Row(
+                            children: [
+                              Icon(
+                                Icons.calendar_today,
+                                color: _selectedDate == null
+                                    ? Colors.grey.shade500
+                                    : const Color(0xFF4A6FA5),
+                              ),
+                              const SizedBox(width: 12),
+                              Expanded(
+                                child: Text(
+                                  _selectedDate == null
+                                      ? 'Tap to select date'
+                                      : DateFormat(
+                                          'EEEE, MMMM d, yyyy',
+                                        ).format(_selectedDate!),
+                                  style: TextStyle(
+                                    fontSize: 16,
+                                    color: _selectedDate == null
+                                        ? Colors.grey.shade500
+                                        : Colors.black87,
+                                    fontWeight: _selectedDate == null
+                                        ? FontWeight.normal
+                                        : FontWeight.w500,
+                                  ),
+                                ),
+                              ),
+                              Icon(
+                                Icons.arrow_drop_down,
+                                color: _selectedDate == null
+                                    ? Colors.grey.shade500
+                                    : const Color(0xFF4A6FA5),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 6),
+                      Row(
+                        children: [
+                          Icon(
+                            Icons.info_outline,
+                            size: 14,
+                            color: Colors.grey.shade500,
+                          ),
+                          const SizedBox(width: 6),
+                          Flexible(
+                            child: Text(
+                              'Available: Next 7 days (Monday - Friday only)',
+                              style: TextStyle(
+                                fontSize: 12,
+                                color: Colors.grey.shade600,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+
+                  const SizedBox(height: 16),
+
+                  // Time Picker
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Text(
+                        'Appointment Time *',
+                        style: TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w500,
+                          color: Colors.black87,
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      GestureDetector(
+                        onTap: _selectTime,
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 16,
+                            vertical: 16,
+                          ),
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(12),
+                            border: Border.all(color: Colors.grey.shade300),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.grey.shade100,
+                                blurRadius: 5,
+                                spreadRadius: 1,
+                              ),
+                            ],
+                          ),
+                          child: Row(
+                            children: [
+                              Icon(
+                                Icons.access_time,
+                                color: const Color(0xFF4A6FA5),
+                              ),
+                              const SizedBox(width: 12),
+                              Expanded(
+                                child: Text(
+                                  _timeController.text,
+                                  style: TextStyle(
+                                    fontSize: 16,
+                                    color: _selectedTime == null
+                                        ? Colors.grey.shade500
+                                        : Colors.black87,
+                                  ),
+                                ),
+                              ),
+                              Icon(
+                                Icons.arrow_drop_down,
+                                color: Colors.grey.shade600,
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 6),
+                      Row(
+                        children: [
+                          Icon(
+                            Icons.info_outline,
+                            size: 14,
+                            color: Colors.grey.shade500,
+                          ),
+                          const SizedBox(width: 6),
+                          Text(
+                            'Clinic hours: 8:00 AM - 8:00 PM',
+                            style: TextStyle(
+                              fontSize: 12,
+                              color: Colors.grey.shade600,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+
+                  const SizedBox(height: 16),
+
+                  _buildDropdown(
+                    label: 'Reason for Visit *',
+                    value: _reason,
+                    items: _reasons,
+                    icon: Icons.medical_services_outlined,
+                    onChanged: (value) => setState(() => _reason = value!),
+                  ),
+
+                  const SizedBox(height: 16),
+
+                  // Symptoms
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Text(
+                        'Symptoms / Notes',
+                        style: TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w500,
+                          color: Colors.black87,
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      TextFormField(
+                        decoration: InputDecoration(
+                          hintText: 'Describe any symptoms or notes (optional)',
+                          filled: true,
+                          fillColor: Colors.white,
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12),
+                            borderSide: BorderSide.none,
+                          ),
+                          enabledBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12),
+                            borderSide: BorderSide(
+                              color: Colors.grey.shade300,
+                              width: 1,
+                            ),
+                          ),
+                          focusedBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12),
+                            borderSide: const BorderSide(
+                              color: Color(0xFF4A6FA5),
+                              width: 2,
+                            ),
+                          ),
+                          contentPadding: const EdgeInsets.all(16),
+                        ),
+                        maxLines: 3,
+                        keyboardType: TextInputType.multiline,
+                        onChanged: (value) => _symptoms = value,
+                      ),
+                    ],
+                  ),
+
+                  const SizedBox(height: 16),
+                  _buildDropdown(
+                    label: 'Preferred Veterinarian',
+                    value: _vetPreference,
+                    items: _vetPreferences,
+                    icon: Icons.badge_outlined,
+                    onChanged: (value) =>
+                        setState(() => _vetPreference = value!),
+                  ),
+
+                  const SizedBox(height: 16),
+
+                  // Emergency Switch
+                  Container(
+                    padding: const EdgeInsets.all(16),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(color: Colors.grey.shade200),
+                    ),
+                    child: Row(
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.all(10),
+                          decoration: BoxDecoration(
+                            color: _emergency
+                                ? Colors.red.shade50
+                                : Colors.grey.shade100,
+                            shape: BoxShape.circle,
+                          ),
+                          child: Icon(
+                            Icons.warning_amber_outlined,
+                            color: _emergency
+                                ? Colors.red.shade400
+                                : Colors.grey.shade600,
+                          ),
+                        ),
+                        const SizedBox(width: 15),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                'Emergency Appointment',
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w600,
+                                  color: _emergency
+                                      ? Colors.red.shade600
+                                      : Colors.black87,
+                                ),
+                              ),
+                              Text(
+                                'Check if this requires immediate attention',
+                                style: TextStyle(
+                                  fontSize: 13,
+                                  color: Colors.grey.shade600,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        Switch.adaptive(
+                          value: _emergency,
+                          activeColor: Colors.red,
+                          activeTrackColor: Colors.red.shade200,
+                          onChanged: (value) =>
+                              setState(() => _emergency = value),
+                        ),
+                      ],
+                    ),
+                  ),
+
+                  const SizedBox(height: 20),
+
+                  // Terms and Conditions
+                  Container(
+                    padding: const EdgeInsets.all(16),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(
+                        color: _termsAccepted
+                            ? const Color(0xFF4A6FA5)
+                            : Colors.grey.shade200,
+                      ),
+                    ),
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Checkbox(
+                          value: _termsAccepted,
+                          onChanged: (value) =>
+                              setState(() => _termsAccepted = value ?? false),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(6),
+                          ),
+                          activeColor: const Color(0xFF4A6FA5),
+                        ),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              const Text(
+                                'Terms & Conditions *',
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w600,
+                                  color: Colors.black87,
+                                ),
+                              ),
+                              const SizedBox(height: 6),
+                              Text(
+                                'I agree to the appointment terms, cancellation policy (24 hours notice required), and understand that a fee may apply for no-shows.',
+                                style: TextStyle(
+                                  fontSize: 13,
+                                  color: Colors.grey.shade600,
+                                ),
+                              ),
+                              const SizedBox(height: 8),
+                              GestureDetector(
+                                onTap: () {
+                                  showDialog(
+                                    context: context,
+                                    builder: (context) => AlertDialog(
+                                      title: const Text('Terms & Conditions'),
+                                      content: SingleChildScrollView(
+                                        child: Text(
+                                          '1. Appointment Cancellation: Please cancel at least 24 hours in advance.\n\n'
+                                          '2. No-show Policy: Missed appointments may incur a fee.\n\n'
+                                          '3. Emergency Cases: Will be prioritized as needed.\n\n'
+                                          '4. Payment: Payment is due at time of service.\n\n'
+                                          '5. Pet Safety: Please ensure your pet is properly restrained.',
+                                          style: TextStyle(
+                                            color: Colors.grey.shade700,
+                                          ),
+                                        ),
+                                      ),
+                                      actions: [
+                                        TextButton(
+                                          onPressed: () =>
+                                              Navigator.pop(context),
+                                          child: const Text('Close'),
+                                        ),
+                                      ],
+                                    ),
+                                  );
+                                },
+                                child: Text(
+                                  'View full terms and conditions',
+                                  style: TextStyle(
+                                    color: const Color(0xFF4A6FA5),
+                                    fontSize: 13,
+                                    decoration: TextDecoration.underline,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+
+                  const SizedBox(height: 30),
+
+                  // Submit Button (greyed out until terms accepted)
+                  SizedBox(
+                    width: double.infinity,
+                    height: 56,
+                    child: ElevatedButton(
+                      onPressed: _isFormValid ? _submitForm : null,
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: _isFormValid
+                            ? const Color(0xFF4A6FA5)
+                            : Colors.grey.shade400,
+                        foregroundColor: Colors.white,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(15),
+                        ),
+                        elevation: _isFormValid ? 2 : 0,
+                      ),
+                      child: const Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(Icons.calendar_month_outlined, size: 22),
+                          SizedBox(width: 10),
+                          Text(
+                            'Book Appointment',
+                            style: TextStyle(
+                              fontSize: 17,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+
+                  const SizedBox(height: 10),
+                  Center(
+                    child: Text(
+                      'Please fill all required fields (*) and accept terms',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        fontSize: 12,
+                        color: Colors.grey.shade600,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 30),
+                ],
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildSectionHeader(String title) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 15),
+      child: Row(
+        children: [
+          Container(
+            height: 24,
+            width: 4,
+            decoration: BoxDecoration(
+              color: const Color(0xFF4A6FA5),
+              borderRadius: BorderRadius.circular(2),
+            ),
+          ),
+          const SizedBox(width: 10),
+          Text(
+            title,
+            style: const TextStyle(
+              fontSize: 18,
+              fontWeight: FontWeight.w600,
+              color: Colors.black87,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildTextField({
+    required FocusNode focusNode,
+    required String label,
+    required String hint,
+    required IconData icon,
+    required ValueChanged<String> onChanged,
+    FormFieldValidator<String>? validator,
+    TextInputType keyboardType = TextInputType.text,
+  }) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          label,
+          style: const TextStyle(
+            fontSize: 14,
+            fontWeight: FontWeight.w500,
+            color: Colors.black87,
+          ),
+        ),
+        const SizedBox(height: 8),
+        Container(
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(12),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.grey.shade100,
+                blurRadius: 5,
+                spreadRadius: 1,
+              ),
+            ],
+          ),
+          child: TextFormField(
+            focusNode: focusNode,
+            decoration: InputDecoration(
+              hintText: hint,
+              filled: true,
+              fillColor: Colors.white,
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12),
+                borderSide: BorderSide.none,
+              ),
+              enabledBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12),
+                borderSide: BorderSide(color: Colors.grey.shade200, width: 1),
+              ),
+              focusedBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12),
+                borderSide: const BorderSide(
+                  color: Color(0xFF4A6FA5),
+                  width: 2,
+                ),
+              ),
+              errorBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12),
+                borderSide: BorderSide(color: Colors.red.shade400, width: 1),
+              ),
+              focusedErrorBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12),
+                borderSide: BorderSide(color: Colors.red.shade400, width: 2),
+              ),
+              contentPadding: const EdgeInsets.symmetric(
+                horizontal: 16,
+                vertical: 16,
+              ),
+              prefixIcon: Icon(icon, color: const Color(0xFF4A6FA5)),
+              errorStyle: TextStyle(color: Colors.red.shade400, fontSize: 12),
+            ),
+            keyboardType: keyboardType,
+            onChanged: onChanged,
+            validator: validator,
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildDropdown({
+    required String label,
+    required String value,
+    required List<String> items,
+    required IconData icon,
+    required ValueChanged<String?> onChanged,
+  }) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          label,
+          style: const TextStyle(
+            fontSize: 14,
+            fontWeight: FontWeight.w500,
+            color: Colors.black87,
+          ),
+        ),
+        const SizedBox(height: 8),
+        Container(
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(12),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.grey.shade100,
+                blurRadius: 5,
+                spreadRadius: 1,
+              ),
+            ],
+          ),
+          child: DropdownButtonFormField<String>(
+            value: value,
+            items: items.map((String item) {
+              return DropdownMenuItem<String>(
+                value: item,
+                child: Text(
+                  item,
+                  style: const TextStyle(fontSize: 15),
+                  overflow: TextOverflow.ellipsis,
+                ),
+              );
+            }).toList(),
+            onChanged: onChanged,
+            decoration: InputDecoration(
+              filled: true,
+              fillColor: Colors.white,
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12),
+                borderSide: BorderSide.none,
+              ),
+              enabledBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12),
+                borderSide: BorderSide(color: Colors.grey.shade200, width: 1),
+              ),
+              focusedBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12),
+                borderSide: const BorderSide(
+                  color: Color(0xFF4A6FA5),
+                  width: 2,
+                ),
+              ),
+              contentPadding: const EdgeInsets.symmetric(
+                horizontal: 16,
+                vertical: 8,
+              ),
+              prefixIcon: Icon(icon, color: const Color(0xFF4A6FA5)),
+            ),
+            icon: const Icon(Icons.arrow_drop_down, color: Color(0xFF4A6FA5)),
+            borderRadius: BorderRadius.circular(12),
+            style: const TextStyle(color: Colors.black87),
+            dropdownColor: Colors.white,
+            isExpanded: true,
+          ),
+        ),
+      ],
+    );
+  }
+}
