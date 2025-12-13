@@ -1,5 +1,8 @@
 // screens/pet_resources_page.dart
 import 'package:flutter/material.dart';
+import 'package:vet_clinic/models/pet_cage.dart';
+import 'package:vet_clinic/models/pet_food.dart';
+import 'package:vet_clinic/models/pet_toy.dart';
 import 'package:vet_clinic/screens/cages_page.dart';
 import 'package:vet_clinic/screens/pet_food_page.dart';
 import 'pet_toys_page.dart';
@@ -9,204 +12,290 @@ class PetResourcesPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final resourceCategories = [
+      {
+        'title': 'Toys & Play',
+        'subtitle': 'Interactive and fun toys for all pets',
+        'icon': Icons.toys_outlined,
+        'color': const Color(0xFFFF9800),
+        'count': petToys.length,
+        'image':
+            'https://images.unsplash.com/photo-1541364983171-a8ba01e95cfc?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
+        'page': const PetToysPage(),
+      },
+      {
+        'title': 'Cages & Habitats',
+        'subtitle': 'Comfortable homes and enclosures',
+        'icon': Icons.home_outlined,
+        'color': const Color(0xFF2196F3),
+        'count': petCages.length,
+        'image':
+            'https://images.unsplash.com/photo-1541364983171-a8ba01e95cfc?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
+        'page': const CagesPage(),
+      },
+      {
+        'title': 'Food & Treats',
+        'subtitle': 'Nutrition and healthy snacks',
+        'icon': Icons.restaurant_outlined,
+        'color': const Color(0xFF4CAF50),
+        'count': petFoods.length,
+        'image':
+            'https://images.unsplash.com/photo-1541364983171-a8ba01e95cfc?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
+        'page': const PetFoodPage(),
+      },
+    ];
+
     return Scaffold(
+      backgroundColor: Colors.white,
       appBar: AppBar(
         title: const Text(
           'Pet Resources',
-          style: TextStyle(color: Colors.white),
+          style: TextStyle(
+            color: Colors.white,
+            fontSize: 20,
+            fontWeight: FontWeight.w600,
+          ),
         ),
-        iconTheme: IconThemeData(color: Colors.white),
+        iconTheme: const IconThemeData(color: Colors.white),
         backgroundColor: const Color(0xFF4A6FA5),
         centerTitle: true,
+        elevation: 0,
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(20),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // Header
-            Container(
-              padding: const EdgeInsets.all(20),
-              decoration: BoxDecoration(
-                gradient: const LinearGradient(
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                  colors: [Color(0xFF4A6FA5), Color(0xFF6B9F8C)],
+      body: Container(
+        decoration: const BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            colors: [Colors.white, Color(0xFFF5F9FF)],
+          ),
+        ),
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const SizedBox(height: 8),
+              Text(
+                'Browse Categories',
+                style: TextStyle(
+                  fontSize: 22,
+                  fontWeight: FontWeight.w700,
+                  color: Colors.grey[800],
+                  letterSpacing: -0.5,
                 ),
-                borderRadius: BorderRadius.circular(16),
               ),
-              child: const Row(
-                children: [
-                  Icon(Icons.shopping_bag, color: Colors.white, size: 32),
-                  SizedBox(width: 16),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          'Pet Supplies & Resources',
-                          style: TextStyle(
-                            fontSize: 20,
-                            fontWeight: FontWeight.w700,
-                            color: Colors.white,
-                          ),
-                        ),
-                        SizedBox(height: 4),
-                        Text(
-                          'Everything you need for your furry friends',
-                          style: TextStyle(fontSize: 14, color: Colors.white70),
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
+              const SizedBox(height: 4),
+              Text(
+                'Select a category to explore products',
+                style: TextStyle(fontSize: 14, color: Colors.grey[600]),
               ),
-            ),
+              const SizedBox(height: 24),
 
-            const SizedBox(height: 32),
-
-            const Text(
-              'Browse Categories',
-              style: TextStyle(
-                fontSize: 22,
-                fontWeight: FontWeight.w700,
-                color: Color(0xFF333333),
+              // Category Cards Grid
+              Expanded(
+                child: GridView.builder(
+                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                    crossAxisCount: 2,
+                    crossAxisSpacing: 16,
+                    mainAxisSpacing: 16,
+                    childAspectRatio: 0.85,
+                  ),
+                  itemCount: resourceCategories.length,
+                  itemBuilder: (context, index) {
+                    final category = resourceCategories[index];
+                    return _buildResourceCard(
+                      context: context,
+                      title: category['title'] as String,
+                      subtitle: category['subtitle'] as String,
+                      icon: category['icon'] as IconData,
+                      color: category['color'] as Color,
+                      count: category['count'] as int,
+                      imageUrl: category['image'] as String,
+                      page: category['page'] as Widget,
+                    );
+                  },
+                ),
               ),
-            ),
-            const SizedBox(height: 8),
-            Text(
-              'Select a category to explore products',
-              style: TextStyle(fontSize: 14, color: Colors.grey[600]),
-            ),
-
-            const SizedBox(height: 24),
-
-            // Category Cards Grid
-            Expanded(
-              child: GridView.count(
-                crossAxisCount: 2,
-                crossAxisSpacing: 16,
-                mainAxisSpacing: 16,
-                childAspectRatio: 0.9,
-                children: [
-                  _buildCategoryCard(
-                    context: context,
-                    title: 'Toys & Play',
-                    subtitle: 'Interactive and fun toys',
-                    icon: Icons.toys,
-                    color: const Color(0xFF2196F3),
-                    page: const PetToysPage(),
-                  ),
-                  _buildCategoryCard(
-                    context: context,
-                    title: 'Cages & Habitats',
-                    subtitle: 'Homes and enclosures',
-                    icon: Icons.home,
-                    color: const Color(0xFFFF9800),
-                    page: const CagesPage(),
-                  ),
-                  _buildCategoryCard(
-                    context: context,
-                    title: 'Food & Treats',
-                    subtitle: 'Nutrition and snacks',
-                    icon: Icons.restaurant,
-                    color: const Color(0xFF4CAF50),
-                    page: const PetFoodPage(),
-                  ),
-                  _buildCategoryCard(
-                    context: context,
-                    title: 'Clothes & Accessories',
-                    subtitle: 'Fashion and essentials',
-                    icon: Icons.checkroom,
-                    color: const Color(0xFF9C27B0),
-                    page: const Scaffold(
-                      body: Center(child: Text('Clothes Page Coming Soon')),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
   }
 
-  Widget _buildCategoryCard({
+  Widget _buildResourceCard({
     required BuildContext context,
     required String title,
     required String subtitle,
     required IconData icon,
     required Color color,
+    required int count,
+    required String imageUrl,
     required Widget page,
   }) {
     return GestureDetector(
       onTap: () {
-        Navigator.push(context, MaterialPageRoute(builder: (context) => page));
-      },
-      child: Card(
-        elevation: 4,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        child: Container(
-          decoration: BoxDecoration(
-            gradient: LinearGradient(
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-              colors: [color.withOpacity(0.1), color.withOpacity(0.05)],
+        if (page is Container) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('$title section coming soon!'),
+              backgroundColor: color,
+              behavior: SnackBarBehavior.floating,
             ),
-            borderRadius: BorderRadius.circular(16),
-          ),
-          child: Padding(
-            padding: const EdgeInsets.all(20),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Container(
-                  padding: const EdgeInsets.all(16),
-                  decoration: BoxDecoration(
-                    color: color.withOpacity(0.2),
-                    shape: BoxShape.circle,
-                  ),
-                  child: Icon(icon, size: 32, color: color),
-                ),
-                const SizedBox(height: 16),
-                Text(
-                  title,
-                  style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w700,
-                    color: color,
-                  ),
-                  textAlign: TextAlign.center,
-                ),
-                const SizedBox(height: 8),
-                Text(
-                  subtitle,
-                  style: TextStyle(fontSize: 12, color: Colors.grey[600]),
-                  textAlign: TextAlign.center,
-                ),
-                const SizedBox(height: 16),
-                Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 12,
-                    vertical: 6,
-                  ),
-                  decoration: BoxDecoration(
-                    color: color.withOpacity(0.1),
-                    borderRadius: BorderRadius.circular(20),
-                    border: Border.all(color: color.withOpacity(0.3)),
-                  ),
-                  child: Text(
-                    'Browse →',
-                    style: TextStyle(
-                      fontSize: 12,
-                      fontWeight: FontWeight.w600,
-                      color: color,
+          );
+        } else {
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => page),
+          );
+        }
+      },
+      child: Container(
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(16),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.grey.withOpacity(0.1),
+              blurRadius: 15,
+              spreadRadius: 2,
+            ),
+          ],
+        ),
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(16),
+          child: Stack(
+            children: [
+              // Background Image
+              Container(
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  image: DecorationImage(
+                    image: NetworkImage(imageUrl),
+                    fit: BoxFit.cover,
+                    colorFilter: ColorFilter.mode(
+                      Colors.black.withOpacity(0.05),
+                      BlendMode.darken,
                     ),
                   ),
                 ),
-              ],
-            ),
+              ),
+
+              // Gradient Overlay
+              Container(
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    begin: Alignment.bottomCenter,
+                    end: Alignment.topCenter,
+                    colors: [
+                      color.withOpacity(0.9),
+                      color.withOpacity(0.3),
+                      Colors.transparent,
+                    ],
+                  ),
+                ),
+              ),
+
+              // Content
+              Padding(
+                padding: const EdgeInsets.all(16),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    // Top Row with Icon
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.all(8),
+                          decoration: BoxDecoration(
+                            color: Colors.white.withOpacity(0.9),
+                            shape: BoxShape.circle,
+                          ),
+                          child: Icon(icon, color: color, size: 20),
+                        ),
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 8,
+                            vertical: 4,
+                          ),
+                          decoration: BoxDecoration(
+                            color: Colors.white.withOpacity(0.9),
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: Text(
+                            '$count items',
+                            style: TextStyle(
+                              fontSize: 10,
+                              fontWeight: FontWeight.w600,
+                              color: color,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+
+                    // Title and Subtitle
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          title,
+                          style: const TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w700,
+                            color: Colors.white,
+                          ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                        const SizedBox(height: 4),
+                        Text(
+                          subtitle,
+                          style: TextStyle(
+                            fontSize: 11,
+                            color: Colors.white.withOpacity(0.9),
+                            height: 1.3,
+                          ),
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ],
+                    ),
+
+                    // Browse Button
+                    Align(
+                      alignment: Alignment.centerRight,
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 12,
+                          vertical: 6,
+                        ),
+                        decoration: BoxDecoration(
+                          color: Colors.white.withOpacity(0.9),
+                          borderRadius: BorderRadius.circular(20),
+                        ),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Text(
+                              'Browse',
+                              style: TextStyle(
+                                fontSize: 12,
+                                fontWeight: FontWeight.w600,
+                                color: color,
+                              ),
+                            ),
+                            const SizedBox(width: 4),
+                            Icon(Icons.arrow_forward, color: color, size: 12),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
           ),
         ),
       ),
