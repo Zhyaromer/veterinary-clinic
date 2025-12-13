@@ -85,28 +85,33 @@ class _SalesReportScreenState extends State<SalesReportScreen> {
           selectedStartDate = firstDayLastMonth;
           selectedEndDate = lastDayLastMonth;
           break;
+        case 'Custom Range':
+          // Keep existing dates for custom range
+          break;
       }
       selectedEndDate = now;
     });
     _generateReport();
   }
 
+  String _getPeriodName() {
+    final days = selectedEndDate.difference(selectedStartDate).inDays;
+    if (days <= 7) return 'Week';
+    if (days <= 30) return 'Month';
+    if (days <= 90) return 'Quarter';
+    return 'Period';
+  }
+
   @override
   Widget build(BuildContext context) {
-    final categorySummaries = report.categorySales.entries.map((entry) {
-      return CategorySummary(
-        category: entry.key,
-        revenue: entry.value,
-        unitsSold: report.categoryUnits[entry.key] ?? 0,
-        color: categoryColors[entry.key] ?? Colors.grey,
-      );
-    }).toList();
+    final days = selectedEndDate.difference(selectedStartDate).inDays + 1;
+    final showWeekly = days > 14;
 
     return Scaffold(
       backgroundColor: const Color(0xFFF5F9FF),
       appBar: AppBar(
         title: const Text(
-          'Sales Report',
+          'Sales Analytics',
           style: TextStyle(
             color: Colors.white,
             fontSize: 20,
@@ -119,16 +124,14 @@ class _SalesReportScreenState extends State<SalesReportScreen> {
         elevation: 0,
         actions: [
           IconButton(
+            icon: const Icon(Icons.refresh),
+            onPressed: _generateReport,
+            tooltip: 'Refresh Report',
+          ),
+          IconButton(
             icon: const Icon(Icons.download),
-            onPressed: () {
-              // Export report functionality
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-                  content: const Text('Report exported successfully'),
-                  backgroundColor: Colors.green,
-                ),
-              );
-            },
+            onPressed: _exportReport,
+            tooltip: 'Export Report',
           ),
         ],
       ),
@@ -137,227 +140,237 @@ class _SalesReportScreenState extends State<SalesReportScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Date Range Selector
-            Container(
-              padding: const EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(16),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.grey.withOpacity(0.1),
-                    blurRadius: 10,
-                    spreadRadius: 2,
-                  ),
-                ],
-              ),
-              child: Column(
-                children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      _buildDateSelector('From', selectedStartDate, true),
-                      const Icon(Icons.arrow_forward, color: Colors.grey),
-                      _buildDateSelector('To', selectedEndDate, false),
-                    ],
-                  ),
-                  const SizedBox(height: 16),
-                  SingleChildScrollView(
-                    scrollDirection: Axis.horizontal,
-                    child: Row(
-                      children: [
-                        _buildFilterChip('Last 7 Days'),
-                        const SizedBox(width: 8),
-                        _buildFilterChip('Last 30 Days'),
-                        const SizedBox(width: 8),
-                        _buildFilterChip('Last 90 Days'),
-                        const SizedBox(width: 8),
-                        _buildFilterChip('This Month'),
-                        const SizedBox(width: 8),
-                        _buildFilterChip('Last Month'),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-            ),
+            // Header with stats
+            _buildReportHeader(),
             const SizedBox(height: 20),
 
-            // Summary Cards
-            GridView.count(
-              crossAxisCount: 2,
-              crossAxisSpacing: 16,
-              mainAxisSpacing: 16,
-              childAspectRatio: 2.2,
-              shrinkWrap: true,
-              physics: const NeverScrollableScrollPhysics(),
+            // Date Range Selector
+            _buildDateSelector(),
+            const SizedBox(height: 20),
+
+            // Performance Metrics
+            _buildPerformanceMetrics(),
+            const SizedBox(height: 20),
+
+            // Category Analysis
+            _buildCategoryAnalysis(),
+            const SizedBox(height: 20),
+
+            if (showWeekly) ...[
+              WeeklyRevenueWidget(weeklyRevenue: report.weeklyRevenue),
+              const SizedBox(height: 20),
+            ],
+
+            // Inventory & Growth Analysis
+            Row(
               children: [
-                SummaryCard(
-                  title: 'Total Revenue',
-                  value: '\$${report.totalRevenue.toStringAsFixed(2)}',
-                  icon: Icons.attach_money,
-                  color: Colors.green,
-                  subtitle: '${report.totalUnits} units sold',
+                Expanded(
+                  child: InventoryAnalysisWidget(
+                    inventoryTurnover: report.inventoryTurnover,
+                    rating: report.getInventoryRating(),
+                    products: report.productSales,
+                  ),
                 ),
-                SummaryCard(
-                  title: 'Average Sale',
-                  value: '\$${report.averageSaleValue.toStringAsFixed(2)}',
-                  icon: Icons.trending_up,
-                  color: Colors.blue,
-                  subtitle: 'Per unit value',
-                ),
-                SummaryCard(
-                  title: 'Best Category',
-                  value: report.bestSellingCategory,
-                  icon: Icons.star,
-                  color: Colors.orange,
-                  subtitle: 'By revenue',
-                ),
-                SummaryCard(
-                  title: 'Best Product',
-                  value: report.bestSellingProduct.split(' ').take(3).join(' '),
-                  icon: Icons.leaderboard,
-                  color: Colors.purple,
-                  subtitle: 'Most units sold',
+                const SizedBox(width: 16),
+                Expanded(
+                  child: GrowthIndicatorWidget(
+                    growthPercentage: report.growthPercentage,
+                    period: _getPeriodName(),
+                  ),
                 ),
               ],
             ),
             const SizedBox(height: 20),
 
-            // Category Breakdown
-            Text(
-              'Category Breakdown',
-              style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.w700,
-                color: Colors.grey.shade800,
-              ),
-            ),
-            const SizedBox(height: 12),
-            ...categorySummaries.map((summary) {
-              final percentage = (summary.revenue / report.totalRevenue) * 100;
-              return Padding(
-                padding: const EdgeInsets.only(bottom: 12),
-                child: CategoryProgressCard(
-                  category: summary.category,
-                  revenue: summary.revenue,
-                  unitsSold: summary.unitsSold,
-                  percentage: percentage,
-                  color: summary.color,
-                ),
-              );
-            }).toList(),
+            // Category Growth
+            CategoryGrowthWidget(categoryGrowth: report.categoryGrowth),
             const SizedBox(height: 20),
 
-            SizedBox(child: ProfitMarginWidget(products: report.productSales)),
+            // Profit Margins
+            ProfitMarginWidget(products: report.productSales),
             const SizedBox(height: 20),
 
             // Top Products
             TopProductsCard(products: report.productSales),
             const SizedBox(height: 20),
-
-            // Export Button
-            SizedBox(
-              width: double.infinity,
-              height: 56,
-              child: ElevatedButton.icon(
-                onPressed: () {
-                  showDialog(
-                    context: context,
-                    builder: (context) => AlertDialog(
-                      title: const Text('Export Report'),
-                      content: const Text('Select export format:'),
-                      actions: [
-                        TextButton(
-                          onPressed: () => Navigator.pop(context),
-                          child: const Text('Cancel'),
-                        ),
-                        ElevatedButton(
-                          onPressed: () {
-                            Navigator.pop(context);
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(
-                                content: Text(
-                                  'PDF report generated successfully',
-                                ),
-                                backgroundColor: Colors.green,
-                              ),
-                            );
-                          },
-                          child: const Text('PDF'),
-                        ),
-                        ElevatedButton(
-                          onPressed: () {
-                            Navigator.pop(context);
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(
-                                content: Text(
-                                  'Excel report generated successfully',
-                                ),
-                                backgroundColor: Colors.green,
-                              ),
-                            );
-                          },
-                          child: const Text('Excel'),
-                        ),
-                      ],
-                    ),
-                  );
-                },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFF4A6FA5),
-                  foregroundColor: Colors.white,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  elevation: 2,
-                ),
-                icon: const Icon(Icons.download_outlined),
-                label: const Text(
-                  'Export Full Report',
-                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
-                ),
-              ),
-            ),
-            const SizedBox(height: 30),
           ],
         ),
       ),
     );
   }
 
-  Widget _buildDateSelector(String label, DateTime date, bool isStartDate) {
+  Widget _buildReportHeader() {
+    return Container(
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        gradient: const LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [Color(0xFF4A6FA5), Color(0xFF3B5998)],
+        ),
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.blue.withOpacity(0.3),
+            blurRadius: 15,
+            spreadRadius: 3,
+          ),
+        ],
+      ),
+      child: Row(
+        children: [
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Sales Report',
+                  style: TextStyle(
+                    fontSize: 14,
+                    color: Colors.white.withOpacity(0.9),
+                  ),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  '\$${report.totalRevenue.toStringAsFixed(2)}',
+                  style: const TextStyle(
+                    fontSize: 32,
+                    fontWeight: FontWeight.w800,
+                    color: Colors.white,
+                  ),
+                ),
+                const SizedBox(height: 8),
+                Row(
+                  children: [
+                    Icon(
+                      Icons.trending_up,
+                      color: Colors.white.withOpacity(0.9),
+                      size: 16,
+                    ),
+                    const SizedBox(width: 6),
+                    Text(
+                      '+${report.growthPercentage.toStringAsFixed(1)}% growth',
+                      style: TextStyle(
+                        fontSize: 12,
+                        color: Colors.white.withOpacity(0.9),
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    Icon(
+                      Icons.inventory,
+                      color: Colors.white.withOpacity(0.9),
+                      size: 16,
+                    ),
+                    const SizedBox(width: 6),
+                    Text(
+                      '${report.totalUnits} units sold',
+                      style: TextStyle(
+                        fontSize: 12,
+                        color: Colors.white.withOpacity(0.9),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+          Container(
+            padding: const EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              color: Colors.white.withOpacity(0.2),
+              shape: BoxShape.circle,
+            ),
+            child: const Icon(Icons.analytics, color: Colors.white, size: 30),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildDateSelector() {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.grey.withOpacity(0.1),
+            blurRadius: 10,
+            spreadRadius: 2,
+          ),
+        ],
+      ),
+      child: Column(
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              _buildDateSelectorCard('From', selectedStartDate, true),
+              const Icon(Icons.arrow_forward, color: Colors.grey, size: 20),
+              _buildDateSelectorCard('To', selectedEndDate, false),
+            ],
+          ),
+          const SizedBox(height: 16),
+          SingleChildScrollView(
+            scrollDirection: Axis.horizontal,
+            child: Row(
+              children: [
+                _buildFilterChip('Last 7 Days'),
+                const SizedBox(width: 8),
+                _buildFilterChip('Last 30 Days'),
+                const SizedBox(width: 8),
+                _buildFilterChip('Last 90 Days'),
+                const SizedBox(width: 8),
+                _buildFilterChip('This Month'),
+                const SizedBox(width: 8),
+                _buildFilterChip('Last Month'),
+                const SizedBox(width: 8),
+                _buildFilterChip('Custom Range'),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildDateSelectorCard(String label, DateTime date, bool isStartDate) {
     return Expanded(
       child: GestureDetector(
         onTap: () => _selectDate(context, isStartDate),
         child: Container(
-          padding: const EdgeInsets.all(12),
+          padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(
-            color: Colors.grey.shade50,
+            color: const Color(0xFFF8FAFF),
             borderRadius: BorderRadius.circular(12),
-            border: Border.all(color: Colors.grey.shade300),
+            border: Border.all(color: const Color(0xFFE8F1FF), width: 2),
           ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
                 label,
-                style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
+                style: TextStyle(
+                  fontSize: 12,
+                  color: Colors.grey.shade600,
+                  fontWeight: FontWeight.w500,
+                ),
               ),
-              const SizedBox(height: 4),
+              const SizedBox(height: 8),
               Row(
                 children: [
                   Icon(
                     Icons.calendar_today,
                     color: const Color(0xFF4A6FA5),
-                    size: 16,
+                    size: 18,
                   ),
-                  const SizedBox(width: 8),
+                  const SizedBox(width: 10),
                   Text(
                     '${date.day}/${date.month}/${date.year}',
                     style: const TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w500,
+                      fontSize: 15,
+                      fontWeight: FontWeight.w600,
                       color: Colors.black87,
                     ),
                   ),
@@ -370,28 +383,175 @@ class _SalesReportScreenState extends State<SalesReportScreen> {
     );
   }
 
+  Widget _buildPerformanceMetrics() {
+    return GridView.count(
+      crossAxisCount: 2,
+      crossAxisSpacing: 16,
+      mainAxisSpacing: 16,
+      childAspectRatio: 2.3,
+      shrinkWrap: true,
+      physics: const NeverScrollableScrollPhysics(),
+      children: [
+        SummaryCard(
+          title: 'Total Revenue',
+          value: '\$${report.totalRevenue.toStringAsFixed(2)}',
+          icon: Icons.attach_money,
+          color: Colors.green,
+          subtitle: '${report.totalUnits} units sold',
+        ),
+        SummaryCard(
+          title: 'Average Sale',
+          value: '\$${report.averageSaleValue.toStringAsFixed(2)}',
+          icon: Icons.trending_up,
+          color: Colors.blue,
+          subtitle: 'Per unit value',
+        ),
+        SummaryCard(
+          title: 'Profit Margin',
+          value: '${report.profitMargin.toStringAsFixed(1)}%',
+          icon: Icons.pie_chart,
+          color: Colors.purple,
+          subtitle: 'Net profit ratio',
+        ),
+        SummaryCard(
+          title: 'Performance',
+          value: report.getPerformanceRating(),
+          icon: Icons.star,
+          color: Colors.orange,
+          subtitle: 'Growth rating',
+        ),
+      ],
+    );
+  }
+
+  Widget _buildCategoryAnalysis() {
+    final categorySummaries = report.categorySales.entries.map((entry) {
+      return CategorySummary(
+        category: entry.key,
+        revenue: entry.value,
+        unitsSold: report.categoryUnits[entry.key] ?? 0,
+        color: categoryColors[entry.key] ?? Colors.grey,
+      );
+    }).toList();
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          'Category Analysis',
+          style: TextStyle(
+            fontSize: 18,
+            fontWeight: FontWeight.w700,
+            color: Colors.grey.shade800,
+          ),
+        ),
+        const SizedBox(height: 12),
+        ...categorySummaries.map((summary) {
+          final percentage = (summary.revenue / report.totalRevenue) * 100;
+          return Padding(
+            padding: const EdgeInsets.only(bottom: 12),
+            child: CategoryProgressCard(
+              category: summary.category,
+              revenue: summary.revenue,
+              unitsSold: summary.unitsSold,
+              percentage: percentage,
+              color: summary.color,
+            ),
+          );
+        }).toList(),
+      ],
+    );
+  }
+
   Widget _buildFilterChip(String label) {
     final isSelected = selectedFilter == label;
 
     return GestureDetector(
       onTap: () => _applyFilter(label),
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 300),
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
         decoration: BoxDecoration(
-          color: isSelected ? const Color(0xFF4A6FA5) : Colors.white,
+          gradient: isSelected
+              ? const LinearGradient(
+                  colors: [Color(0xFF4A6FA5), Color(0xFF3B5998)],
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                )
+              : null,
+          color: isSelected ? null : Colors.white,
           borderRadius: BorderRadius.circular(20),
           border: Border.all(
             color: isSelected ? const Color(0xFF4A6FA5) : Colors.grey.shade300,
           ),
+          boxShadow: isSelected
+              ? [
+                  BoxShadow(
+                    color: const Color(0xFF4A6FA5).withOpacity(0.3),
+                    blurRadius: 6,
+                    spreadRadius: 2,
+                  ),
+                ]
+              : null,
         ),
         child: Text(
           label,
           style: TextStyle(
             fontSize: 12,
-            fontWeight: FontWeight.w500,
+            fontWeight: FontWeight.w600,
             color: isSelected ? Colors.white : Colors.grey.shade700,
           ),
         ),
+      ),
+    );
+  }
+
+  void _exportReport() {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Export Report'),
+        content: const Text('Select the export format and data range:'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Cancel'),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              Navigator.pop(context);
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: const Text('PDF report generated successfully'),
+                  backgroundColor: Colors.green,
+                  duration: const Duration(seconds: 2),
+                ),
+              );
+            },
+            style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
+            child: const Text(
+              'Export as PDF',
+              style: TextStyle(color: Colors.white),
+            ),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              Navigator.pop(context);
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: const Text('Excel report generated successfully'),
+                  backgroundColor: Colors.green,
+                  duration: const Duration(seconds: 2),
+                ),
+              );
+            },
+            style: ElevatedButton.styleFrom(backgroundColor: Colors.green),
+            child: const Text(
+              'Export as Excel',
+              style: TextStyle(color: Colors.white),
+            ),
+          ),
+        ],
       ),
     );
   }
