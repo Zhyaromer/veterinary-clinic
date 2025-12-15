@@ -52,7 +52,7 @@ class Medicine {
   final double price;
   final int stock;
   final String expiryDate;
-  final String imageUrl; // Added image URL field
+  final String imageUrl;
 
   Medicine({
     required this.id,

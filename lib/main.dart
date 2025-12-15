@@ -144,111 +144,96 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
         ),
         backgroundColor: const Color(0xFF4A6FA5),
-        elevation: 0,
-        shape: const RoundedRectangleBorder(
-          borderRadius: BorderRadius.vertical(bottom: Radius.circular(20)),
-        ),
+        elevation: 10,
       ),
       body: _selectedIndex == 0 ? _buildHomeContent() : AppointmentsScreen(),
-      bottomNavigationBar: Container(
-        decoration: BoxDecoration(
-          borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withOpacity(0.1),
-              blurRadius: 20,
-              offset: const Offset(0, -5),
+      bottomNavigationBar: ClipRRect(
+        borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
+        child: BottomNavigationBar(
+          currentIndex: _selectedIndex,
+          onTap: (index) {
+            setState(() {
+              _selectedIndex = index;
+            });
+          },
+          backgroundColor: Colors.white,
+          selectedItemColor: const Color(0xFF4A6FA5),
+          unselectedItemColor: Colors.grey[600],
+          selectedLabelStyle: const TextStyle(fontWeight: FontWeight.w600),
+          showUnselectedLabels: true,
+          elevation: 10,
+          items: [
+            BottomNavigationBarItem(
+              icon: Container(
+                padding: const EdgeInsets.all(6),
+                decoration: BoxDecoration(
+                  color: _selectedIndex == 0
+                      ? const Color(0xFF4A6FA5).withOpacity(0.1)
+                      : Colors.transparent,
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: Icon(
+                  _selectedIndex == 0 ? Icons.home : Icons.home_outlined,
+                  size: 24,
+                ),
+              ),
+              label: 'Home',
+            ),
+            BottomNavigationBarItem(
+              icon: Container(
+                padding: const EdgeInsets.all(6),
+                decoration: BoxDecoration(
+                  color: _selectedIndex == 1
+                      ? const Color(0xFF4A6FA5).withOpacity(0.1)
+                      : Colors.transparent,
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: Icon(
+                  _selectedIndex == 1
+                      ? Icons.app_registration_outlined
+                      : Icons.app_registration_outlined,
+                  size: 24,
+                ),
+              ),
+              label: 'Appointments',
+            ),
+            BottomNavigationBarItem(
+              icon: Container(
+                padding: const EdgeInsets.all(6),
+                decoration: BoxDecoration(
+                  color: _selectedIndex == 1
+                      ? const Color(0xFF4A6FA5).withOpacity(0.1)
+                      : Colors.transparent,
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: Icon(
+                  _selectedIndex == 1
+                      ? Icons.shopping_cart
+                      : Icons.shopping_cart,
+                  size: 24,
+                ),
+              ),
+              label: 'Cart',
+            ),
+            BottomNavigationBarItem(
+              icon: Container(
+                padding: const EdgeInsets.all(6),
+                decoration: BoxDecoration(
+                  color: _selectedIndex == 2
+                      ? const Color(0xFF4A6FA5).withOpacity(0.1)
+                      : Colors.transparent,
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: Icon(
+                  _selectedIndex == 2
+                      ? Icons.settings
+                      : Icons.settings_outlined,
+                  size: 24,
+                ),
+              ),
+              label: 'Settings',
             ),
           ],
-        ),
-        child: ClipRRect(
-          borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
-          child: BottomNavigationBar(
-            currentIndex: _selectedIndex,
-            onTap: (index) {
-              setState(() {
-                _selectedIndex = index;
-              });
-            },
-            backgroundColor: Colors.white,
-            selectedItemColor: const Color(0xFF4A6FA5),
-            unselectedItemColor: Colors.grey[600],
-            selectedLabelStyle: const TextStyle(fontWeight: FontWeight.w600),
-            showUnselectedLabels: true,
-            elevation: 10,
-            items: [
-              BottomNavigationBarItem(
-                icon: Container(
-                  padding: const EdgeInsets.all(6),
-                  decoration: BoxDecoration(
-                    color: _selectedIndex == 0
-                        ? const Color(0xFF4A6FA5).withOpacity(0.1)
-                        : Colors.transparent,
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                  child: Icon(
-                    _selectedIndex == 0 ? Icons.home : Icons.home_outlined,
-                    size: 24,
-                  ),
-                ),
-                label: 'Home',
-              ),
-              BottomNavigationBarItem(
-                icon: Container(
-                  padding: const EdgeInsets.all(6),
-                  decoration: BoxDecoration(
-                    color: _selectedIndex == 1
-                        ? const Color(0xFF4A6FA5).withOpacity(0.1)
-                        : Colors.transparent,
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                  child: Icon(
-                    _selectedIndex == 1
-                        ? Icons.app_registration_outlined
-                        : Icons.app_registration_outlined,
-                    size: 24,
-                  ),
-                ),
-                label: 'Appointments',
-              ),
-              BottomNavigationBarItem(
-                icon: Container(
-                  padding: const EdgeInsets.all(6),
-                  decoration: BoxDecoration(
-                    color: _selectedIndex == 1
-                        ? const Color(0xFF4A6FA5).withOpacity(0.1)
-                        : Colors.transparent,
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                  child: Icon(
-                    _selectedIndex == 1
-                        ? Icons.shopping_cart
-                        : Icons.shopping_cart,
-                    size: 24,
-                  ),
-                ),
-                label: 'Cart',
-              ),
-              BottomNavigationBarItem(
-                icon: Container(
-                  padding: const EdgeInsets.all(6),
-                  decoration: BoxDecoration(
-                    color: _selectedIndex == 2
-                        ? const Color(0xFF4A6FA5).withOpacity(0.1)
-                        : Colors.transparent,
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                  child: Icon(
-                    _selectedIndex == 2
-                        ? Icons.settings
-                        : Icons.settings_outlined,
-                    size: 24,
-                  ),
-                ),
-                label: 'Settings',
-              ),
-            ],
-          ),
         ),
       ),
     );
@@ -329,11 +314,10 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
             BoxShadow(
               color: Colors.grey.withOpacity(0.1),
-              blurRadius: 5,
               offset: const Offset(0, 2),
             ),
           ],
-          border: Border.all(color: service.bgColor.withOpacity(0.3), width: 1),
+          border: Border.all(color: service.bgColor.withOpacity(0.3), width: 5),
         ),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,

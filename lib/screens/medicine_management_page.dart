@@ -36,10 +36,7 @@ class _MedicineManagementPageState extends State<MedicineManagementPage> {
     if (searchTerm.isNotEmpty) {
       filtered = filtered.where((medicine) {
         return medicine.name.toLowerCase().contains(searchTerm) ||
-            medicine.category.toLowerCase().contains(searchTerm) ||
-            medicine.animalType.toLowerCase().contains(searchTerm) ||
-            medicine.batchNumber.toLowerCase().contains(searchTerm) ||
-            medicine.barcode.toLowerCase().contains(searchTerm);
+            medicine.category.toLowerCase().contains(searchTerm);
       }).toList();
     }
 
