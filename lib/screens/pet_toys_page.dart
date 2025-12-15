@@ -323,8 +323,10 @@ class _PetToysPageState extends State<PetToysPage> {
                                 _selectedBrand = dialogBrand;
                                 _minPrice = dialogMinPrice;
                                 _maxPrice = dialogMaxPrice;
-                                _isPriceFiltered = isPriceFiltered && 
-                                    (dialogMinPrice > 0 || dialogMaxPrice < sliderMaxPrice);
+                                _isPriceFiltered =
+                                    isPriceFiltered &&
+                                    (dialogMinPrice > 0 ||
+                                        dialogMaxPrice < sliderMaxPrice);
                               });
                               Navigator.pop(context);
                               _filterToys();

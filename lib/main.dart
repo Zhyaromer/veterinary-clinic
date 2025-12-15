@@ -10,6 +10,11 @@ import 'package:vet_clinic/screens/resources_management_page.dart';
 import 'package:vet_clinic/screens/animal_types_page.dart';
 import 'package:vet_clinic/screens/sales_report_screen.dart';
 import 'package:vet_clinic/screens/shelter_pets_screen.dart';
+import 'package:vet_clinic/models/cart.dart';
+import 'package:vet_clinic/screens/shopping_cart_page.dart';
+
+// Global cart instance
+final globalCart = Cart();
 
 void main() {
   runApp(const VeterinaryClinicApp());
@@ -145,6 +150,64 @@ class _HomeScreenState extends State<HomeScreen> {
         ),
         backgroundColor: const Color(0xFF4A6FA5),
         elevation: 10,
+        actions: [
+          Padding(
+            padding: const EdgeInsets.only(right: 16),
+            child: GestureDetector(
+              onTap: () {
+                Navigator.of(context).push(
+                  MaterialPageRoute(
+                    builder: (context) => const ShoppingCartPage(),
+                  ),
+                );
+              },
+              child: Center(
+                child: Stack(
+                  children: [
+                    const Icon(
+                      Icons.shopping_cart,
+                      color: Colors.white,
+                      size: 28,
+                    ),
+                    ValueListenableBuilder<int>(
+                      valueListenable: globalCart.itemCountNotifier,
+                      builder: (context, itemCount, child) {
+                        return itemCount > 0
+                            ? Positioned(
+                                right: 0,
+                                top: 0,
+                                child: Container(
+                                  width: 20,
+                                  height: 20,
+                                  decoration: BoxDecoration(
+                                    color: Colors.red,
+                                    borderRadius: BorderRadius.circular(10),
+                                    border: Border.all(
+                                      color: Colors.white,
+                                      width: 2,
+                                    ),
+                                  ),
+                                  child: Center(
+                                    child: Text(
+                                      '$itemCount',
+                                      style: const TextStyle(
+                                        color: Colors.white,
+                                        fontSize: 11,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              )
+                            : const SizedBox.shrink();
+                      },
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ],
       ),
       body: _selectedIndex == 0 ? _buildHomeContent() : AppointmentsScreen(),
       bottomNavigationBar: ClipRRect(
@@ -196,24 +259,6 @@ class _HomeScreenState extends State<HomeScreen> {
                 ),
               ),
               label: 'Appointments',
-            ),
-            BottomNavigationBarItem(
-              icon: Container(
-                padding: const EdgeInsets.all(6),
-                decoration: BoxDecoration(
-                  color: _selectedIndex == 1
-                      ? const Color(0xFF4A6FA5).withOpacity(0.1)
-                      : Colors.transparent,
-                  borderRadius: BorderRadius.circular(10),
-                ),
-                child: Icon(
-                  _selectedIndex == 1
-                      ? Icons.shopping_cart
-                      : Icons.shopping_cart,
-                  size: 24,
-                ),
-              ),
-              label: 'Cart',
             ),
             BottomNavigationBarItem(
               icon: Container(

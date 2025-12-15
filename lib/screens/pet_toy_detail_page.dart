@@ -1,14 +1,30 @@
 // screens/pet_toy_detail_page.dart
 import 'package:flutter/material.dart';
 import '../models/pet_toy.dart';
+import '../models/cart_item.dart';
+import '../main.dart';
 
-class PetToyDetailPage extends StatelessWidget {
+class PetToyDetailPage extends StatefulWidget {
   final PetToy petToy;
 
   const PetToyDetailPage({super.key, required this.petToy});
 
   @override
+  State<PetToyDetailPage> createState() => _PetToyDetailPageState();
+}
+
+class _PetToyDetailPageState extends State<PetToyDetailPage> {
+  late int _selectedQuantity;
+
+  @override
+  void initState() {
+    super.initState();
+    _selectedQuantity = 1;
+  }
+
+  @override
   Widget build(BuildContext context) {
+    final petToy = widget.petToy;
     final petTypeColor = petToy.getPetTypeColor();
 
     return Scaffold(
@@ -138,6 +154,133 @@ class PetToyDetailPage extends StatelessWidget {
                 onPressed: () {},
               ),
             ],
+          ),
+
+          // Quantity Section
+          SliverToBoxAdapter(
+            child: Container(
+              color: Colors.white,
+              padding: const EdgeInsets.fromLTRB(20, 16, 20, 20),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        'Quantity',
+                        style: Theme.of(context).textTheme.titleMedium
+                            ?.copyWith(fontWeight: FontWeight.bold),
+                      ),
+                      ElevatedButton(
+                        onPressed: () {
+                          final cartItem = CartItem(
+                            id: 'toy_${petToy.id}',
+                            name: petToy.name,
+                            price: petToy.price,
+                            imageUrl: petToy.imageUrl,
+                            quantity: _selectedQuantity,
+                            type: CartItemType.toy,
+                            categoryColor: petToy.getPetTypeColor(),
+                            maxQuantity: petToy.stock,
+                          );
+                          globalCart.addItem(cartItem);
+
+                          showDialog(
+                            context: context,
+                            builder: (context) => AlertDialog(
+                              title: const Text('Added to Cart'),
+                              content: Text(
+                                '${petToy.name} (Qty: $_selectedQuantity) has been added to your cart',
+                              ),
+                              actions: [
+                                TextButton(
+                                  onPressed: () => Navigator.pop(context),
+                                  child: const Text('OK'),
+                                ),
+                              ],
+                            ),
+                          );
+                        },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: const Color(0xFF4A6FA5),
+                          foregroundColor: Colors.white,
+                        ),
+                        child: const Row(
+                          children: [
+                            Icon(Icons.shopping_cart, size: 18),
+                            SizedBox(width: 8),
+                            Text('Add to Cart'),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 12),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: Container(
+                          decoration: BoxDecoration(
+                            border: Border.all(color: Colors.grey[300]!),
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                          child: Row(
+                            children: [
+                              IconButton(
+                                onPressed: _selectedQuantity > 1
+                                    ? () {
+                                        setState(() {
+                                          _selectedQuantity--;
+                                        });
+                                      }
+                                    : null,
+                                icon: const Icon(Icons.remove),
+                                splashRadius: 20,
+                              ),
+                              Expanded(
+                                child: Text(
+                                  '$_selectedQuantity',
+                                  textAlign: TextAlign.center,
+                                  style: const TextStyle(
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ),
+                              IconButton(
+                                onPressed: _selectedQuantity < petToy.stock
+                                    ? () {
+                                        setState(() {
+                                          _selectedQuantity++;
+                                        });
+                                      }
+                                    : null,
+                                icon: const Icon(Icons.add),
+                                splashRadius: 20,
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    'Available: ${petToy.stock} items',
+                    style: TextStyle(fontSize: 12, color: Colors.grey[600]),
+                  ),
+                  if (_selectedQuantity > petToy.stock)
+                    Padding(
+                      padding: const EdgeInsets.only(top: 8),
+                      child: Text(
+                        'Cannot exceed available stock (${petToy.stock})',
+                        style: const TextStyle(fontSize: 12, color: Colors.red),
+                      ),
+                    ),
+                ],
+              ),
+            ),
           ),
 
           // Toy Details
@@ -411,7 +554,34 @@ class PetToyDetailPage extends StatelessWidget {
                       children: [
                         Expanded(
                           child: ElevatedButton.icon(
-                            onPressed: () {},
+                            onPressed: () {
+                              final cartItem = CartItem(
+                                id: 'toy_${petToy.id}',
+                                name: petToy.name,
+                                price: petToy.price,
+                                imageUrl: petToy.imageUrl,
+                                quantity: _selectedQuantity,
+                                type: CartItemType.toy,
+                                categoryColor: petToy.getPetTypeColor(),
+                                maxQuantity: petToy.stock,
+                              );
+                              globalCart.addItem(cartItem);
+
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                  content: Text(
+                                    '${petToy.name} (Qty: $_selectedQuantity) added to cart',
+                                  ),
+                                  duration: const Duration(seconds: 3),
+                                  action: SnackBarAction(
+                                    label: 'Undo',
+                                    onPressed: () {
+                                      globalCart.removeItem(cartItem.id);
+                                    },
+                                  ),
+                                ),
+                              );
+                            },
                             style: ElevatedButton.styleFrom(
                               backgroundColor: const Color(0xFF4A6FA5),
                               foregroundColor: Colors.white,

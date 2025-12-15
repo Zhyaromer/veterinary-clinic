@@ -4,8 +4,14 @@ import '../models/medicine.dart';
 class MedicineCard extends StatelessWidget {
   final Medicine medicine;
   final VoidCallback onTap;
+  final VoidCallback? onAddToCart;
 
-  const MedicineCard({super.key, required this.medicine, required this.onTap});
+  const MedicineCard({
+    super.key,
+    required this.medicine,
+    required this.onTap,
+    this.onAddToCart,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -267,30 +273,37 @@ class MedicineCard extends StatelessWidget {
                   const SizedBox(height: 16),
 
                   Row(
-                    mainAxisSize: MainAxisSize.min,
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Container(
-                        padding: const EdgeInsets.all(6),
-                        decoration: BoxDecoration(
-                          color: Colors.grey[100],
-                          shape: BoxShape.circle,
-                        ),
-                        child: Icon(
-                          Icons.business,
-                          size: 14,
-                          color: Colors.grey[700],
-                        ),
-                      ),
-                      const SizedBox(width: 8),
                       Expanded(
-                        child: Text(
-                          medicine.manufacturer.name,
-                          style: TextStyle(
-                            fontSize: 16,
-                            color: Colors.grey[700],
-                            fontWeight: FontWeight.w500,
-                          ),
-                          overflow: TextOverflow.ellipsis,
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Container(
+                              padding: const EdgeInsets.all(6),
+                              decoration: BoxDecoration(
+                                color: Colors.grey[100],
+                                shape: BoxShape.circle,
+                              ),
+                              child: Icon(
+                                Icons.business,
+                                size: 14,
+                                color: Colors.grey[700],
+                              ),
+                            ),
+                            const SizedBox(width: 8),
+                            Expanded(
+                              child: Text(
+                                medicine.manufacturer.name,
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  color: Colors.grey[700],
+                                  fontWeight: FontWeight.w500,
+                                ),
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ),
+                          ],
                         ),
                       ),
                     ],

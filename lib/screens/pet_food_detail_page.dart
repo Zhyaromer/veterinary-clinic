@@ -1,13 +1,29 @@
 import 'package:flutter/material.dart';
 import '../models/pet_food.dart';
+import '../models/cart_item.dart';
+import '../main.dart';
 
-class PetFoodDetailPage extends StatelessWidget {
+class PetFoodDetailPage extends StatefulWidget {
   final PetFood petFood;
 
   const PetFoodDetailPage({super.key, required this.petFood});
 
   @override
+  State<PetFoodDetailPage> createState() => _PetFoodDetailPageState();
+}
+
+class _PetFoodDetailPageState extends State<PetFoodDetailPage> {
+  late int _selectedQuantity;
+
+  @override
+  void initState() {
+    super.initState();
+    _selectedQuantity = 1;
+  }
+
+  @override
   Widget build(BuildContext context) {
+    final petFood = widget.petFood;
     final petTypeColor = petFood.getPetTypeColor();
 
     return Scaffold(
@@ -151,6 +167,133 @@ class PetFoodDetailPage extends StatelessWidget {
                 onPressed: () {},
               ),
             ],
+          ),
+
+          // Quantity Section with Add to Cart
+          SliverToBoxAdapter(
+            child: Container(
+              color: Colors.white,
+              padding: const EdgeInsets.fromLTRB(20, 16, 20, 20),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        'Quantity',
+                        style: Theme.of(context).textTheme.titleMedium
+                            ?.copyWith(fontWeight: FontWeight.bold),
+                      ),
+                      ElevatedButton(
+                        onPressed: () {
+                          final cartItem = CartItem(
+                            id: 'food_${petFood.id}',
+                            name: petFood.name,
+                            price: petFood.price,
+                            imageUrl: petFood.imageUrl,
+                            quantity: _selectedQuantity,
+                            type: CartItemType.food,
+                            categoryColor: petFood.getPetTypeColor(),
+                            maxQuantity: petFood.stock,
+                          );
+                          globalCart.addItem(cartItem);
+
+                          showDialog(
+                            context: context,
+                            builder: (context) => AlertDialog(
+                              title: const Text('Added to Cart'),
+                              content: Text(
+                                '${petFood.name} (Qty: $_selectedQuantity) has been added to your cart',
+                              ),
+                              actions: [
+                                TextButton(
+                                  onPressed: () => Navigator.pop(context),
+                                  child: const Text('OK'),
+                                ),
+                              ],
+                            ),
+                          );
+                        },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: const Color(0xFF4A6FA5),
+                          foregroundColor: Colors.white,
+                        ),
+                        child: const Row(
+                          children: [
+                            Icon(Icons.shopping_cart, size: 18),
+                            SizedBox(width: 8),
+                            Text('Add to Cart'),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 12),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: Container(
+                          decoration: BoxDecoration(
+                            border: Border.all(color: Colors.grey[300]!),
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                          child: Row(
+                            children: [
+                              IconButton(
+                                onPressed: _selectedQuantity > 1
+                                    ? () {
+                                        setState(() {
+                                          _selectedQuantity--;
+                                        });
+                                      }
+                                    : null,
+                                icon: const Icon(Icons.remove),
+                                splashRadius: 20,
+                              ),
+                              Expanded(
+                                child: Text(
+                                  '$_selectedQuantity',
+                                  textAlign: TextAlign.center,
+                                  style: const TextStyle(
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ),
+                              IconButton(
+                                onPressed: _selectedQuantity < petFood.stock
+                                    ? () {
+                                        setState(() {
+                                          _selectedQuantity++;
+                                        });
+                                      }
+                                    : null,
+                                icon: const Icon(Icons.add),
+                                splashRadius: 20,
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    'Available: ${petFood.stock} items',
+                    style: TextStyle(fontSize: 12, color: Colors.grey[600]),
+                  ),
+                  if (_selectedQuantity > petFood.stock)
+                    Padding(
+                      padding: const EdgeInsets.only(top: 8),
+                      child: Text(
+                        'Cannot exceed available stock (${petFood.stock})',
+                        style: const TextStyle(fontSize: 12, color: Colors.red),
+                      ),
+                    ),
+                ],
+              ),
+            ),
           ),
 
           // Food Details
@@ -466,38 +609,6 @@ class PetFoodDetailPage extends StatelessWidget {
                               Icons.favorite_border,
                               size: 28,
                               color: Colors.grey,
-                            ),
-                          ),
-                        ),
-
-                        // Add to Cart Button
-                        Expanded(
-                          child: SizedBox(
-                            height: 60,
-                            child: ElevatedButton(
-                              onPressed: () {},
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: const Color(0xFF4A6FA5),
-                                foregroundColor: Colors.white,
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(15),
-                                ),
-                                elevation: 2,
-                              ),
-                              child: const Row(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  Icon(Icons.shopping_cart, size: 22),
-                                  SizedBox(width: 12),
-                                  Text(
-                                    'Add to Cart',
-                                    style: TextStyle(
-                                      fontSize: 18,
-                                      fontWeight: FontWeight.w700,
-                                    ),
-                                  ),
-                                ],
-                              ),
                             ),
                           ),
                         ),

@@ -4,8 +4,14 @@ import '../models/pet_food.dart';
 class PetFoodCard extends StatelessWidget {
   final PetFood petFood;
   final VoidCallback onTap;
+  final VoidCallback? onAddToCart;
 
-  const PetFoodCard({super.key, required this.petFood, required this.onTap});
+  const PetFoodCard({
+    super.key,
+    required this.petFood,
+    required this.onTap,
+    this.onAddToCart,
+  });
 
   @override
   Widget build(BuildContext context) {

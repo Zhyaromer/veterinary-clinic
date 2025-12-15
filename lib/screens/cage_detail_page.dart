@@ -1,14 +1,30 @@
 // screens/cage_detail_page.dart
 import 'package:flutter/material.dart';
 import '../models/pet_cage.dart';
+import '../models/cart_item.dart';
+import '../main.dart';
 
-class CageDetailPage extends StatelessWidget {
+class CageDetailPage extends StatefulWidget {
   final PetCage petCage;
 
   const CageDetailPage({super.key, required this.petCage});
 
   @override
+  State<CageDetailPage> createState() => _CageDetailPageState();
+}
+
+class _CageDetailPageState extends State<CageDetailPage> {
+  late int _selectedQuantity;
+
+  @override
+  void initState() {
+    super.initState();
+    _selectedQuantity = 1;
+  }
+
+  @override
   Widget build(BuildContext context) {
+    final petCage = widget.petCage;
     final petTypeColor = petCage.getPetTypeColor();
     final isInStock = petCage.stock > 0;
 
@@ -164,6 +180,137 @@ class CageDetailPage extends StatelessWidget {
                 ),
               ),
               onPressed: () => Navigator.pop(context),
+            ),
+          ),
+
+          // Quantity Section with Add to Cart at TOP
+          SliverToBoxAdapter(
+            child: Container(
+              color: Colors.white,
+              padding: const EdgeInsets.fromLTRB(20, 16, 20, 20),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        'Quantity',
+                        style: Theme.of(context).textTheme.titleMedium
+                            ?.copyWith(fontWeight: FontWeight.bold),
+                      ),
+                      ElevatedButton(
+                        onPressed: isInStock
+                            ? () {
+                                final cartItem = CartItem(
+                                  id: 'cage_${petCage.id}',
+                                  name: petCage.name,
+                                  price: petCage.price,
+                                  imageUrl: petCage.imageUrl,
+                                  quantity: _selectedQuantity,
+                                  type: CartItemType.cage,
+                                  categoryColor: petTypeColor,
+                                  maxQuantity: petCage.stock,
+                                );
+                                globalCart.addItem(cartItem);
+
+                                showDialog(
+                                  context: context,
+                                  builder: (context) => AlertDialog(
+                                    title: const Text('Added to Cart'),
+                                    content: Text(
+                                      '${petCage.name} (Qty: $_selectedQuantity) has been added to your cart',
+                                    ),
+                                    actions: [
+                                      TextButton(
+                                        onPressed: () => Navigator.pop(context),
+                                        child: const Text('OK'),
+                                      ),
+                                    ],
+                                  ),
+                                );
+                              }
+                            : null,
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: const Color(0xFF4A6FA5),
+                          foregroundColor: Colors.white,
+                          disabledBackgroundColor: Colors.grey[300],
+                          disabledForegroundColor: Colors.grey[600],
+                        ),
+                        child: const Row(
+                          children: [
+                            Icon(Icons.shopping_cart, size: 18),
+                            SizedBox(width: 8),
+                            Text('Add to Cart'),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 12),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: Container(
+                          decoration: BoxDecoration(
+                            border: Border.all(color: Colors.grey[300]!),
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                          child: Row(
+                            children: [
+                              IconButton(
+                                onPressed: _selectedQuantity > 1
+                                    ? () {
+                                        setState(() {
+                                          _selectedQuantity--;
+                                        });
+                                      }
+                                    : null,
+                                icon: const Icon(Icons.remove),
+                                splashRadius: 20,
+                              ),
+                              Expanded(
+                                child: Text(
+                                  '$_selectedQuantity',
+                                  textAlign: TextAlign.center,
+                                  style: const TextStyle(
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ),
+                              IconButton(
+                                onPressed: _selectedQuantity < petCage.stock
+                                    ? () {
+                                        setState(() {
+                                          _selectedQuantity++;
+                                        });
+                                      }
+                                    : null,
+                                icon: const Icon(Icons.add),
+                                splashRadius: 20,
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    'Available: ${petCage.stock} items',
+                    style: TextStyle(fontSize: 12, color: Colors.grey[600]),
+                  ),
+                  if (_selectedQuantity > petCage.stock)
+                    Padding(
+                      padding: const EdgeInsets.only(top: 8),
+                      child: Text(
+                        'Cannot exceed available stock (${petCage.stock})',
+                        style: const TextStyle(fontSize: 12, color: Colors.red),
+                      ),
+                    ),
+                ],
+              ),
             ),
           ),
 
@@ -466,22 +613,6 @@ class CageDetailPage extends StatelessWidget {
                     // Action Buttons
                     Row(
                       children: [
-                        Expanded(
-                          child: ElevatedButton.icon(
-                            onPressed: () {},
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: const Color(0xFF4A6FA5),
-                              foregroundColor: Colors.white,
-                              padding: const EdgeInsets.symmetric(vertical: 16),
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(12),
-                              ),
-                            ),
-                            icon: const Icon(Icons.shopping_cart),
-                            label: const Text('Add to Cart'),
-                          ),
-                        ),
-                        const SizedBox(width: 16),
                         Expanded(
                           child: OutlinedButton.icon(
                             onPressed: () {},

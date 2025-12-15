@@ -1,14 +1,30 @@
 // screens/medicine_detail_page.dart
 import 'package:flutter/material.dart';
 import '../models/medicine.dart';
+import '../models/cart_item.dart';
+import '../main.dart';
 
-class MedicineDetailPage extends StatelessWidget {
+class MedicineDetailPage extends StatefulWidget {
   final Medicine medicine;
 
   const MedicineDetailPage({super.key, required this.medicine});
 
   @override
+  State<MedicineDetailPage> createState() => _MedicineDetailPageState();
+}
+
+class _MedicineDetailPageState extends State<MedicineDetailPage> {
+  late int _selectedQuantity;
+
+  @override
+  void initState() {
+    super.initState();
+    _selectedQuantity = 1;
+  }
+
+  @override
   Widget build(BuildContext context) {
+    final medicine = widget.medicine;
     final categoryColor = medicine.getCategoryColor();
 
     return Scaffold(
@@ -134,6 +150,133 @@ class MedicineDetailPage extends StatelessWidget {
                 child: const Icon(Icons.arrow_back, color: Colors.white),
               ),
               onPressed: () => Navigator.pop(context),
+            ),
+          ),
+
+          // Quantity Section
+          SliverToBoxAdapter(
+            child: Container(
+              color: Colors.white,
+              padding: const EdgeInsets.fromLTRB(20, 16, 20, 20),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        'Quantity',
+                        style: Theme.of(context).textTheme.titleMedium
+                            ?.copyWith(fontWeight: FontWeight.bold),
+                      ),
+                      ElevatedButton(
+                        onPressed: () {
+                          final cartItem = CartItem(
+                            id: 'medicine_${medicine.id}',
+                            name: medicine.name,
+                            price: medicine.price,
+                            imageUrl: medicine.imageUrl,
+                            quantity: _selectedQuantity,
+                            type: CartItemType.medicine,
+                            categoryColor: medicine.getCategoryColor(),
+                            maxQuantity: medicine.stock,
+                          );
+                          globalCart.addItem(cartItem);
+
+                          showDialog(
+                            context: context,
+                            builder: (context) => AlertDialog(
+                              title: const Text('Added to Cart'),
+                              content: Text(
+                                '${medicine.name} (Qty: $_selectedQuantity) has been added to your cart',
+                              ),
+                              actions: [
+                                TextButton(
+                                  onPressed: () => Navigator.pop(context),
+                                  child: const Text('OK'),
+                                ),
+                              ],
+                            ),
+                          );
+                        },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: const Color(0xFF4A6FA5),
+                          foregroundColor: Colors.white,
+                        ),
+                        child: const Row(
+                          children: [
+                            Icon(Icons.shopping_cart, size: 18),
+                            SizedBox(width: 8),
+                            Text('Add to Cart'),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 12),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: Container(
+                          decoration: BoxDecoration(
+                            border: Border.all(color: Colors.grey[300]!),
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                          child: Row(
+                            children: [
+                              IconButton(
+                                onPressed: _selectedQuantity > 1
+                                    ? () {
+                                        setState(() {
+                                          _selectedQuantity--;
+                                        });
+                                      }
+                                    : null,
+                                icon: const Icon(Icons.remove),
+                                splashRadius: 20,
+                              ),
+                              Expanded(
+                                child: Text(
+                                  '$_selectedQuantity',
+                                  textAlign: TextAlign.center,
+                                  style: const TextStyle(
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ),
+                              IconButton(
+                                onPressed: _selectedQuantity < medicine.stock
+                                    ? () {
+                                        setState(() {
+                                          _selectedQuantity++;
+                                        });
+                                      }
+                                    : null,
+                                icon: const Icon(Icons.add),
+                                splashRadius: 20,
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    'Available: ${medicine.stock} units',
+                    style: TextStyle(fontSize: 12, color: Colors.grey[600]),
+                  ),
+                  if (_selectedQuantity > medicine.stock)
+                    Padding(
+                      padding: const EdgeInsets.only(top: 8),
+                      child: Text(
+                        'Cannot exceed available stock (${medicine.stock})',
+                        style: const TextStyle(fontSize: 12, color: Colors.red),
+                      ),
+                    ),
+                ],
+              ),
             ),
           ),
 
@@ -416,27 +559,6 @@ class MedicineDetailPage extends StatelessWidget {
                           _buildInfoRow('Barcode', medicine.barcode),
                         ],
                       ),
-                    ),
-
-                    // Action Buttons
-                    Row(
-                      children: [
-                        Expanded(
-                          child: ElevatedButton.icon(
-                            onPressed: () {},
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: const Color(0xFF4A6FA5),
-                              foregroundColor: Colors.white,
-                              padding: const EdgeInsets.symmetric(vertical: 20),
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(12),
-                              ),
-                            ),
-                            icon: const Icon(Icons.shopping_cart),
-                            label: const Text('Add to Cart'),
-                          ),
-                        ),
-                      ],
                     ),
 
                     const SizedBox(height: 40),
