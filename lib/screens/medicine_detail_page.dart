@@ -1,8 +1,8 @@
 // screens/medicine_detail_page.dart
 import 'package:flutter/material.dart';
+import 'package:vet_clinic/screens/homescreen.dart';
 import '../models/medicine.dart';
 import '../models/cart_item.dart';
-import '../main.dart';
 
 class MedicineDetailPage extends StatefulWidget {
   final Medicine medicine;

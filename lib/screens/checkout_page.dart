@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import '../main.dart';
+import 'package:vet_clinic/screens/homescreen.dart';
 import 'order_success_page.dart';
 
 class CheckoutPage extends StatefulWidget {

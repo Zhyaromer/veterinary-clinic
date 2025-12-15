@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:vet_clinic/screens/homescreen.dart';
 import '../models/pet_food.dart';
 import '../models/cart_item.dart';
-import '../main.dart';
 
 class PetFoodDetailPage extends StatefulWidget {
   final PetFood petFood;

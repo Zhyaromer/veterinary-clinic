@@ -1,458 +1,233 @@
+//login_page.dart
+import 'dart:ui';
 import 'package:flutter/material.dart';
-import 'package:vet_clinic/screens/appointments_screen.dart';
-import 'package:vet_clinic/screens/contact_us.dart';
-import 'package:vet_clinic/screens/medicine_management_page.dart';
-import 'package:vet_clinic/screens/medicines_page.dart';
-import 'package:vet_clinic/screens/Putting_pets_for_adoption.dart';
-import 'package:vet_clinic/screens/pet_guide_page.dart';
-import 'package:vet_clinic/screens/pet_resources_page.dart';
-import 'package:vet_clinic/screens/resources_management_page.dart';
-import 'package:vet_clinic/screens/animal_types_page.dart';
-import 'package:vet_clinic/screens/sales_report_screen.dart';
-import 'package:vet_clinic/screens/shelter_pets_screen.dart';
-import 'package:vet_clinic/models/cart.dart';
-import 'package:vet_clinic/screens/shopping_cart_page.dart';
-
-// Global cart instance
-final globalCart = Cart();
+import 'package:vet_clinic/screens/homescreen.dart';
 
 void main() {
-  runApp(const VeterinaryClinicApp());
+  runApp(
+    MaterialApp(debugShowCheckedModeBanner: false, home: const LoginPage()),
+  );
 }
 
-class VeterinaryClinicApp extends StatelessWidget {
-  const VeterinaryClinicApp({super.key});
+class LoginPage extends StatefulWidget {
+  const LoginPage({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      debugShowCheckedModeBanner: false,
-      title: 'VetCare Center',
-      theme: ThemeData(
-        primaryColor: const Color(0xFF4A6FA5),
-        colorScheme: ColorScheme.fromSeed(
-          seedColor: const Color(0xFF4A6FA5),
-          primary: const Color(0xFF4A6FA5),
-          secondary: const Color(0xFF6B9F8C),
-        ),
-        useMaterial3: true,
-        fontFamily: 'Inter',
-      ),
-      home: const HomeScreen(),
+  State<LoginPage> createState() => _LoginPageState();
+}
+
+class _LoginPageState extends State<LoginPage> {
+  bool _passwordVisible = false;
+  final TextEditingController _usernameController = TextEditingController();
+  final TextEditingController _passwordController = TextEditingController();
+
+  void submit() {
+    String username = _usernameController.text;
+    String password = _passwordController.text;
+
+    if (username.isEmpty || password.isEmpty) {
+      showDialog(
+        context: context,
+        builder: (context) {
+          return AlertDialog(
+            title: const Text("Error"),
+            content: const Text("Please enter both username and password."),
+            actions: [
+              TextButton(
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+                child: const Text("OK"),
+              ),
+            ],
+          );
+        },
+      );
+      return;
+    } else if (username != "admin" || password != "admin123") {
+      showDialog(
+        context: context,
+        builder: (context) {
+          return AlertDialog(
+            title: const Text("Error"),
+            content: const Text("Invalid username or password."),
+            actions: [
+              TextButton(
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+                child: const Text("OK"),
+              ),
+            ],
+          );
+        },
+      );
+      return;
+    }
+
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(builder: (context) => const VeterinaryClinicApp()),
     );
   }
-}
-
-class HomeScreen extends StatefulWidget {
-  const HomeScreen({super.key});
-
-  @override
-  State<HomeScreen> createState() => _HomeScreenState();
-}
-
-class _HomeScreenState extends State<HomeScreen> {
-  int _selectedIndex = 0;
-
-  final List<ServiceItem> _services = [
-    ServiceItem(
-      Icons.medication_liquid,
-      'Medicines',
-      const Color(0xFFE3F2FD),
-      const Color(0xFF1976D2),
-      const Color(0xFF2196F3),
-    ),
-    ServiceItem(
-      Icons.pets,
-      'Adoption',
-      const Color(0xFFE8F5E9),
-      const Color(0xFF388E3C),
-      const Color(0xFF4CAF50),
-    ),
-    ServiceItem(
-      Icons.library_books,
-      'Pet Resources',
-      const Color(0xFFFFF3E0),
-      const Color(0xFFF57C00),
-      const Color(0xFFFF9800),
-    ),
-    ServiceItem(
-      Icons.family_restroom,
-      'Raising a Pet',
-      const Color(0xFFF3E5F5),
-      const Color(0xFF7B1FA2),
-      const Color(0xFF9C27B0),
-    ),
-    ServiceItem(
-      Icons.category,
-      'Animal Breeds',
-      const Color(0xFFFFEBEE),
-      const Color(0xFFD32F2F),
-      const Color(0xFFF44336),
-    ),
-    ServiceItem(
-      Icons.favorite_border,
-      'Put for Adoption',
-      const Color(0xFFFCE4EC),
-      const Color(0xFFC2185B),
-      const Color(0xFFE91E63),
-    ),
-    ServiceItem(
-      Icons.analytics,
-      'Sales Report',
-      const Color(0xFFE0F2F1),
-      const Color(0xFF00796B),
-      const Color(0xFF009688),
-    ),
-    ServiceItem(
-      Icons.medication,
-      'Manage Medicines',
-      const Color(0xFFEDE7F6),
-      const Color(0xFF512DA8),
-      const Color(0xFF673AB7),
-    ),
-    ServiceItem(
-      Icons.pets,
-      'Manage Animals',
-      const Color(0xFFEFEBE9),
-      const Color(0xFF5D4037),
-      const Color(0xFF795548),
-    ),
-    ServiceItem(
-      Icons.inventory,
-      'Manage Resources',
-      const Color(0xFFE0F7FA),
-      const Color(0xFF0097A7),
-      const Color(0xFF00BCD4),
-    ),
-    ServiceItem(
-      Icons.contact_support,
-      'Contact Us',
-      const Color(0xFFFBE9E7),
-      const Color(0xFFBF360C),
-      const Color(0xFFFF5722),
-    ),
-  ];
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
-      appBar: AppBar(
-        centerTitle: true,
-        title: const Text(
-          '🐾 VetCare Center',
-          style: TextStyle(
-            color: Colors.white,
-            fontWeight: FontWeight.w700,
-            fontSize: 20,
-            letterSpacing: 0.5,
+      body: Stack(
+        children: [
+          Container(
+            decoration: const BoxDecoration(
+              image: DecorationImage(
+                image: NetworkImage(
+                  "https://media.istockphoto.com/id/1296848705/vector/cute-vet-seamless-pattern.jpg?s=612x612&w=0&k=20&c=bdFQRSvj-f6RbIdtq2vNmeRmEKqmJNj3oONyf9yl4GY=",
+                ),
+                fit: BoxFit.cover,
+              ),
+            ),
           ),
-        ),
-        backgroundColor: const Color(0xFF4A6FA5),
-        elevation: 10,
-        actions: [
-          Padding(
-            padding: const EdgeInsets.only(right: 16),
-            child: GestureDetector(
-              onTap: () {
-                Navigator.of(context).push(
-                  MaterialPageRoute(
-                    builder: (context) => const ShoppingCartPage(),
+          Container(color: Colors.black.withOpacity(0.75)),
+
+          Center(
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(50),
+              child: BackdropFilter(
+                filter: ImageFilter.blur(sigmaX: 15, sigmaY: 12),
+                child: Container(
+                  width: 450,
+                  height: 480,
+                  padding: const EdgeInsets.all(28),
+                  decoration: BoxDecoration(
+                    color: Colors.white.withOpacity(0.2),
+                    borderRadius: BorderRadius.circular(30),
+                    border: Border.all(
+                      color: Colors.white.withOpacity(0.25),
+                      width: 1.4,
+                    ),
                   ),
-                );
-              },
-              child: Center(
-                child: Stack(
-                  children: [
-                    const Icon(
-                      Icons.shopping_cart,
-                      color: Colors.white,
-                      size: 28,
-                    ),
-                    ValueListenableBuilder<int>(
-                      valueListenable: globalCart.itemCountNotifier,
-                      builder: (context, itemCount, child) {
-                        return itemCount > 0
-                            ? Positioned(
-                                right: 0,
-                                top: 0,
-                                child: Container(
-                                  width: 20,
-                                  height: 20,
-                                  decoration: BoxDecoration(
-                                    color: Colors.red,
-                                    borderRadius: BorderRadius.circular(10),
-                                    border: Border.all(
-                                      color: Colors.white,
-                                      width: 2,
-                                    ),
-                                  ),
-                                  child: Center(
-                                    child: Text(
-                                      '$itemCount',
-                                      style: const TextStyle(
-                                        color: Colors.white,
-                                        fontSize: 11,
-                                        fontWeight: FontWeight.bold,
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                              )
-                            : const SizedBox.shrink();
-                      },
-                    ),
-                  ],
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Container(
+                        height: 110,
+                        width: 110,
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          border: Border.all(color: Colors.white, width: 3),
+                          image: const DecorationImage(
+                            image: NetworkImage(
+                              "https://t3.ftcdn.net/jpg/01/16/61/60/360_F_116616035_u3T0YpkbTG1R6v50PZTibhILZX51AWqu.jpg",
+                            ),
+                            fit: BoxFit.cover,
+                          ),
+                        ),
+                      ),
+
+                      const SizedBox(height: 20),
+
+                      const Text(
+                        "Welcome to Vet Clinic Center",
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          fontSize: 26,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.white,
+                        ),
+                      ),
+
+                      const SizedBox(height: 35),
+
+                      TextField(
+                        controller: _usernameController,
+                        style: const TextStyle(color: Colors.white),
+                        decoration: InputDecoration(
+                          prefixIcon: const Icon(
+                            Icons.person,
+                            color: Colors.white,
+                          ),
+                          hintText: "Username",
+                          hintStyle: const TextStyle(color: Colors.white70),
+                          filled: true,
+                          fillColor: Colors.white.withOpacity(0.3),
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(18),
+                            borderSide: BorderSide.none,
+                          ),
+                        ),
+                      ),
+
+                      const SizedBox(height: 20),
+                      TextField(
+                        controller: _passwordController,
+                        obscureText: !_passwordVisible,
+                        style: const TextStyle(color: Colors.white),
+                        decoration: InputDecoration(
+                          prefixIcon: const Icon(
+                            Icons.lock,
+                            color: Colors.white,
+                          ),
+                          hintText: "Password",
+                          hintStyle: const TextStyle(color: Colors.white70),
+                          filled: true,
+                          fillColor: Colors.white.withOpacity(0.3),
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(18),
+                            borderSide: BorderSide.none,
+                          ),
+                          suffixIcon: IconButton(
+                            icon: Icon(
+                              _passwordVisible
+                                  ? Icons.visibility
+                                  : Icons.visibility_off,
+                              color: Colors.white,
+                            ),
+                            onPressed: () {
+                              setState(() {
+                                _passwordVisible = !_passwordVisible;
+                              });
+                            },
+                          ),
+                        ),
+                      ),
+
+                      const SizedBox(height: 40),
+
+                      SizedBox(
+                        width: double.infinity,
+                        child: ElevatedButton(
+                          onPressed: () {
+                            submit();
+                          },
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: const Color.fromARGB(
+                              255,
+                              1,
+                              162,
+                              146,
+                            ),
+                            padding: const EdgeInsets.symmetric(vertical: 16),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(22),
+                            ),
+                          ),
+                          child: const Text(
+                            "Login",
+                            style: TextStyle(
+                              fontSize: 18,
+                              color: Colors.white,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
               ),
             ),
           ),
         ],
       ),
-      body: _selectedIndex == 0 ? _buildHomeContent() : AppointmentsScreen(),
-      bottomNavigationBar: ClipRRect(
-        borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
-        child: BottomNavigationBar(
-          currentIndex: _selectedIndex,
-          onTap: (index) {
-            setState(() {
-              _selectedIndex = index;
-            });
-          },
-          backgroundColor: Colors.white,
-          selectedItemColor: const Color(0xFF4A6FA5),
-          unselectedItemColor: Colors.grey[600],
-          selectedLabelStyle: const TextStyle(fontWeight: FontWeight.w600),
-          showUnselectedLabels: true,
-          elevation: 10,
-          items: [
-            BottomNavigationBarItem(
-              icon: Container(
-                padding: const EdgeInsets.all(6),
-                decoration: BoxDecoration(
-                  color: _selectedIndex == 0
-                      ? const Color(0xFF4A6FA5).withOpacity(0.1)
-                      : Colors.transparent,
-                  borderRadius: BorderRadius.circular(10),
-                ),
-                child: Icon(
-                  _selectedIndex == 0 ? Icons.home : Icons.home_outlined,
-                  size: 24,
-                ),
-              ),
-              label: 'Home',
-            ),
-            BottomNavigationBarItem(
-              icon: Container(
-                padding: const EdgeInsets.all(6),
-                decoration: BoxDecoration(
-                  color: _selectedIndex == 1
-                      ? const Color(0xFF4A6FA5).withOpacity(0.1)
-                      : Colors.transparent,
-                  borderRadius: BorderRadius.circular(10),
-                ),
-                child: Icon(
-                  _selectedIndex == 1
-                      ? Icons.app_registration_outlined
-                      : Icons.app_registration_outlined,
-                  size: 24,
-                ),
-              ),
-              label: 'Appointments',
-            ),
-            BottomNavigationBarItem(
-              icon: Container(
-                padding: const EdgeInsets.all(6),
-                decoration: BoxDecoration(
-                  color: _selectedIndex == 2
-                      ? const Color(0xFF4A6FA5).withOpacity(0.1)
-                      : Colors.transparent,
-                  borderRadius: BorderRadius.circular(10),
-                ),
-                child: Icon(
-                  _selectedIndex == 2
-                      ? Icons.settings
-                      : Icons.settings_outlined,
-                  size: 24,
-                ),
-              ),
-              label: 'Settings',
-            ),
-          ],
-        ),
-      ),
     );
   }
-
-  Widget _buildHomeContent() {
-    return Column(
-      children: [
-        Expanded(
-          child: Padding(
-            padding: const EdgeInsets.all(20),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const Row(
-                  children: [
-                    Icon(Icons.grid_view, color: Color(0xFF4A6FA5), size: 22),
-                    SizedBox(width: 8),
-                    Text(
-                      'Our Services',
-                      style: TextStyle(
-                        fontSize: 20,
-                        fontWeight: FontWeight.w700,
-                        color: Color(0xFF333333),
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  'Tap on any service to explore',
-                  style: TextStyle(fontSize: 14, color: Colors.grey[600]),
-                ),
-                const SizedBox(height: 25),
-
-                // Services Grid
-                Expanded(
-                  child: GridView.builder(
-                    gridDelegate:
-                        const SliverGridDelegateWithFixedCrossAxisCount(
-                          crossAxisCount: 3,
-                          crossAxisSpacing: 16,
-                          mainAxisSpacing: 16,
-                          childAspectRatio: 0.85,
-                        ),
-                    itemCount: _services.length,
-                    itemBuilder: (context, index) {
-                      return _buildServiceCard(_services[index]);
-                    },
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildServiceCard(ServiceItem service) {
-    return GestureDetector(
-      onTap: () {
-        Navigator.push(
-          context,
-          MaterialPageRoute(builder: (context) => _getPage(service.title)),
-        );
-      },
-      child: Container(
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(16),
-          boxShadow: [
-            BoxShadow(
-              color: service.bgColor.withOpacity(0.3),
-              blurRadius: 10,
-              offset: const Offset(0, 4),
-              spreadRadius: 0.5,
-            ),
-            BoxShadow(
-              color: Colors.grey.withOpacity(0.1),
-              offset: const Offset(0, 2),
-            ),
-          ],
-          border: Border.all(color: service.bgColor.withOpacity(0.3), width: 5),
-        ),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Container(
-              width: 80,
-              height: 80,
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                  colors: [service.bgColor, service.bgColor.withOpacity(0.8)],
-                ),
-                borderRadius: BorderRadius.circular(14),
-                boxShadow: [
-                  BoxShadow(
-                    color: service.iconColor.withOpacity(0.1),
-                    blurRadius: 5,
-                    offset: const Offset(0, 4),
-                  ),
-                ],
-              ),
-              child: Icon(service.icon, color: service.iconColor, size: 75),
-            ),
-            const SizedBox(height: 25),
-
-            // Service Title
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 8),
-              child: Text(
-                service.title,
-                textAlign: TextAlign.center,
-                style: TextStyle(
-                  fontSize: 17,
-                  fontWeight: FontWeight.w600,
-                  color: service.titleColor,
-                  height: 1.3,
-                ),
-                maxLines: 2,
-                overflow: TextOverflow.ellipsis,
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _getPage(String title) {
-    switch (title) {
-      case 'Medicines':
-        return MedicinesPage();
-      case 'Adoption':
-        return ShelterPetsScreen();
-      case 'Pet Resources':
-        return PetResourcesPage();
-      case 'Raising a Pet':
-        return PetGuidePage();
-      case 'Animal Breeds':
-        return AnimalTypesPage();
-      case 'Put for Adoption':
-        return PutForAdoptionPage();
-      case 'Sales Report':
-        return SalesReportScreen();
-      case 'Manage Medicines':
-        return MedicineManagementPage();
-      case 'Manage Animals':
-        return MedicinesPage();
-      case 'Manage Resources':
-        return ResourcesManagementPage();
-      case 'Contact Us':
-        return ContactUsPage();
-      default:
-        return MedicinesPage();
-    }
-  }
-}
-
-class ServiceItem {
-  final IconData icon;
-  final String title;
-  final Color bgColor;
-  final Color iconColor;
-  final Color titleColor;
-
-  ServiceItem(
-    this.icon,
-    this.title,
-    this.bgColor,
-    this.iconColor,
-    this.titleColor,
-  );
 }

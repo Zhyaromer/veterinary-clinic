@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:vet_clinic/screens/homescreen.dart';
 import '../models/cart_item.dart';
-import '../main.dart';
 import 'checkout_page.dart';
 
 class ShoppingCartPage extends StatefulWidget {
