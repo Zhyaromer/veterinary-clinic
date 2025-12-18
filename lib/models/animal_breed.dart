@@ -122,7 +122,7 @@ List<AnimalBreed> catBreeds = [
       'Requires daily grooming',
     ],
     imageUrl:
-        'https://images.unsplash.com/photo-1513360371669-4adf3dd7dff8?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
+        'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR73vrKgTAIPDvewfxJENo3XptLGFATb5bqkqKxBsCl4Fw6ut5IIeTc0FCn034X9dEKpDvAi0kesFaTzguV7PSnuaXGoOf_SYD2lr92aBg&s=10',
   ),
   AnimalBreed(
     id: 2,
@@ -145,7 +145,7 @@ List<AnimalBreed> catBreeds = [
       'Very vocal and communicative',
     ],
     imageUrl:
-        'https://images.unsplash.com/photo-1543852786-1cf6624b9987?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
+        'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSqN6OzCzFdjdttXpUXGO-PgOTeg9grX_NRv2o0NOjC9NH1Upj9uETRLRl8WoW-ynpEvp8bd2LYjkx14IwCfgYRHesNpiawER5zAOBZ5Fo&s=10',
   ),
   AnimalBreed(
     id: 3,
@@ -167,7 +167,7 @@ List<AnimalBreed> catBreeds = [
       'Water-resistant coat',
     ],
     imageUrl:
-        'https://images.unsplash.com/photo-1514888286974-6d03bde4ba6e?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
+        'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS9HGsgu-cCqVzjgql9_8zmfCFiOwg3jYTXQEBAH31Uc3jz-tKkRhL-JrigOrTo_pU_1qFulMi8n5hjgKyY1BNHtqQ5tbme4YoInWgVhw&s=10',
   ),
   AnimalBreed(
     id: 4,
@@ -190,7 +190,7 @@ List<AnimalBreed> catBreeds = [
       'Loves water and climbing',
     ],
     imageUrl:
-        'https://images.unsplash.com/photo-1533738363-b7f9aef128ce?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
+        'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQpt2-MMbTrFWvCJIxi2gPABC65sURDUh-D4IFn5GLAmmhH485jFlAqMKiyagus-Ry_-kdNqtuSC7HqtB1Kiy2MY5WnXebKEtV_aEvw4A&s=10',
   ),
   AnimalBreed(
     id: 5,
@@ -213,7 +213,7 @@ List<AnimalBreed> catBreeds = [
       'Requires regular bathing',
     ],
     imageUrl:
-        'https://images.unsplash.com/photo-1573865526739-10659fec78a5?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
+        'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTJRDEfJesrCQ1sy8-aOGyikRx2I6aGUF25L-lFyBEkTUoCNqljUxgy8NxnkKI3zCn2lfaeh94WogZAUVyZGtoBiY7kX0y339lS63l_EVE&s=10',
   ),
   AnimalBreed(
     id: 6,
@@ -235,7 +235,7 @@ List<AnimalBreed> catBreeds = [
       'Goes limp when held (Ragdoll trait)',
     ],
     imageUrl:
-        'https://images.unsplash.com/photo-1592194996308-7b43878e84a6?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
+        'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTkkovaAx62EFdc2bfTVADLCjPy-QdETOtbKXjogRmT-CEHMqWcwh-7u0xVcsCfh3CL6q8rMHU7LPijkpju8WtxrOJ14RrC0mEj86bSYw&s=10',
   ),
   AnimalBreed(
     id: 7,
@@ -257,7 +257,7 @@ List<AnimalBreed> catBreeds = [
       'Teddy bear appearance',
     ],
     imageUrl:
-        'https://images.unsplash.com/photo-1513360371669-4adf3dd7dff8?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
+        'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQx6bPNidnjGEpqmL4-p8F8Te69O9dEDSzlUP3DTWn5ouVrIF6awtjpzig_xlSQs2sU1TQo18azB_vryE2uYVaIFsjtEJJAGMKGVWWtt-k&s=10',
   ),
   AnimalBreed(
     id: 8,
@@ -278,8 +278,7 @@ List<AnimalBreed> catBreeds = [
       'Compact body',
       'Owl-like appearance',
     ],
-    imageUrl:
-        'https://images.unsplash.com/photo-1543852786-1cf6624b9987?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
+    imageUrl: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSVXqBJ_PnlVuvtHku_vkcAPUWmMNOSKz3d17U8lcXELtJyW4QLKppB4Fp2O4Jz1GnJpuzyj8WrNhRlvJWggzw72affNgqARc3hIi1EvLI&s=10',
   ),
 ];
 
@@ -328,7 +327,7 @@ List<AnimalBreed> dogBreeds = [
       'Excellent working dog',
     ],
     imageUrl:
-        'https://images.unsplash.com/photo-1567752881298-894bb81f9379?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
+        'https://upload.wikimedia.org/wikipedia/commons/d/d0/German_Shepherd_-_DSC_0346_%2810096362833%29.jpg',
   ),
   AnimalBreed(
     id: 103,
@@ -350,7 +349,7 @@ List<AnimalBreed> dogBreeds = [
       'Eager to please',
     ],
     imageUrl:
-        'https://images.unsplash.com/photo-1543466835-00a7907e9de1?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
+        'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT4SqXnZ0DYnFQJxFuDPDFixVLsjfnKzR2yM8jBJl7OdXRJpk65lxT_vRjRQHuJkljeigQUG3efqxTK7Mx5ZY2I6r1THc2cvkA2Y4jdhOA&s=10',
   ),
   AnimalBreed(
     id: 104,
@@ -373,7 +372,7 @@ List<AnimalBreed> dogBreeds = [
       'Low exercise needs',
     ],
     imageUrl:
-        'https://images.unsplash.com/photo-1560803240-39c4d1c73c8e?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
+        'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT37-mA4Iy8s9R1xNq3TsdJrS2ovJji5D48X9MmulS_8KWQMIVetI4BjA37K-GjhRaUCpRyuX8t-VpJ1ugx--cKlZoG9a-D3C96-ZL4rQ&s=10',
   ),
   AnimalBreed(
     id: 105,
@@ -401,7 +400,7 @@ List<AnimalBreed> dogBreeds = [
       'Strong prey drive',
     ],
     imageUrl:
-        'https://images.unsplash.com/photo-1588943211346-0908a1fb0b01?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
+        'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQhVmmK2HBewyCGsTeIyqPzfi4ZxaXYtGCPiwQ2BCUt8wbBPSNDdy8GN2W3wbR7inGbAboFv7UEf-3R5fTrpiudYbZegilR2bYocUUGmg&s=10',
   ),
   AnimalBreed(
     id: 106,
@@ -424,7 +423,7 @@ List<AnimalBreed> dogBreeds = [
       'Excellent show and working dog',
     ],
     imageUrl:
-        'https://images.unsplash.com/photo-1596492784531-6e6eb5ea9993?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
+        'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQer3QJKKQH5yoNV4CLLfZGwGCcMzuGgMsSO6atau2J7f6Tt-eSCleRkmU5oKDO1pQQF646qzD6KvIdLYG3chSQvW3dUBTjWyStYzdPnw&s=10',
   ),
   AnimalBreed(
     id: 107,
@@ -446,7 +445,7 @@ List<AnimalBreed> dogBreeds = [
       'Food motivated',
     ],
     imageUrl:
-        'https://images.unsplash.com/photo-1559181567-c5190bce7b33?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
+        'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS0XEViJNzXHFaCuk5jR3E8nqkgodo_hkfIDIin8f5LY70WyYFcvJL3nb85xqKW6OBu9rNX65YpYb5nhwEtUi5-saKUMp8YNVxzvpX4aw&s=10',
   ),
   AnimalBreed(
     id: 108,
@@ -468,7 +467,7 @@ List<AnimalBreed> dogBreeds = [
       'Low exercise needs',
     ],
     imageUrl:
-        'https://images.unsplash.com/photo-1529254479751-fbacb4c7a587?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
+        'https://upload.wikimedia.org/wikipedia/commons/1/18/2008-07-28_Dog_at_Frolick_Field.jpg',
   ),
   AnimalBreed(
     id: 109,
@@ -491,7 +490,7 @@ List<AnimalBreed> dogBreeds = [
       'Prone to back problems',
     ],
     imageUrl:
-        'https://images.unsplash.com/photo-1561037404-61cd46aa615b?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
+        'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTsOYZAfj_s5uC2nTB6w0DLbFt597MxRnOROLcxJfrTTglIfRFcInEm-4uL1Sqm9kw1Kc68KaSKIEvpSTGQUHqlQzUsT6W5xBQg1y8Z0g&s=10',
   ),
   AnimalBreed(
     id: 110,
@@ -514,7 +513,7 @@ List<AnimalBreed> dogBreeds = [
       'Needs mental stimulation',
     ],
     imageUrl:
-        'https://images.unsplash.com/photo-1596492784531-6e6eb5ea9993?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
+        'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTao0lDPAkxL143wupWiVGPUcfCNhE1EXeIHHAmcc6zTwKRzMDeHRSB1doBIzoZIbwA7wyYEOcXLqxeRN8WNGzW2T70DAiImhrb4FrcGZw&s=10',
   ),
   AnimalBreed(
     id: 111,
@@ -536,7 +535,7 @@ List<AnimalBreed> dogBreeds = [
       'Requires daily grooming',
     ],
     imageUrl:
-        'https://images.unsplash.com/photo-1583511655857-d19b40a7a54e?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
+        'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTqWbUmlFAaYK0NtcJjZJO5Wt0hBkkzxbphtdgGyI43Wk_4Ew8YnDAQFmCBXAjsc3qhnTgQeARY-eTeqEfM9n-7IRrdWPBaFnCxZORz-w&s=10',
   ),
   AnimalBreed(
     id: 112,
@@ -561,7 +560,7 @@ List<AnimalBreed> dogBreeds = [
       'High energy and agility',
     ],
     imageUrl:
-        'https://images.unsplash.com/photo-1558702809-64e7bf2c1e8b?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
+        'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRnNDoU1BeQDwc3_gylShIMCF-oYRF_KHiNtgPAVbqPKw3XPic3Jkfvfsai01Ndx4KpfbOuhSEK9jd3jyyt45tVgH5jC4szLknnYFYcSA&s=10',
   ),
 ];
 
@@ -589,7 +588,7 @@ List<AnimalBreed> birdBreeds = [
       'Social, do better in pairs',
     ],
     imageUrl:
-        'https://images.unsplash.com/photo-1552728089-57bdde30beb3?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
+        'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR7f9LyLpME2FmGSbpHgED_o18-uGsthjB-MXIpuyjHRiO9YDSgGtNtLsb60vJyNJ5tbyUQ0nUOB4S6pq4Y58ovgOZdqssYRnDoKJCemxw&s=10',
   ),
   AnimalBreed(
     id: 202,
@@ -612,7 +611,7 @@ List<AnimalBreed> birdBreeds = [
       'Enjoy head scratches',
     ],
     imageUrl:
-        'https://images.unsplash.com/photo-1535157412997-b0fe68f5f2d7?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
+        'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRXCl7rdrVbahho31Gbjgg7XcRbqByJG4_vifGgiQwlKhgfZrokwL8ckE2s0Qn07myvvGA-MV4BKtdSj79UtGIgHba0awfhO89xpxhTZwo&s=10',
   ),
   AnimalBreed(
     id: 203,
@@ -635,7 +634,7 @@ List<AnimalBreed> birdBreeds = [
       'Long-lived companion',
     ],
     imageUrl:
-        'https://images.unsplash.com/photo-1583339522879-6e1fdf2d07f8?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
+        'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRcVErJetjCWvnmV_yNEDEibX9A9fXDwKHu4B3hmxVdldBQKlnUIAoHtlzFH7ZXc2hETYjHx2pBjOQXD9xezzrKS4_pVquQJIGMH1cHJQ&s=10',
   ),
   AnimalBreed(
     id: 204,
@@ -658,7 +657,7 @@ List<AnimalBreed> birdBreeds = [
       'Good for listening enjoyment',
     ],
     imageUrl:
-        'https://images.unsplash.com/photo-1549294413-95ed4c6c1a90?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
+        'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSk54QYDAmCJ8bFmbZVW3dEe9lKPaT-RBUaGN9ryUVV0Sbp93GfMNZzrM9TupMAC2vJaBtpqDcScRUNBGs1SEHdsmDubEKWEz_KbQ5DYA&s=10',
   ),
   AnimalBreed(
     id: 205,
@@ -680,7 +679,7 @@ List<AnimalBreed> birdBreeds = [
       'May bond strongly with one person',
     ],
     imageUrl:
-        'https://images.unsplash.com/photo-1522926193341-e9ffd686c60f?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
+        'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS2riYCb3hzUV4OpjufXXR7-126oRIwJbNnp8ZalTDjQT-Fg7fFJFqT-1bXLZX42XsjZ3XBgQ3-Y-TySqOwCJLopM_ARAHeilISiSVyIwo&s=10',
   ),
   AnimalBreed(
     id: 206,
@@ -702,7 +701,7 @@ List<AnimalBreed> birdBreeds = [
       'Can be loud',
     ],
     imageUrl:
-        'https://images.unsplash.com/photo-1599230529628-4c25c1b3a8de?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
+        'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTy32VRmgxSNG8-gc8nx_VTPy12cF_Qq8ozs8j-xo-lDtz9wGY_AEcXbrl2wFeXojBFdja125WmQEXW5MMKGHBvAePoJ5eXVvOkMXUBUA&s=10',
   ),
   AnimalBreed(
     id: 207,
@@ -724,7 +723,7 @@ List<AnimalBreed> birdBreeds = [
       'Minimal handling required',
     ],
     imageUrl:
-        'https://images.unsplash.com/photo-1578779683136-4f4ead02dc31?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
+        'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRzqtFx0zBDCXHvaUN8pVaZTwGgUpOnQr6-LBpoCMNkNOwQSd-4ErIakRa5_2RfCoKW4diKhbj35-yo-smbzBE1mxVingu7nxdy_-Jk8w&s=10',
   ),
   AnimalBreed(
     id: 208,
@@ -747,7 +746,7 @@ List<AnimalBreed> birdBreeds = [
       'Requires experienced care',
     ],
     imageUrl:
-        'https://images.unsplash.com/photo-1558104631-6c8c7a5c8c3a?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
+        'https://images.ctfassets.net/rt5zmd3ipxai/6lklVlmFtuSvxIpVEl5pFo/97335a5a4d146eead10d4d3e1cea384a/NVa-Parrot-Claw.png?fit=fill&fm=webp&h=578&w=1070&q=72,%20https://images.ctfassets.net/rt5zmd3ipxai/6lklVlmFtuSvxIpVEl5pFo/97335a5a4d146eead10d4d3e1cea384a/NVa-Parrot-Claw.png?fit=fill&fm=webp&h=1156&w=2140&q=72',
   ),
   AnimalBreed(
     id: 209,
@@ -773,7 +772,7 @@ List<AnimalBreed> birdBreeds = [
       'Requires dedicated owner',
     ],
     imageUrl:
-        'https://images.unsplash.com/photo-1558536216-87d24d5d8f84?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
+        'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQJurlqduJtyO8EES7Cppyji83FnumIy-M2yUFa4pThJl0Uafi1LRr2iaxYMP35Z5HWnHC72HaMj6Y1Y28YgXtQ1Ew8CzlDW8HPIcVO0yA&s=10',
   ),
   AnimalBreed(
     id: 210,
@@ -798,7 +797,7 @@ List<AnimalBreed> birdBreeds = [
       'Moderate noise level',
     ],
     imageUrl:
-        'https://images.unsplash.com/photo-1572015098327-9c5c6b8b5c5a?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
+        'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQvgG0M6QLejWlPXspbVzdiPDOgl3MxZ0N8Vw&s',
   ),
   AnimalBreed(
     id: 211,
@@ -821,7 +820,7 @@ List<AnimalBreed> birdBreeds = [
       'Symbol of peace',
     ],
     imageUrl:
-        'https://images.unsplash.com/photo-1569078449085-61d6a9d2e8d7?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
+        'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRVqvOrXpZWGUcuwGKIvoNJqHjEBfL8jauFdzX-3G5FLBbsyTgp59qXTAis80kagA-aGGEwqbn0RdpUjtQKgH3XN0tVYiyd5eZlpVR-Fo8&s=10',
   ),
   AnimalBreed(
     id: 212,
@@ -844,6 +843,6 @@ List<AnimalBreed> birdBreeds = [
       'May bond strongly with owner',
     ],
     imageUrl:
-        'https://images.unsplash.com/photo-1552728089-57bdde30beb3?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
+        'https://upload.wikimedia.org/wikipedia/commons/a/a8/Forpus_coelestis_-_male_pet.jpg',
   ),
 ];

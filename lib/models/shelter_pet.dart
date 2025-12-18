@@ -174,7 +174,7 @@ List<ShelterPet> shelterPets = [
     description:
         'Luna is a beautiful calico cat who was surrendered by her previous owners. She enjoys quiet spaces and gentle petting.',
     imageUrl:
-        'https://images.unsplash.com/photo-1514888286974-6d03bde4ba42?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
+        'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSE9aL1hZ0BWzO7QHa6VG5bIdOOVYWfdd3g5Ilm5B04r3ZIHfnaO1ZxnLkdlPXi8HKL1THlmomVc3EjItbagqkITeVU6b50m6mkWSSOA78&s=10',
     isAdopted: false,
     adoptionFee: 150.00,
     careLevel: 2,
@@ -202,7 +202,7 @@ List<ShelterPet> shelterPets = [
     description:
         'Charlie is a lovable beagle mix with a great sense of humor. He loves long walks and cuddling on the couch.',
     imageUrl:
-        'https://images.unsplash.com/photo-1537151608828-ea2b11777ee8?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
+        'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQd5igTGvxOItB6VXBXW2ToC1TQivYR544sHA&s',
     isAdopted: false,
     adoptionFee: 200.00,
     careLevel: 4,
@@ -230,7 +230,7 @@ List<ShelterPet> shelterPets = [
     description:
         'Bella is a stunning young Siamese mix who loves to chat. She\'s very intelligent and enjoys puzzle toys.',
     imageUrl:
-        'https://images.unsplash.com/photo-1573865526739-10659fec78a5?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
+        'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSqN6OzCzFdjdttXpUXGO-PgOTeg9grX_NRv2o0NOjC9NH1Upj9uETRLRl8WoW-ynpEvp8bd2LYjkx14IwCfgYRHesNpiawER5zAOBZ5Fo&s=10',
     isAdopted: false,
     adoptionFee: 175.00,
     careLevel: 3,
@@ -258,7 +258,7 @@ List<ShelterPet> shelterPets = [
     description:
         'Coco is an incredibly intelligent African Grey who was surrendered due to owner relocation. He knows several words and phrases.',
     imageUrl:
-        'https://images.unsplash.com/photo-1552728089-57bdde30beb3?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
+        'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRcVErJetjCWvnmV_yNEDEibX9A9fXDwKHu4B3hmxVdldBQKlnUIAoHtlzFH7ZXc2hETYjHx2pBjOQXD9xezzrKS4_pVquQJIGMH1cHJQ&s=10',
     isAdopted: false,
     adoptionFee: 300.00,
     careLevel: 5,
@@ -286,7 +286,7 @@ List<ShelterPet> shelterPets = [
     description:
         'Rocky is a beautiful Lionhead rabbit with a fluffy mane. He\'s a bit shy but warms up quickly with gentle handling.',
     imageUrl:
-        'https://images.unsplash.com/photo-1513360371669-4adf3dd7dff8?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
+        'https://upload.wikimedia.org/wikipedia/commons/thumb/5/53/Lionhead_Rabbit_with_black_nose.jpg/250px-Lionhead_Rabbit_with_black_nose.jpg',
     isAdopted: false,
     adoptionFee: 100.00,
     careLevel: 3,
@@ -314,7 +314,7 @@ List<ShelterPet> shelterPets = [
     description:
         'Daisy is a sweet Labrador puppy who was found abandoned. She\'s full of energy and ready for training and adventures.',
     imageUrl:
-        'https://images.unsplash.com/photo-1560807707-8cc77767d783?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
+        'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT4SqXnZ0DYnFQJxFuDPDFixVLsjfnKzR2yM8jBJl7OdXRJpk65lxT_vRjRQHuJkljeigQUG3efqxTK7Mx5ZY2I6r1THc2cvkA2Y4jdhOA&s=10',
     isAdopted: false,
     adoptionFee: 350.00,
     careLevel: 4,
@@ -342,7 +342,7 @@ List<ShelterPet> shelterPets = [
     description:
         'Mittens is a senior gentleman looking for a quiet retirement home. He loves naps in sunny spots and gentle brushing.',
     imageUrl:
-        'https://images.unsplash.com/photo-1513360371669-4adf3dd7dff8?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
+        'https://ziggyfamily.com/cdn/shop/articles/maine-coon_2_0f8fe44a-55c2-4f6b-8359-e168a83ce2f8.jpg?v=1748331822&width=1000',
     isAdopted: false,
     adoptionFee: 75.00,
     careLevel: 2,
