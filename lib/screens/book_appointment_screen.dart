@@ -171,166 +171,222 @@ class _BookAppointmentScreenState extends State<BookAppointmentScreen> {
         _termsAccepted;
   }
 
-  void _submitForm() {
-    if (_formKey.currentState!.validate()) {
-      _formKey.currentState!.save();
+  void _submitForm() async {
+    if (!_formKey.currentState!.validate()) return;
 
-      if (_selectedDate == null || _selectedTime == null) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: const Text('Please select date and time'),
-            backgroundColor: Colors.red[400],
-            behavior: SnackBarBehavior.floating,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(10),
+    _formKey.currentState!.save();
+
+    if (_selectedDate == null || _selectedTime == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: const Text('Please select date and time'),
+          backgroundColor: Colors.red[400],
+        ),
+      );
+      return;
+    }
+
+    if (!_termsAccepted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: const Text('Please accept the terms and conditions'),
+          backgroundColor: Colors.red[400],
+        ),
+      );
+      return;
+    }
+
+    final appointment = Appointment(
+      id: DateTime.now().millisecondsSinceEpoch.toString(),
+      petName: _petName,
+      ownerName: _ownerName,
+      phoneNumber: _phoneNumber,
+      email: _email,
+      petType: _petType,
+      petBreed: _petBreed,
+      petAge: _petAge,
+      appointmentDate: _selectedDate!,
+      appointmentTime: _selectedTime!,
+      reason: _reason,
+      symptoms: _symptoms,
+      emergency: _emergency,
+      vetPreference: _vetPreference,
+      createdAt: DateTime.now(),
+    );
+    final result = await showDialog<Appointment>(
+      context: context,
+      barrierDismissible: false,
+      builder: (dialogContext) {
+        return Dialog(
+          insetPadding: const EdgeInsets.symmetric(horizontal: 24),
+          backgroundColor: Colors.transparent,
+          child: Container(
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(24),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.08),
+                  blurRadius: 20,
+                  offset: const Offset(0, 10),
+                ),
+              ],
+            ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                // Top gradient header
+                Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.symmetric(vertical: 28),
+                  decoration: const BoxDecoration(
+                    gradient: LinearGradient(
+                      colors: [Color(0xFF4A6FA5), Color(0xFF6B8ED6)],
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                    ),
+                    borderRadius: BorderRadius.vertical(
+                      top: Radius.circular(24),
+                    ),
+                  ),
+                  child: Column(
+                    children: [
+                      Container(
+                        width: 72,
+                        height: 72,
+                        decoration: BoxDecoration(
+                          color: Colors.white.withOpacity(0.15),
+                          shape: BoxShape.circle,
+                        ),
+                        child: const Icon(
+                          Icons.check_circle_outline,
+                          color: Colors.white,
+                          size: 42,
+                        ),
+                      ),
+                      const SizedBox(height: 16),
+                      const Text(
+                        'Appointment Confirmed',
+                        style: TextStyle(
+                          fontSize: 22,
+                          fontWeight: FontWeight.w700,
+                          color: Colors.white,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+
+                // Content section
+                Padding(
+                  padding: const EdgeInsets.all(24),
+                  child: Column(
+                    children: [
+                      Text(
+                        _petName,
+                        style: const TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.w600,
+                          color: Colors.black87,
+                        ),
+                      ),
+                      const SizedBox(height: 6),
+                      Text(
+                        'Your appointment has been successfully scheduled.',
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          fontSize: 14,
+                          color: Colors.grey.shade600,
+                        ),
+                      ),
+                      const SizedBox(height: 20),
+
+                      // Info card
+                      Container(
+                        padding: const EdgeInsets.all(16),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFFF4F7FF),
+                          borderRadius: BorderRadius.circular(14),
+                          border: Border.all(
+                            color: const Color(0xFF4A6FA5).withOpacity(0.2),
+                          ),
+                        ),
+                        child: Column(
+                          children: [
+                            _dialogDetailRow(
+                              Icons.calendar_today_outlined,
+                              DateFormat(
+                                'EEEE, MMM d, yyyy',
+                              ).format(_selectedDate!),
+                            ),
+                            const SizedBox(height: 10),
+                            _dialogDetailRow(
+                              Icons.access_time_outlined,
+                              _formatTime(_selectedTime!),
+                            ),
+                            const SizedBox(height: 10),
+                            _dialogDetailRow(
+                              Icons.person_outline,
+                              _vetPreference,
+                            ),
+                          ],
+                        ),
+                      ),
+
+                      const SizedBox(height: 24),
+
+                      // Primary action
+                      SizedBox(
+                        width: double.infinity,
+                        height: 52,
+                        child: ElevatedButton(
+                          onPressed: () {
+                            Navigator.of(dialogContext).pop(appointment);
+                          },
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: const Color(0xFF4A6FA5),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(14),
+                            ),
+                            elevation: 2,
+                          ),
+                          child: const Text(
+                            'View Appointments',
+                            style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.w600,
+                               color: Colors.white
+                            ),
+                          ),
+                        ),
+                      ),
+
+                      const SizedBox(height: 12),
+
+                      // Secondary hint
+                      Text(
+                        'A confirmation email has been sent.',
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: Colors.grey.shade500,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
             ),
           ),
         );
-        return;
-      }
+      },
+    );
 
-      if (!_termsAccepted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: const Text('Please accept the terms and conditions'),
-            backgroundColor: Colors.red[400],
-            behavior: SnackBarBehavior.floating,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(10),
-            ),
-          ),
-        );
-        return;
-      }
-
-      // Create appointment
-      final appointment = Appointment(
-        id: DateTime.now().millisecondsSinceEpoch.toString(),
-        petName: _petName,
-        ownerName: _ownerName,
-        phoneNumber: _phoneNumber,
-        email: _email,
-        petType: _petType,
-        petBreed: _petBreed,
-        petAge: _petAge,
-        appointmentDate: _selectedDate!,
-        appointmentTime: _selectedTime!,
-        reason: _reason,
-        symptoms: _symptoms,
-        emergency: _emergency,
-        vetPreference: _vetPreference,
-        createdAt: DateTime.now(),
-      );
-
-      // Show success dialog
-      showDialog(
-        context: context,
-        barrierDismissible: false,
-        builder: (context) {
-          return Dialog(
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(20),
-            ),
-            child: Container(
-              padding: const EdgeInsets.all(30),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(20),
-              ),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Container(
-                    width: 80,
-                    height: 80,
-                    decoration: BoxDecoration(
-                      color: Colors.green.shade100,
-                      shape: BoxShape.circle,
-                    ),
-                    child: const Icon(
-                      Icons.check,
-                      color: Colors.green,
-                      size: 40,
-                    ),
-                  ),
-                  const SizedBox(height: 20),
-                  const Text(
-                    'Appointment Booked!',
-                    style: TextStyle(
-                      fontSize: 22,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.black87,
-                    ),
-                  ),
-                  const SizedBox(height: 15),
-                  Text(
-                    'for $_petName',
-                    style: TextStyle(fontSize: 18, color: Colors.grey.shade700),
-                  ),
-                  const SizedBox(height: 20),
-                  Container(
-                    padding: const EdgeInsets.all(15),
-                    decoration: BoxDecoration(
-                      color: Colors.grey.shade50,
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    child: Column(
-                      children: [
-                        _buildDetailRow(
-                          icon: Icons.calendar_today,
-                          text: _dateController.text,
-                        ),
-                        const SizedBox(height: 8),
-                        _buildDetailRow(
-                          icon: Icons.access_time,
-                          text: _timeController.text,
-                        ),
-                        const SizedBox(height: 8),
-                        _buildDetailRow(
-                          icon: Icons.person,
-                          text: _vetPreference,
-                        ),
-                      ],
-                    ),
-                  ),
-                  const SizedBox(height: 25),
-                  Text(
-                    'A confirmation email has been sent to $_email',
-                    textAlign: TextAlign.center,
-                    style: const TextStyle(fontSize: 14, color: Colors.grey),
-                  ),
-                  const SizedBox(height: 20),
-                  ElevatedButton(
-                    onPressed: () {
-                      Navigator.pop(context); // Close dialog
-                      Navigator.pop(
-                        context,
-                        appointment,
-                      ); // Return to appointments
-                    },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFF4A6FA5),
-                      foregroundColor: Colors.white,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(10),
-                      ),
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 30,
-                        vertical: 12,
-                      ),
-                    ),
-                    child: const Text('Done'),
-                  ),
-                ],
-              ),
-            ),
-          );
-        },
-      );
+    if (result != null && mounted) {
+      Navigator.pop(context, result);
     }
   }
 
-  Widget _buildDetailRow({required IconData icon, required String text}) {
+  Widget _dialogDetailRow(IconData icon, String text) {
     return Row(
       children: [
         Icon(icon, size: 18, color: const Color(0xFF4A6FA5)),
@@ -338,7 +394,11 @@ class _BookAppointmentScreenState extends State<BookAppointmentScreen> {
         Expanded(
           child: Text(
             text,
-            style: const TextStyle(fontSize: 14, color: Colors.black87),
+            style: const TextStyle(
+              fontSize: 14,
+              fontWeight: FontWeight.w500,
+              color: Colors.black87,
+            ),
           ),
         ),
       ],

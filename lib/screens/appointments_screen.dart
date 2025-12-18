@@ -6,6 +6,8 @@ import 'book_appointment_screen.dart';
 class AppointmentsScreen extends StatefulWidget {
   const AppointmentsScreen({Key? key}) : super(key: key);
 
+  
+
   @override
   _AppointmentsScreenState createState() => _AppointmentsScreenState();
 }
