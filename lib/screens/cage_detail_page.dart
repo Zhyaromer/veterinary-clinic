@@ -42,7 +42,7 @@ class _CageDetailPageState extends State<CageDetailPage> {
                   // Cage Image Background
                   Image.network(
                     petCage.imageUrl,
-                    fit: BoxFit.cover,
+                    fit: BoxFit.fill,
                     width: double.infinity,
                     height: double.infinity,
                     errorBuilder: (context, error, stackTrace) {
@@ -607,30 +607,6 @@ class _CageDetailPageState extends State<CageDetailPage> {
                         ),
                       ],
                     ),
-
-                    const SizedBox(height: 24),
-
-                    // Action Buttons
-                    Row(
-                      children: [
-                        Expanded(
-                          child: OutlinedButton.icon(
-                            onPressed: () {},
-                            style: OutlinedButton.styleFrom(
-                              side: const BorderSide(color: Color(0xFF4A6FA5)),
-                              padding: const EdgeInsets.symmetric(vertical: 16),
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(12),
-                              ),
-                            ),
-                            icon: const Icon(Icons.favorite_border),
-                            label: const Text('Save for Later'),
-                          ),
-                        ),
-                      ],
-                    ),
-
-                    const SizedBox(height: 40),
                   ],
                 ),
               ),

@@ -419,7 +419,7 @@ class FoodManagementCard extends StatelessWidget {
       final expiry = DateTime.parse(expiryDate);
       final today = DateTime.now();
       final difference = expiry.difference(today).inDays;
-      return difference <= 90; // Expiring in 3 months or less
+      return difference <= 90;
     } catch (e) {
       return false;
     }

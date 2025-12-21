@@ -44,7 +44,7 @@ class _PetFoodDetailPageState extends State<PetFoodDetailPage> {
                     tag: 'food-${petFood.id}',
                     child: Image.network(
                       petFood.imageUrl,
-                      fit: BoxFit.cover,
+                      fit: BoxFit.fill,
                       errorBuilder: (context, error, stackTrace) {
                         return Container(
                           color: petTypeColor.withOpacity(0.1),
@@ -154,19 +154,6 @@ class _PetFoodDetailPageState extends State<PetFoodDetailPage> {
               ),
               onPressed: () => Navigator.pop(context),
             ),
-            actions: [
-              IconButton(
-                icon: Container(
-                  padding: const EdgeInsets.all(8),
-                  decoration: BoxDecoration(
-                    color: Colors.black.withOpacity(0.4),
-                    shape: BoxShape.circle,
-                  ),
-                  child: const Icon(Icons.share, color: Colors.white),
-                ),
-                onPressed: () {},
-              ),
-            ],
           ),
 
           // Quantity Section with Add to Cart
@@ -588,34 +575,6 @@ class _PetFoodDetailPageState extends State<PetFoodDetailPage> {
                         ),
                       ),
                     ),
-
-                    const SizedBox(height: 35),
-
-                    // Action Buttons
-                    Row(
-                      children: [
-                        // Wishlist Button
-                        Container(
-                          width: 60,
-                          height: 60,
-                          margin: const EdgeInsets.only(right: 16),
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(15),
-                            border: Border.all(color: Colors.grey[300]!),
-                          ),
-                          child: IconButton(
-                            onPressed: () {},
-                            icon: const Icon(
-                              Icons.favorite_border,
-                              size: 28,
-                              color: Colors.grey,
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-
-                    const SizedBox(height: 50),
                   ],
                 ),
               ),

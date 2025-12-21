@@ -168,8 +168,8 @@ class _PetFoodPageState extends State<PetFoodPage> {
             builder: (context, setState) {
               return ConstrainedBox(
                 constraints: const BoxConstraints(
-                  maxWidth: 500,
-                  maxHeight: 700,
+                  maxWidth: 600,
+                  maxHeight: 770,
                 ),
                 child: SingleChildScrollView(
                   child: Padding(
@@ -531,7 +531,6 @@ class _PetFoodPageState extends State<PetFoodPage> {
                 prefixIcon: const Icon(Icons.search, color: Color(0xFF4A6FA5)),
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(15),
-                  borderSide: BorderSide.none,
                 ),
                 filled: true,
                 fillColor: Colors.grey[50],

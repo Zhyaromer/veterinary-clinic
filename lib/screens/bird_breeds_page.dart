@@ -229,7 +229,6 @@ class _BirdBreedsPageState extends State<BirdBreedsPage> {
                     ),
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12),
-                      borderSide: BorderSide.none,
                     ),
                     filled: true,
                     fillColor: Colors.white,

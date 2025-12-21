@@ -32,7 +32,7 @@ class BreedCard extends StatelessWidget {
                 ),
                 child: Image.network(
                   breed.imageUrl,
-                  fit: BoxFit.cover,
+                  fit: BoxFit.fill,
                   width: double.infinity,
                   height: double.infinity,
                   errorBuilder: (context, error, stackTrace) {

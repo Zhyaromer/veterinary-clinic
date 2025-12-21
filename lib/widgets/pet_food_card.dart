@@ -51,7 +51,7 @@ class PetFoodCard extends StatelessWidget {
                       ),
                       child: Image.network(
                         petFood.imageUrl,
-                        fit: BoxFit.cover,
+                        fit: BoxFit.fill,
                         width: double.infinity,
                         height: double.infinity,
                         errorBuilder: (context, error, stackTrace) {

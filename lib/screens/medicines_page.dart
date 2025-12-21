@@ -321,7 +321,6 @@ class _MedicinesPageState extends State<MedicinesPage> {
                         ),
                       ),
 
-                      // Actions
                       const SizedBox(height: 16),
                       Row(
                         mainAxisAlignment: MainAxisAlignment.end,
@@ -421,7 +420,6 @@ class _MedicinesPageState extends State<MedicinesPage> {
             ),
           ),
 
-          // Active Filters (Only show if any filter is active)
           if (_selectedAnimalType != 'All' ||
               _selectedCategory != 'All' ||
               _selectedManufacturer != 'All' ||
@@ -576,7 +574,7 @@ class _MedicinesPageState extends State<MedicinesPage> {
                             crossAxisCount: 2,
                             crossAxisSpacing: 0,
                             mainAxisSpacing: 0,
-                            childAspectRatio: 0.88,
+                            childAspectRatio: 0.84,
                           ),
                       itemCount: filteredMedicines.length,
                       itemBuilder: (context, index) {
