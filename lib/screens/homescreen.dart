@@ -112,13 +112,6 @@ class _HomeScreenState extends State<HomeScreen> {
       const Color(0xFF673AB7),
     ),
     ServiceItem(
-      Icons.pets,
-      'Manage Animals',
-      const Color(0xFFEFEBE9),
-      const Color(0xFF5D4037),
-      const Color(0xFF795548),
-    ),
-    ServiceItem(
       Icons.inventory,
       'Manage Resources',
       const Color(0xFFE0F7FA),
@@ -434,8 +427,6 @@ class _HomeScreenState extends State<HomeScreen> {
         return SalesReportScreen();
       case 'Manage Medicines':
         return MedicineManagementPage();
-      case 'Manage Animals':
-        return MedicinesPage();
       case 'Manage Resources':
         return ResourcesManagementPage();
       case 'Contact Us':

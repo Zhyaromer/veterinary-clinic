@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import '../models/pet_toy.dart';
 
+enum _ToyAction { edit, duplicate, delete }
+
 class ToyManagementCard extends StatelessWidget {
   final PetToy toy;
   final VoidCallback onEdit;
@@ -36,7 +38,7 @@ class ToyManagementCard extends StatelessWidget {
               children: [
                 // Image
                 Container(
-                  height: 210,
+                  height: 320,
                   width: double.infinity,
                   decoration: BoxDecoration(
                     color: petTypeColor.withOpacity(0.1),
@@ -52,7 +54,7 @@ class ToyManagementCard extends StatelessWidget {
                     ),
                     child: Image.network(
                       toy.imageUrl,
-                      fit: BoxFit.cover,
+                      fit: BoxFit.fill,
                       errorBuilder: (context, error, stackTrace) {
                         return Center(
                           child: Icon(
@@ -82,7 +84,7 @@ class ToyManagementCard extends StatelessWidget {
                     child: Text(
                       toy.category,
                       style: const TextStyle(
-                        fontSize: 12,
+                        fontSize: 15,
                         color: Colors.white,
                         fontWeight: FontWeight.w600,
                       ),
@@ -131,7 +133,7 @@ class ToyManagementCard extends StatelessWidget {
                     child: Text(
                       '${toy.stock} in stock',
                       style: const TextStyle(
-                        fontSize: 12,
+                        fontSize: 16,
                         color: Colors.white,
                         fontWeight: FontWeight.w600,
                       ),
@@ -155,13 +157,65 @@ class ToyManagementCard extends StatelessWidget {
                         child: Text(
                           toy.name,
                           style: const TextStyle(
-                            fontSize: 16,
+                            fontSize: 20,
                             fontWeight: FontWeight.w700,
                             color: Color(0xFF222222),
                           ),
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                         ),
+                      ),
+                      PopupMenuButton<_ToyAction>(
+                        tooltip: 'Actions',
+                        icon: const Icon(Icons.more_vert),
+                        onSelected: (value) {
+                          switch (value) {
+                            case _ToyAction.edit:
+                              onEdit();
+                              break;
+                            case _ToyAction.duplicate:
+                              onDuplicate();
+                              break;
+                            case _ToyAction.delete:
+                              onDelete();
+                              break;
+                          }
+                        },
+                        itemBuilder: (context) => [
+                          PopupMenuItem(
+                            value: _ToyAction.edit,
+                            child: Row(
+                              children: const [
+                                Icon(Icons.edit, size: 18),
+                                SizedBox(width: 8),
+                                Text('Edit'),
+                              ],
+                            ),
+                          ),
+                          PopupMenuItem(
+                            value: _ToyAction.duplicate,
+                            child: Row(
+                              children: const [
+                                Icon(Icons.content_copy, size: 18),
+                                SizedBox(width: 8),
+                                Text('Duplicate'),
+                              ],
+                            ),
+                          ),
+                          PopupMenuItem(
+                            value: _ToyAction.delete,
+                            child: Row(
+                              children: const [
+                                Icon(Icons.delete, size: 18, color: Colors.red),
+                                SizedBox(width: 8),
+                                Text(
+                                  'Delete',
+                                  style: TextStyle(color: Colors.red),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
                       ),
                       Container(
                         padding: const EdgeInsets.symmetric(
@@ -183,7 +237,7 @@ class ToyManagementCard extends StatelessWidget {
                             Text(
                               toy.petType,
                               style: TextStyle(
-                                fontSize: 12,
+                                fontSize: 14,
                                 fontWeight: FontWeight.w600,
                                 color: petTypeColor,
                               ),
@@ -199,7 +253,7 @@ class ToyManagementCard extends StatelessWidget {
                   // Description
                   Text(
                     toy.description,
-                    style: const TextStyle(fontSize: 13, color: Colors.grey),
+                    style: const TextStyle(fontSize: 15, color: Colors.grey),
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
                   ),
@@ -217,7 +271,7 @@ class ToyManagementCard extends StatelessWidget {
                           Text(
                             toy.size,
                             style: const TextStyle(
-                              fontSize: 13,
+                              fontSize: 15,
                               fontWeight: FontWeight.w600,
                               color: Color(0xFF222222),
                             ),
@@ -225,7 +279,7 @@ class ToyManagementCard extends StatelessWidget {
                           Text(
                             toy.material,
                             style: const TextStyle(
-                              fontSize: 12,
+                              fontSize: 15,
                               color: Colors.grey,
                             ),
                           ),
@@ -249,7 +303,7 @@ class ToyManagementCard extends StatelessWidget {
                           Text(
                             toy.ageSuitability,
                             style: const TextStyle(
-                              fontSize: 12,
+                              fontSize: 15,
                               color: Colors.grey,
                             ),
                           ),
@@ -344,64 +398,7 @@ class ToyManagementCard extends StatelessWidget {
                   ),
 
                   const SizedBox(height: 16),
-
-                  // Action Buttons
-                  Row(
-                    children: [
-                      // Edit Button
-                      Expanded(
-                        child: OutlinedButton.icon(
-                          onPressed: onEdit,
-                          icon: const Icon(Icons.edit, size: 16),
-                          label: const Text('Edit'),
-                          style: OutlinedButton.styleFrom(
-                            side: BorderSide(color: petTypeColor),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(8),
-                            ),
-                          ),
-                        ),
-                      ),
-                      const SizedBox(width: 8),
-
-                      // Duplicate Button
-                      Expanded(
-                        child: OutlinedButton.icon(
-                          onPressed: onDuplicate,
-                          icon: const Icon(Icons.content_copy, size: 16),
-                          label: const Text('Duplicate'),
-                          style: OutlinedButton.styleFrom(
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(8),
-                            ),
-                          ),
-                        ),
-                      ),
-                      const SizedBox(width: 8),
-
-                      // Delete Button
-                      Expanded(
-                        child: OutlinedButton.icon(
-                          onPressed: onDelete,
-                          icon: const Icon(
-                            Icons.delete,
-                            size: 16,
-                            color: Colors.red,
-                          ),
-                          label: const Text(
-                            'Delete',
-                            style: TextStyle(color: Colors.red),
-                          ),
-                          style: OutlinedButton.styleFrom(
-                            side: const BorderSide(color: Colors.red),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(8),
-                            ),
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
+                  // Actions moved to top menu (three dots)
                 ],
               ),
             ),

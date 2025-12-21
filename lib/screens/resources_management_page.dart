@@ -55,8 +55,8 @@ class _ResourcesManagementPageState extends State<ResourcesManagementPage>
         controller: _tabController,
         children: [
           const CageManagementPage(),
-          FoodManagementPage(),
-          ToyManagementPage(),
+          const FoodManagementPage(),
+          const ToyManagementPage(),
         ],
       ),
     );
