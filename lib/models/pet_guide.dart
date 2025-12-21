@@ -89,7 +89,7 @@ List<PetGuide> petGuides = [
     lifespan: "10-12 years",
     adultSize: "25-34 kg",
     imageUrl:
-        "https://images.unsplash.com/photo-1596492784531-6e6eb5ea9993?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80",
+        "https://www.hudsonanimalhospitalnyc.com/wp-content/uploads/2024/11/golden-retriever-dog-breed-info.jpg",
     description:
         "Golden Retrievers are friendly, intelligent, and devoted family dogs known for their gentle temperament and beautiful golden coats. They are one of the most popular dog breeds worldwide.",
     keyPoints: [
@@ -215,7 +215,7 @@ List<PetGuide> petGuides = [
     lifespan: "12-20 years",
     adultSize: "3.6-4.5 kg",
     imageUrl:
-        "https://images.unsplash.com/photo-1514888286974-6d03bde4ba14?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80",
+        "https://catexplore.com/wp-content/uploads/2022/04/cat-loaf-gray-tabby-922x1024.jpg",
     description:
         "Domestic Shorthairs are the most common type of cat, known for their diverse appearances and adaptable personalities. They make excellent companions for various households.",
     keyPoints: [
@@ -335,7 +335,7 @@ List<PetGuide> petGuides = [
     lifespan: "5-10 years",
     adultSize: "15-20 cm",
     imageUrl:
-        "https://images.unsplash.com/photo-1552728089-57bdde30beb3?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80",
+        "https://cdn.omlet.com/images/originals/worlds_most_popular_pet_bird.jpg",
     description:
         "Budgerigars are small, colorful parrots native to Australia. They are intelligent, social birds that can learn to mimic speech and perform tricks.",
     keyPoints: [
@@ -461,7 +461,7 @@ List<PetGuide> petGuides = [
     lifespan: "2-3 years",
     adultSize: "13-18 cm",
     imageUrl:
-        "https://images.unsplash.com/photo-1590664327927-2ab5e3c50d10?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80",
+        "https://cdn.creatures.com/34d/8a7/caa/5ca55.jpeg",
     description:
         "Syrian Hamsters are solitary, nocturnal rodents that make popular first pets. They are known for their cheek pouches used for food storage and distinctive personalities.",
     keyPoints: [
@@ -585,7 +585,7 @@ List<PetGuide> petGuides = [
     lifespan: "8-12 years",
     adultSize: "40-60 cm",
     imageUrl:
-        "https://images.unsplash.com/photo-1497206365907-f5e630693df0?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80",
+        "https://upload.wikimedia.org/wikipedia/commons/thumb/9/98/Bartagame_%28fcm%29.jpg/1200px-Bartagame_%28fcm%29.jpg",
     description:
         "Bearded Dragons are docile, diurnal lizards native to Australia. They are popular reptile pets due to their calm temperament and relatively easy care requirements.",
     keyPoints: [
@@ -719,7 +719,7 @@ List<PetGuide> petGuides = [
     lifespan: "3-5 years",
     adultSize: "6-7.5 cm",
     imageUrl:
-        "https://images.unsplash.com/photo-1511300636408-a63a89df3482?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80",
+        "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTV0Twv5eWTmZ-OhlUZ0aFKTMGLrPaFMw6rqzU5MAJekWMq3grL7smXkpr_3vSxc0iaCBJ9OBCLJvHP2gJ9eBz3eKpJ-PiQ6NwLxJ2N&s=10",
     description:
         "Betta fish, also known as Siamese fighting fish, are colorful freshwater fish known for their elaborate fins and territorial behavior. They are popular aquarium pets but have specific care requirements.",
     keyPoints: [
@@ -850,7 +850,7 @@ List<PetGuide> petGuides = [
     lifespan: "8-12 years",
     adultSize: "1-9 kg",
     imageUrl:
-        "https://images.unsplash.com/photo-1556838803-cc94986cb631?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80",
+        "https://upload.wikimedia.org/wikipedia/commons/5/5b/Oryctolagus_cuniculus_Tasmania_2_%28cropped%29.jpg",
     description:
         "Rabbits are intelligent, social lagomorphs that make wonderful indoor companions. They require specific care, including proper diet, housing, and socialization.",
     keyPoints: [

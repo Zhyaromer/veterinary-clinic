@@ -106,7 +106,7 @@ List<PetCage> petCages = [
     brand: "PetSafe",
     manufacturer: "Pet Habitat Solutions",
     imageUrl:
-        "https://images.unsplash.com/photo-1596492784531-6e6eb5ea9993?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80",
+        "https://cdn.shopify.com/s/files/1/0025/8467/4417/files/LL-DCB-S24-lords-and-labradors-black-crate-only-front-open-lifestyle.jpg",
     cleaningInstructions: "Wipe with damp cloth. Tray is dishwasher safe.",
     warranty: "1-year manufacturer warranty",
     isPortable: true,
@@ -136,7 +136,7 @@ List<PetCage> petCages = [
     brand: "Whisker City",
     manufacturer: "Feline Furniture Co.",
     imageUrl:
-        "https://images.unsplash.com/photo-1543852786-1cf6624b9987?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80",
+        "https://i.ebayimg.com/images/g/GGQAAOSwkMZk5wBr/s-l1200.jpg",
     cleaningInstructions: "Vacuum regularly. Spot clean with pet-safe cleaner.",
     warranty: "6-month warranty",
     isPortable: false,
@@ -166,7 +166,7 @@ List<PetCage> petCages = [
     brand: "Prevue Hendryx",
     manufacturer: "Avian Habitats Inc.",
     imageUrl:
-        "https://images.unsplash.com/photo-1552728089-57bdde30beb3?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80",
+        "https://assets.petco.com/petco/image/upload/c_pad,dpr_1.0,f_auto,q_auto,h_636,w_636/c_pad,h_636,w_636/2290929-right-1",
     cleaningInstructions: "Wipe with bird-safe disinfectant. Rinse thoroughly.",
     warranty: "2-year warranty",
     isPortable: true,
@@ -196,7 +196,7 @@ List<PetCage> petCages = [
     brand: "Kaytee",
     manufacturer: "Small Pet Solutions",
     imageUrl:
-        "https://images.unsplash.com/photo-1590664327927-2ab5e3c50d10?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80",
+        "https://m.media-amazon.com/images/I/81RVQsAOkBL._AC_UF1000,1000_QL80_.jpg",
     cleaningInstructions:
         "Disassemble and wash with mild soap. Air dry completely.",
     warranty: "1-year warranty",
@@ -227,7 +227,7 @@ List<PetCage> petCages = [
     brand: "Sherpa",
     manufacturer: "Travel Pet Products",
     imageUrl:
-        "https://images.unsplash.com/photo-1543852786-1cf6624b9987?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80",
+        "https://petsfit.com/cdn/shop/files/petsfit-expandable-cat-carrier-dog-carrier-airline-approved-soft-sided-portable-pet-travel-gray-blue_1.jpg?v=1747454092&width=640",
     cleaningInstructions: "Machine wash gentle cycle. Air dry.",
     warranty: "Lifetime guarantee",
     isPortable: true,
@@ -257,7 +257,7 @@ List<PetCage> petCages = [
     brand: "Frisco",
     manufacturer: "Outdoor Pet Housing",
     imageUrl:
-        "https://images.unsplash.com/photo-1596492784531-6e6eb5ea9993?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80",
+        "https://www.flytesofancy.co.uk/cdn/shop/products/Outdoor-dog-kennel-open-22-3.jpg?v=1668628193",
     cleaningInstructions: "Hose down and disinfect. Dry thoroughly.",
     warranty: "3-year warranty",
     isPortable: false,
@@ -287,7 +287,7 @@ List<PetCage> petCages = [
     brand: "IRIS",
     manufacturer: "Pet Play Systems",
     imageUrl:
-        "https://images.unsplash.com/photo-1543852786-1cf6624b9987?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80",
+        "https://i5.walmartimages.com/seo/Dextrus-4-Tier-Indoor-Cat-Cage-Cat-Enclosure-with-Hammock-Large-Metal-Wire-Cat-Kennel-DIY-Cat-Playpen-Perfect-for-Multi-Cat-Homes_397848a9-34d0-4964-bbdf-d56d7dbfe4af.50f6a35792ce82ad8befb6045930f962.jpeg",
     cleaningInstructions:
         "Wipe panels with damp cloth. Mat is machine washable.",
     warranty: "1-year warranty",
@@ -318,7 +318,7 @@ List<PetCage> petCages = [
     brand: "Midwest",
     manufacturer: "Small Animal Habitats",
     imageUrl:
-        "https://images.unsplash.com/photo-1590664327927-2ab5e3c50d10?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80",
+        "https://m.media-amazon.com/images/I/61giNVguzOL.jpg",
     cleaningInstructions:
         "Replace fleece liners weekly. Wipe surfaces with pet-safe cleaner.",
     warranty: "1-year warranty",

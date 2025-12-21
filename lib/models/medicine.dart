@@ -174,7 +174,7 @@ List<Medicine> medicines = [
     stock: 40,
     expiryDate: "2026-07-10",
     imageUrl:
-        "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRZziobKqyqnZ211QL6pGctxrmU3d825urtxw&s",
+        "https://5.imimg.com/data5/SELLER/Default/2024/1/377665140/EK/FV/QR/12523/ivermectin-1-injection.png",
   ),
   Medicine(
     id: 2,
@@ -279,7 +279,7 @@ List<Medicine> medicines = [
     stock: 75,
     expiryDate: "2025-10-20",
     imageUrl:
-        "https://cdn11.bigcommerce.com/s-jie5o9x4em/images/stencil/1280x1280/products/127/386/RevolutionFelinePlus__99956.1687616722.PNG?c=1",
+        "https://assets.petco.com/petco/image/upload/f_auto,q_auto/3443528-center-1",
   ),
   Medicine(
     id: 4,
@@ -384,7 +384,7 @@ List<Medicine> medicines = [
     stock: 55,
     expiryDate: "2025-09-30",
     imageUrl:
-        "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRljduaUknkE1q-NFK_iYE7xBdjOuWPzzczbg&s",
+        "https://assets.petco.com/petco/image/upload/f_auto,q_auto/2977077-center-1",
   ),
   Medicine(
     id: 6,
@@ -474,7 +474,7 @@ List<Medicine> medicines = [
     stock: 65,
     expiryDate: "2025-07-20",
     imageUrl:
-        "https://imagedelivery.net/OWeDZSTbTyzlX4Fsq0SDAw/10074/w=700,h=700,q=80",
+        "https://www.zoetisus.com/content/_assets/images/products/clavamox-drops-product.png",
   ),
   Medicine(
     id: 8,
@@ -516,6 +516,6 @@ List<Medicine> medicines = [
     stock: 120,
     expiryDate: "2026-01-30",
     imageUrl:
-        "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQG9MnWSsNov39HKOkpSK_2ObGS2R2BZUBROQ&s",
+        "https://cdn11.bigcommerce.com/s-iakwzr7rs7/images/stencil/original/products/1620/8476/1423_00711_FR__34150.1612916944.jpg?c=2",
   ),
 ];
