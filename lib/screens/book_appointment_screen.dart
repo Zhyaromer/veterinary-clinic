@@ -2,6 +2,20 @@ import 'package:flutter/material.dart';
 import '../models/appointment.dart';
 import 'package:intl/intl.dart';
 
+class _PredefinedPet {
+  const _PredefinedPet({
+    required this.name,
+    required this.type,
+    required this.breed,
+    required this.age,
+  });
+
+  final String name;
+  final String type;
+  final String breed;
+  final String age;
+}
+
 class BookAppointmentScreen extends StatefulWidget {
   const BookAppointmentScreen({Key? key}) : super(key: key);
 
@@ -11,15 +25,14 @@ class BookAppointmentScreen extends StatefulWidget {
 
 class _BookAppointmentScreenState extends State<BookAppointmentScreen> {
   final _formKey = GlobalKey<FormState>();
-  final TextEditingController _dateController = TextEditingController();
-  final TextEditingController _timeController = TextEditingController();
+  final TextEditingController _ownerNameController = TextEditingController();
+  final TextEditingController _phoneController = TextEditingController();
+  final TextEditingController _emailController = TextEditingController();
 
   // Focus nodes
-  final FocusNode _petNameFocus = FocusNode();
   final FocusNode _ownerNameFocus = FocusNode();
   final FocusNode _phoneFocus = FocusNode();
   final FocusNode _emailFocus = FocusNode();
-  final FocusNode _petAgeFocus = FocusNode();
 
   // Form fields
   String _petName = '';
@@ -37,8 +50,23 @@ class _BookAppointmentScreenState extends State<BookAppointmentScreen> {
   String _vetPreference = 'Any Available Veterinarian';
   bool _termsAccepted = false;
 
-  // Available options
-  final List<String> _petTypes = ['Dog', 'Cat', 'Bird', 'Rabbit', 'Other'];
+  late _PredefinedPet _selectedPet;
+  final List<_PredefinedPet> _predefinedPets = const [
+    _PredefinedPet(
+      name: 'Buddy',
+      type: 'Dog',
+      breed: 'Golden Retriever',
+      age: '3 years',
+    ),
+    _PredefinedPet(name: 'Luna', type: 'Cat', breed: 'Siamese', age: '2 years'),
+    _PredefinedPet(
+      name: 'Kiwi',
+      type: 'Bird',
+      breed: 'Parrot',
+      age: '11 months',
+    ),
+  ];
+
   final List<String> _reasons = [
     'Annual Checkup',
     'Vaccination',
@@ -59,74 +87,62 @@ class _BookAppointmentScreenState extends State<BookAppointmentScreen> {
     'Dr. Robert Williams',
   ];
 
-  // Breed options
-  final Map<String, List<String>> _breedOptions = {
-    'Dog': [
-      'Golden Retriever',
-      'German Shepherd',
-      'Bulldog',
-      'Poodle',
-      'Beagle',
-      'Other',
-    ],
-    'Cat': [
-      'Siamese',
-      'Persian',
-      'Maine Coon',
-      'Bengal',
-      'British Shorthair',
-      'Other',
-    ],
-    'Bird': ['Parrot', 'Cockatiel', 'Canary', 'Finch', 'Budgerigar', 'Other'],
-    'Rabbit': ['Dutch', 'Mini Lop', 'Angora', 'Rex', 'Lionhead', 'Other'],
-    'Other': ['Other'],
-  };
-
   @override
   void initState() {
     super.initState();
-    // Initialize with empty date - let user choose
-    _dateController.text = 'Tap to select date';
-    _timeController.text = 'Tap to select time';
+    _selectedPet = _predefinedPets.first;
+    _applyPetProfile(_selectedPet, updateState: false);
 
-    // Initialize breed
-    _petBreed = _breedOptions[_petType]?.first ?? 'Other';
+    _ownerNameController.text = 'Jordan Smith';
+    _phoneController.text = '+1 555 123 4567';
+    _emailController.text = 'jordan.smith@example.com';
+    _ownerName = _ownerNameController.text;
+    _phoneNumber = _phoneController.text;
+    _email = _emailController.text;
   }
 
   @override
   void dispose() {
-    _dateController.dispose();
-    _timeController.dispose();
-    _petNameFocus.dispose();
+    _ownerNameController.dispose();
+    _phoneController.dispose();
+    _emailController.dispose();
     _ownerNameFocus.dispose();
     _phoneFocus.dispose();
     _emailFocus.dispose();
-    _petAgeFocus.dispose();
     super.dispose();
   }
 
-  void _selectDate() async {
+  void _applyPetProfile(_PredefinedPet pet, {bool updateState = true}) {
+    void assignValues() {
+      _selectedPet = pet;
+      _petName = pet.name;
+      _petType = pet.type;
+      _petBreed = pet.breed;
+      _petAge = pet.age;
+    }
+
+    if (updateState) {
+      setState(assignValues);
+    } else {
+      assignValues();
+    }
+  }
+
+  Future<void> _selectDateTime() async {
     final now = DateTime.now();
 
-    final DateTime? picked = await showDatePicker(
+    final DateTime? pickedDate = await showDatePicker(
       context: context,
       initialDate: now.add(const Duration(days: 1)),
       firstDate: now.add(const Duration(days: 1)),
       lastDate: now.add(const Duration(days: 7)),
     );
 
-    if (picked != null) {
-      setState(() {
-        _selectedDate = picked;
-        _dateController.text = DateFormat('EEEE, MMMM d, yyyy').format(picked);
-      });
-    }
-  }
+    if (pickedDate == null) return;
 
-  void _selectTime() async {
-    final TimeOfDay? picked = await showTimePicker(
+    final TimeOfDay? pickedTime = await showTimePicker(
       context: context,
-      initialTime: TimeOfDay.now(),
+      initialTime: _selectedTime ?? TimeOfDay.now(),
       builder: (context, child) {
         return Theme(
           data: Theme.of(context).copyWith(
@@ -145,12 +161,12 @@ class _BookAppointmentScreenState extends State<BookAppointmentScreen> {
       },
     );
 
-    if (picked != null) {
-      setState(() {
-        _selectedTime = picked;
-        _timeController.text = _formatTime(picked);
-      });
-    }
+    if (pickedTime == null) return;
+
+    setState(() {
+      _selectedDate = pickedDate;
+      _selectedTime = pickedTime;
+    });
   }
 
   String _formatTime(TimeOfDay time) {
@@ -158,6 +174,12 @@ class _BookAppointmentScreenState extends State<BookAppointmentScreen> {
     final minute = time.minute.toString().padLeft(2, '0');
     final period = time.period == DayPeriod.am ? 'AM' : 'PM';
     return '$hour:$minute $period';
+  }
+
+  String _formattedDateTimeLabel({DateTime? date, TimeOfDay? time}) {
+    if (date == null || time == null) return 'Tap to select date & time';
+    final dateLabel = DateFormat('EEEE, MMMM d, yyyy').format(date);
+    return '$dateLabel • ${_formatTime(time)}';
   }
 
   bool get _isFormValid {
@@ -355,7 +377,7 @@ class _BookAppointmentScreenState extends State<BookAppointmentScreen> {
                             style: TextStyle(
                               fontSize: 16,
                               fontWeight: FontWeight.w600,
-                               color: Colors.white
+                              color: Colors.white,
                             ),
                           ),
                         ),
@@ -474,58 +496,18 @@ class _BookAppointmentScreenState extends State<BookAppointmentScreen> {
 
                   // Pet Information Section
                   _buildSectionHeader('Pet Information'),
-                  _buildTextField(
-                    focusNode: _petNameFocus,
-                    label: 'Pet Name *',
-                    hint: 'Enter your pet\'s name',
-                    icon: Icons.pets,
-                    onChanged: (value) {
-                      setState(() {
-                        _petName = value;
-                      });
-                    },
-                    validator: (value) => value!.trim().isEmpty
-                        ? 'Please enter your pet\'s name'
-                        : null,
-                  ),
-
-                  const SizedBox(height: 16),
                   _buildDropdown(
-                    label: 'Pet Type *',
-                    value: _petType,
-                    items: _petTypes,
-                    icon: Icons.category,
+                    label: 'Select Saved Pet',
+                    value: _selectedPet.name,
+                    items: _predefinedPets.map((pet) => pet.name).toList(),
+                    icon: Icons.pets_outlined,
                     onChanged: (value) {
-                      setState(() {
-                        _petType = value!;
-                        _petBreed = _breedOptions[value]?.first ?? 'Other';
-                      });
+                      if (value == null) return;
+                      final pet = _predefinedPets.firstWhere(
+                        (p) => p.name == value,
+                      );
+                      _applyPetProfile(pet);
                     },
-                  ),
-
-                  const SizedBox(height: 16),
-                  _buildDropdown(
-                    label: 'Pet Breed *',
-                    value: _petBreed,
-                    items: _breedOptions[_petType] ?? ['Other'],
-                    icon: Icons.diversity_3,
-                    onChanged: (value) => setState(() => _petBreed = value!),
-                  ),
-
-                  const SizedBox(height: 16),
-                  _buildTextField(
-                    focusNode: _petAgeFocus,
-                    label: 'Pet Age *',
-                    hint: 'e.g., 3 years, 6 months',
-                    icon: Icons.cake,
-                    onChanged: (value) {
-                      setState(() {
-                        _petAge = value;
-                      });
-                    },
-                    validator: (value) => value!.trim().isEmpty
-                        ? 'Please enter your pet\'s age'
-                        : null,
                   ),
 
                   const SizedBox(height: 24),
@@ -537,6 +519,7 @@ class _BookAppointmentScreenState extends State<BookAppointmentScreen> {
                     label: 'Owner Name *',
                     hint: 'Enter your full name',
                     icon: Icons.person_outline,
+                    controller: _ownerNameController,
                     onChanged: (value) {
                       setState(() {
                         _ownerName = value;
@@ -552,6 +535,7 @@ class _BookAppointmentScreenState extends State<BookAppointmentScreen> {
                     label: 'Phone Number *',
                     hint: 'Enter your phone number',
                     icon: Icons.phone,
+                    controller: _phoneController,
                     keyboardType: TextInputType.phone,
                     onChanged: (value) {
                       setState(() {
@@ -575,6 +559,7 @@ class _BookAppointmentScreenState extends State<BookAppointmentScreen> {
                     label: 'Email Address *',
                     hint: 'Enter your email address',
                     icon: Icons.email_outlined,
+                    controller: _emailController,
                     keyboardType: TextInputType.emailAddress,
                     onChanged: (value) {
                       setState(() {
@@ -599,12 +584,12 @@ class _BookAppointmentScreenState extends State<BookAppointmentScreen> {
                   // Appointment Details Section
                   _buildSectionHeader('Appointment Details'),
 
-                  // Date Picker
+                  // Combined Date & Time Picker
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       const Text(
-                        'Appointment Date *',
+                        'Appointment Date & Time *',
                         style: TextStyle(
                           fontSize: 14,
                           fontWeight: FontWeight.w500,
@@ -613,9 +598,7 @@ class _BookAppointmentScreenState extends State<BookAppointmentScreen> {
                       ),
                       const SizedBox(height: 8),
                       InkWell(
-                        onTap: () {
-                          _selectDate();
-                        },
+                        onTap: _selectDateTime,
                         borderRadius: BorderRadius.circular(12),
                         child: Container(
                           padding: const EdgeInsets.symmetric(
@@ -626,10 +609,14 @@ class _BookAppointmentScreenState extends State<BookAppointmentScreen> {
                             color: Colors.white,
                             borderRadius: BorderRadius.circular(12),
                             border: Border.all(
-                              color: _selectedDate == null
+                              color:
+                                  _selectedDate == null || _selectedTime == null
                                   ? Colors.grey.shade300
                                   : const Color(0xFF4A6FA5),
-                              width: _selectedDate == null ? 1 : 2,
+                              width:
+                                  _selectedDate == null || _selectedTime == null
+                                  ? 1
+                                  : 2,
                             ),
                             boxShadow: [
                               BoxShadow(
@@ -642,25 +629,30 @@ class _BookAppointmentScreenState extends State<BookAppointmentScreen> {
                           child: Row(
                             children: [
                               Icon(
-                                Icons.calendar_today,
-                                color: _selectedDate == null
+                                Icons.event_available,
+                                color:
+                                    _selectedDate == null ||
+                                        _selectedTime == null
                                     ? Colors.grey.shade500
                                     : const Color(0xFF4A6FA5),
                               ),
                               const SizedBox(width: 12),
                               Expanded(
                                 child: Text(
-                                  _selectedDate == null
-                                      ? 'Tap to select date'
-                                      : DateFormat(
-                                          'EEEE, MMMM d, yyyy',
-                                        ).format(_selectedDate!),
+                                  _formattedDateTimeLabel(
+                                    date: _selectedDate,
+                                    time: _selectedTime,
+                                  ),
                                   style: TextStyle(
                                     fontSize: 16,
-                                    color: _selectedDate == null
+                                    color:
+                                        _selectedDate == null ||
+                                            _selectedTime == null
                                         ? Colors.grey.shade500
                                         : Colors.black87,
-                                    fontWeight: _selectedDate == null
+                                    fontWeight:
+                                        _selectedDate == null ||
+                                            _selectedTime == null
                                         ? FontWeight.normal
                                         : FontWeight.w500,
                                   ),
@@ -668,7 +660,9 @@ class _BookAppointmentScreenState extends State<BookAppointmentScreen> {
                               ),
                               Icon(
                                 Icons.arrow_drop_down,
-                                color: _selectedDate == null
+                                color:
+                                    _selectedDate == null ||
+                                        _selectedTime == null
                                     ? Colors.grey.shade500
                                     : const Color(0xFF4A6FA5),
                               ),
@@ -687,92 +681,11 @@ class _BookAppointmentScreenState extends State<BookAppointmentScreen> {
                           const SizedBox(width: 6),
                           Flexible(
                             child: Text(
-                              'Available: Next 7 days (Monday - Friday only)',
+                              'Available: Next 7 days (Monday - Friday only). Clinic hours: 8:00 AM - 8:00 PM.',
                               style: TextStyle(
                                 fontSize: 12,
                                 color: Colors.grey.shade600,
                               ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
-
-                  const SizedBox(height: 16),
-
-                  // Time Picker
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const Text(
-                        'Appointment Time *',
-                        style: TextStyle(
-                          fontSize: 14,
-                          fontWeight: FontWeight.w500,
-                          color: Colors.black87,
-                        ),
-                      ),
-                      const SizedBox(height: 8),
-                      GestureDetector(
-                        onTap: _selectTime,
-                        child: Container(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 16,
-                            vertical: 16,
-                          ),
-                          decoration: BoxDecoration(
-                            color: Colors.white,
-                            borderRadius: BorderRadius.circular(12),
-                            border: Border.all(color: Colors.grey.shade300),
-                            boxShadow: [
-                              BoxShadow(
-                                color: Colors.grey.shade100,
-                                blurRadius: 5,
-                                spreadRadius: 1,
-                              ),
-                            ],
-                          ),
-                          child: Row(
-                            children: [
-                              Icon(
-                                Icons.access_time,
-                                color: const Color(0xFF4A6FA5),
-                              ),
-                              const SizedBox(width: 12),
-                              Expanded(
-                                child: Text(
-                                  _timeController.text,
-                                  style: TextStyle(
-                                    fontSize: 16,
-                                    color: _selectedTime == null
-                                        ? Colors.grey.shade500
-                                        : Colors.black87,
-                                  ),
-                                ),
-                              ),
-                              Icon(
-                                Icons.arrow_drop_down,
-                                color: Colors.grey.shade600,
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                      const SizedBox(height: 6),
-                      Row(
-                        children: [
-                          Icon(
-                            Icons.info_outline,
-                            size: 14,
-                            color: Colors.grey.shade500,
-                          ),
-                          const SizedBox(width: 6),
-                          Text(
-                            'Clinic hours: 8:00 AM - 8:00 PM',
-                            style: TextStyle(
-                              fontSize: 12,
-                              color: Colors.grey.shade600,
                             ),
                           ),
                         ],
@@ -1090,6 +1003,8 @@ class _BookAppointmentScreenState extends State<BookAppointmentScreen> {
     required String hint,
     required IconData icon,
     required ValueChanged<String> onChanged,
+    TextEditingController? controller,
+    String? initialValue,
     FormFieldValidator<String>? validator,
     TextInputType keyboardType = TextInputType.text,
   }) {
@@ -1118,6 +1033,8 @@ class _BookAppointmentScreenState extends State<BookAppointmentScreen> {
           ),
           child: TextFormField(
             focusNode: focusNode,
+            controller: controller,
+            initialValue: controller == null ? initialValue : null,
             decoration: InputDecoration(
               hintText: hint,
               filled: true,
