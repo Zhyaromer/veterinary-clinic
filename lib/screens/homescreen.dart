@@ -5,6 +5,7 @@ import 'package:vet_clinic/screens/medicine_management_page.dart';
 import 'package:vet_clinic/screens/medicines_page.dart';
 import 'package:vet_clinic/screens/Putting_pets_for_adoption.dart';
 import 'package:vet_clinic/screens/pet_guide_page.dart';
+import 'package:vet_clinic/screens/pet_management_page.dart';
 import 'package:vet_clinic/screens/pet_resources_page.dart';
 import 'package:vet_clinic/screens/resources_management_page.dart';
 import 'package:vet_clinic/screens/animal_types_page.dart';
@@ -105,18 +106,18 @@ class _HomeScreenState extends State<HomeScreen> {
       const Color(0xFF009688),
     ),
     ServiceItem(
-      Icons.medication,
-      'Manage Medicines',
+      Icons.pets_sharp,
+      'Pet Management',
       const Color(0xFFEDE7F6),
       const Color(0xFF512DA8),
       const Color(0xFF673AB7),
     ),
     ServiceItem(
-      Icons.pets,
-      'Manage Animals',
-      const Color(0xFFEFEBE9),
-      const Color(0xFF5D4037),
-      const Color(0xFF795548),
+      Icons.medication,
+      'Manage Medicines',
+      const Color(0xFFEDE7F6),
+      const Color(0xFF512DA8),
+      const Color(0xFF673AB7),
     ),
     ServiceItem(
       Icons.inventory,
@@ -432,10 +433,10 @@ class _HomeScreenState extends State<HomeScreen> {
         return PutForAdoptionPage();
       case 'Sales Report':
         return SalesReportScreen();
+      case 'Pet Management':
+        return PetManagementPage();
       case 'Manage Medicines':
         return MedicineManagementPage();
-      case 'Manage Animals':
-        return MedicinesPage();
       case 'Manage Resources':
         return ResourcesManagementPage();
       case 'Contact Us':

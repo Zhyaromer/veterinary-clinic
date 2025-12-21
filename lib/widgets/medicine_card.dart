@@ -43,7 +43,7 @@ class MedicineCard extends StatelessWidget {
               children: [
                 // Main Image with Gradient Overlay
                 Container(
-                  height: 160,
+                  height: 220,
                   decoration: BoxDecoration(
                     borderRadius: const BorderRadius.only(
                       topLeft: Radius.circular(16),
@@ -51,7 +51,7 @@ class MedicineCard extends StatelessWidget {
                     ),
                     image: DecorationImage(
                       image: NetworkImage(medicine.imageUrl),
-                      fit: BoxFit.cover,
+                      fit: BoxFit.fill,
                       colorFilter: ColorFilter.mode(
                         Colors.black.withOpacity(0.1),
                         BlendMode.darken,

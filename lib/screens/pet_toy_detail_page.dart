@@ -46,7 +46,7 @@ class _PetToyDetailPageState extends State<PetToyDetailPage> {
                   // Toy Image
                   Image.network(
                     petToy.imageUrl,
-                    fit: BoxFit.cover,
+                    fit: BoxFit.fill,
                     errorBuilder: (context, error, stackTrace) {
                       return Container(
                         color: petTypeColor.withOpacity(0.2),
@@ -134,26 +134,6 @@ class _PetToyDetailPageState extends State<PetToyDetailPage> {
             ),
             backgroundColor: Colors.transparent,
             elevation: 0,
-            actions: [
-              IconButton(
-                icon: Container(
-                  padding: const EdgeInsets.all(8),
-                  decoration: BoxDecoration(
-                    color: Colors.white.withOpacity(0.9),
-                    shape: BoxShape.circle,
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withOpacity(0.1),
-                        blurRadius: 5,
-                        offset: const Offset(0, 2),
-                      ),
-                    ],
-                  ),
-                  child: const Icon(Icons.share, color: Colors.black, size: 20),
-                ),
-                onPressed: () {},
-              ),
-            ],
           ),
 
           // Quantity Section
@@ -546,73 +526,6 @@ class _PetToyDetailPageState extends State<PetToyDetailPage> {
                         ],
                       ),
                     ),
-
-                    const SizedBox(height: 32),
-
-                    // Action Buttons
-                    Row(
-                      children: [
-                        Expanded(
-                          child: ElevatedButton.icon(
-                            onPressed: () {
-                              final cartItem = CartItem(
-                                id: 'toy_${petToy.id}',
-                                name: petToy.name,
-                                price: petToy.price,
-                                imageUrl: petToy.imageUrl,
-                                quantity: _selectedQuantity,
-                                type: CartItemType.toy,
-                                categoryColor: petToy.getPetTypeColor(),
-                                maxQuantity: petToy.stock,
-                              );
-                              globalCart.addItem(cartItem);
-
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                SnackBar(
-                                  content: Text(
-                                    '${petToy.name} (Qty: $_selectedQuantity) added to cart',
-                                  ),
-                                  duration: const Duration(seconds: 3),
-                                  action: SnackBarAction(
-                                    label: 'Undo',
-                                    onPressed: () {
-                                      globalCart.removeItem(cartItem.id);
-                                    },
-                                  ),
-                                ),
-                              );
-                            },
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: const Color(0xFF4A6FA5),
-                              foregroundColor: Colors.white,
-                              padding: const EdgeInsets.symmetric(vertical: 16),
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(12),
-                              ),
-                            ),
-                            icon: const Icon(Icons.shopping_cart),
-                            label: const Text('Add to Cart'),
-                          ),
-                        ),
-                        const SizedBox(width: 16),
-                        Expanded(
-                          child: OutlinedButton.icon(
-                            onPressed: () {},
-                            style: OutlinedButton.styleFrom(
-                              side: const BorderSide(color: Color(0xFF4A6FA5)),
-                              padding: const EdgeInsets.symmetric(vertical: 16),
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(12),
-                              ),
-                            ),
-                            icon: const Icon(Icons.favorite_border),
-                            label: const Text('Save for Later'),
-                          ),
-                        ),
-                      ],
-                    ),
-
-                    const SizedBox(height: 40),
                   ],
                 ),
               ),

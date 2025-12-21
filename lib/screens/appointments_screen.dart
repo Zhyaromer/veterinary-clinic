@@ -6,8 +6,6 @@ import 'book_appointment_screen.dart';
 class AppointmentsScreen extends StatefulWidget {
   const AppointmentsScreen({Key? key}) : super(key: key);
 
-  
-
   @override
   _AppointmentsScreenState createState() => _AppointmentsScreenState();
 }
@@ -51,6 +49,40 @@ class _AppointmentsScreenState extends State<AppointmentsScreen> {
           petBreed: 'Siamese',
           petAge: '5 years',
           appointmentDate: DateTime.now().add(const Duration(days: 5)),
+          appointmentTime: const TimeOfDay(hour: 14, minute: 0),
+          reason: 'Vaccination',
+          symptoms: 'Slight lethargy',
+          emergency: true,
+          vetPreference: 'Any',
+          createdAt: DateTime.now().subtract(const Duration(days: 3)),
+        ),
+        Appointment(
+          id: '3',
+          petName: 'jack',
+          ownerName: 'Jane Smith',
+          phoneNumber: '+0987654321',
+          email: 'jane@email.com',
+          petType: 'Cat',
+          petBreed: 'Siamese',
+          petAge: '5 years',
+          appointmentDate: DateTime.now().add(const Duration(days: -225)),
+          appointmentTime: const TimeOfDay(hour: 14, minute: 0),
+          reason: 'Vaccination',
+          symptoms: 'Slight lethargy',
+          emergency: true,
+          vetPreference: 'Any',
+          createdAt: DateTime.now().subtract(const Duration(days: 3)),
+        ),
+        Appointment(
+          id: '4',
+          petName: 'angela',
+          ownerName: 'Jane Smith',
+          phoneNumber: '+0987654321',
+          email: 'jane@email.com',
+          petType: 'Cat',
+          petBreed: 'Siamese',
+          petAge: '5 years',
+          appointmentDate: DateTime.now().add(const Duration(days: -115)),
           appointmentTime: const TimeOfDay(hour: 14, minute: 0),
           reason: 'Vaccination',
           symptoms: 'Slight lethargy',

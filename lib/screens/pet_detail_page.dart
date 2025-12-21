@@ -16,7 +16,7 @@ class PetDetailPage extends StatelessWidget {
         slivers: [
           // Modern App Bar with Image
           SliverAppBar(
-            expandedHeight: 400,
+            expandedHeight: 450,
             floating: false,
             pinned: false,
             snap: false,
@@ -25,7 +25,7 @@ class PetDetailPage extends StatelessWidget {
               stretchModes: const [StretchMode.zoomBackground],
               background: Stack(
                 fit: StackFit.expand,
-                children: [Image.network(petGuide.imageUrl, fit: BoxFit.cover)],
+                children: [Image.network(petGuide.imageUrl, fit: BoxFit.fill)],
               ),
               titlePadding: const EdgeInsets.only(left: 20, bottom: 10),
               title: Container(

@@ -30,7 +30,6 @@ class _MedicineDetailPageState extends State<MedicineDetailPage> {
     return Scaffold(
       body: CustomScrollView(
         slivers: [
-          // App Bar with Medicine Image
           SliverAppBar(
             expandedHeight: 400,
             floating: false,
@@ -38,54 +37,61 @@ class _MedicineDetailPageState extends State<MedicineDetailPage> {
             flexibleSpace: FlexibleSpaceBar(
               background: Stack(
                 children: [
-                  // Real Image Background
-                  Image.network(
-                    medicine.imageUrl,
-                    fit: BoxFit.cover,
-                    width: double.infinity,
-                    height: double.infinity,
-                    errorBuilder: (context, error, stackTrace) {
-                      return Container(
-                        decoration: BoxDecoration(
-                          gradient: LinearGradient(
-                            begin: Alignment.topCenter,
-                            end: Alignment.bottomCenter,
-                            colors: [
-                              categoryColor.withOpacity(0.8),
-                              categoryColor.withOpacity(0.4),
-                            ],
-                          ),
-                        ),
-                        child: Center(
-                          child: Icon(
-                            Icons.medication_liquid,
-                            size: 120,
-                            color: Colors.white.withOpacity(0.8),
-                          ),
-                        ),
-                      );
-                    },
-                    loadingBuilder: (context, child, loadingProgress) {
-                      if (loadingProgress == null) return child;
-                      return Container(
-                        decoration: BoxDecoration(
-                          gradient: LinearGradient(
-                            begin: Alignment.topCenter,
-                            end: Alignment.bottomCenter,
-                            colors: [
-                              categoryColor.withOpacity(0.8),
-                              categoryColor.withOpacity(0.4),
-                            ],
-                          ),
-                        ),
-                        child: const Center(
-                          child: CircularProgressIndicator(color: Colors.white),
-                        ),
-                      );
-                    },
+                  Container(
+                    padding: EdgeInsets.all(18),
+                    color: Colors.grey[200],
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(20),
+                      child: Image.network(
+                        medicine.imageUrl,
+                        fit: BoxFit.cover,
+                        width: double.infinity,
+                        height: double.infinity,
+                        errorBuilder: (context, error, stackTrace) {
+                          return Container(
+                            decoration: BoxDecoration(
+                              gradient: LinearGradient(
+                                begin: Alignment.topCenter,
+                                end: Alignment.bottomCenter,
+                                colors: [
+                                  categoryColor.withOpacity(0.8),
+                                  categoryColor.withOpacity(0.4),
+                                ],
+                              ),
+                            ),
+                            child: Center(
+                              child: Icon(
+                                Icons.medication_liquid,
+                                size: 120,
+                                color: Colors.white.withOpacity(0.8),
+                              ),
+                            ),
+                          );
+                        },
+                        loadingBuilder: (context, child, loadingProgress) {
+                          if (loadingProgress == null) return child;
+                          return Container(
+                            decoration: BoxDecoration(
+                              gradient: LinearGradient(
+                                begin: Alignment.topCenter,
+                                end: Alignment.bottomCenter,
+                                colors: [
+                                  categoryColor.withOpacity(0.8),
+                                  categoryColor.withOpacity(0.4),
+                                ],
+                              ),
+                            ),
+                            child: const Center(
+                              child: CircularProgressIndicator(
+                                color: Colors.white,
+                              ),
+                            ),
+                          );
+                        },
+                      ),
+                    ),
                   ),
 
-                  // Gradient Overlay
                   Container(
                     decoration: BoxDecoration(
                       gradient: LinearGradient(
@@ -153,7 +159,6 @@ class _MedicineDetailPageState extends State<MedicineDetailPage> {
             ),
           ),
 
-          // Quantity Section
           SliverToBoxAdapter(
             child: Container(
               color: Colors.white,
