@@ -212,6 +212,7 @@ class _AddEditToyPageState extends State<AddEditToyPage> {
           isEditing ? 'Edit Toy' : 'Add New Toy',
           style: TextStyle(color: Colors.white),
         ),
+        centerTitle: true,
         backgroundColor: const Color(0xFF4A6FA5),
         iconTheme: const IconThemeData(color: Colors.white),
         actions: [

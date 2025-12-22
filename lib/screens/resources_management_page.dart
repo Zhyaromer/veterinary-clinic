@@ -32,9 +32,10 @@ class _ResourcesManagementPageState extends State<ResourcesManagementPage>
     return Scaffold(
       appBar: AppBar(
         title: const Text(
-          'Manage Pet Resources',
+          'Manage Pet Essentials',
           style: TextStyle(color: Colors.white),
         ),
+        centerTitle: true,
         backgroundColor: const Color(0xFF4A6FA5),
         iconTheme: const IconThemeData(color: Colors.white),
         bottom: TabBar(

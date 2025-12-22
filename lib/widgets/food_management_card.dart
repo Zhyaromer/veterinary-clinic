@@ -187,6 +187,34 @@ class FoodManagementCard extends StatelessWidget {
                           overflow: TextOverflow.ellipsis,
                         ),
                       ),
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 8,
+                          vertical: 4,
+                        ),
+                        decoration: BoxDecoration(
+                          color: petTypeColor.withOpacity(0.1),
+                          borderRadius: BorderRadius.circular(6),
+                        ),
+                        child: Row(
+                          children: [
+                            Icon(
+                              food.getPetTypeIcon(),
+                              size: 14,
+                              color: petTypeColor,
+                            ),
+                            const SizedBox(width: 4),
+                            Text(
+                              food.petType,
+                              style: TextStyle(
+                                fontSize: 14,
+                                fontWeight: FontWeight.w600,
+                                color: petTypeColor,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
                       PopupMenuButton<_FoodAction>(
                         tooltip: 'Actions',
                         icon: const Icon(Icons.more_vert),
@@ -238,34 +266,6 @@ class FoodManagementCard extends StatelessWidget {
                             ),
                           ),
                         ],
-                      ),
-                      Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 8,
-                          vertical: 4,
-                        ),
-                        decoration: BoxDecoration(
-                          color: petTypeColor.withOpacity(0.1),
-                          borderRadius: BorderRadius.circular(6),
-                        ),
-                        child: Row(
-                          children: [
-                            Icon(
-                              food.getPetTypeIcon(),
-                              size: 14,
-                              color: petTypeColor,
-                            ),
-                            const SizedBox(width: 4),
-                            Text(
-                              food.petType,
-                              style: TextStyle(
-                                fontSize: 14,
-                                fontWeight: FontWeight.w600,
-                                color: petTypeColor,
-                              ),
-                            ),
-                          ],
-                        ),
                       ),
                     ],
                   ),

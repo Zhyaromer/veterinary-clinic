@@ -218,6 +218,7 @@ class _AddEditCagePageState extends State<AddEditCagePage> {
       appBar: AppBar(
         title: Text(isEditing ? 'Edit Cage' : 'Add New Cage',style: TextStyle(color: Colors.white),),
         backgroundColor: const Color(0xFF4A6FA5),
+        centerTitle: true,
         iconTheme: const IconThemeData(color: Colors.white),
         actions: [
           IconButton(

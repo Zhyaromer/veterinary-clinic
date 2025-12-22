@@ -239,7 +239,11 @@ class _PetManagementPageState extends State<PetManagementPage> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Manage Pets', style: TextStyle(color: Colors.white)),
+        title: const Text(
+          'My Pet Profiles',
+          style: TextStyle(color: Colors.white),
+        ),
+        centerTitle: true,
         backgroundColor: const Color(0xFF4A6FA5),
         iconTheme: const IconThemeData(color: Colors.white),
         actions: [

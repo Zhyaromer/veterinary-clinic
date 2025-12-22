@@ -49,7 +49,7 @@ class ShelterPetCard extends StatelessWidget {
                     pet.imageUrl,
                     height: 300,
                     width: double.infinity,
-                    fit: BoxFit.cover,
+                    fit: BoxFit.fill,
                     errorBuilder: (context, error, stackTrace) {
                       return Container(
                         height: 200,
@@ -119,7 +119,7 @@ class ShelterPetCard extends StatelessWidget {
                         ),
                         const SizedBox(width: 4),
                         Text(
-                          '${pet.daysInShelter} days',
+                          '${pet.daysInShelter} days in shelter',
                           style: const TextStyle(
                             fontSize: 11,
                             color: Colors.white,

@@ -331,6 +331,7 @@ class _AddEditMedicinePageState extends State<AddEditMedicinePage> {
           isEditing ? 'Edit Medicine' : 'Add New Medicine',
           style: TextStyle(color: Colors.white),
         ),
+        centerTitle: true,
         backgroundColor: const Color(0xFF4A6FA5),
         iconTheme: const IconThemeData(color: Colors.white),
         actions: [

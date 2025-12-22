@@ -161,10 +161,7 @@ class _MedicineManagementPageState extends State<MedicineManagementPage> {
                 ),
               );
             },
-            child: const Text(
-              'Delete',
-              style: TextStyle(color: Colors.red),
-            ),
+            child: const Text('Delete', style: TextStyle(color: Colors.red)),
           ),
         ],
       ),
@@ -172,7 +169,8 @@ class _MedicineManagementPageState extends State<MedicineManagementPage> {
   }
 
   void _duplicateMedicine(Medicine medicine) {
-    final newId = medicines.map((m) => m.id).reduce((a, b) => a > b ? a : b) + 1;
+    final newId =
+        medicines.map((m) => m.id).reduce((a, b) => a > b ? a : b) + 1;
     final duplicatedMedicine = Medicine(
       id: newId,
       name: '${medicine.name} (Copy)',
@@ -215,7 +213,7 @@ class _MedicineManagementPageState extends State<MedicineManagementPage> {
       medicines.add(duplicatedMedicine);
       _filterMedicines();
     });
-    
+
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text('"${medicine.name}" duplicated successfully'),
@@ -273,7 +271,10 @@ class _MedicineManagementPageState extends State<MedicineManagementPage> {
 
   @override
   Widget build(BuildContext context) {
-    final categories = ['All', ...medicines.map((m) => m.category).toSet().toList()];
+    final categories = [
+      'All',
+      ...medicines.map((m) => m.category).toSet().toList(),
+    ];
     final sortOptions = [
       'Name (A-Z)',
       'Name (Z-A)',
@@ -287,7 +288,11 @@ class _MedicineManagementPageState extends State<MedicineManagementPage> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Manage Medicines', style: TextStyle(color: Colors.white)),
+        title: const Text(
+          'Manage Medicines',
+          style: TextStyle(color: Colors.white),
+        ),
+        centerTitle: true,
         backgroundColor: const Color(0xFF4A6FA5),
         iconTheme: const IconThemeData(color: Colors.white),
         actions: [
@@ -330,7 +335,7 @@ class _MedicineManagementPageState extends State<MedicineManagementPage> {
                   onChanged: (value) => _filterMedicines(),
                 ),
                 const SizedBox(height: 16),
-                
+
                 // Filters Row
                 Row(
                   children: [
@@ -365,7 +370,7 @@ class _MedicineManagementPageState extends State<MedicineManagementPage> {
                       ),
                     ),
                     const SizedBox(width: 12),
-                    
+
                     // Sort Filter
                     Expanded(
                       child: Container(
@@ -416,7 +421,8 @@ class _MedicineManagementPageState extends State<MedicineManagementPage> {
                     color: Color(0xFF444444),
                   ),
                 ),
-                if (_selectedCategory != 'All' || _searchController.text.isNotEmpty)
+                if (_selectedCategory != 'All' ||
+                    _searchController.text.isNotEmpty)
                   TextButton(
                     onPressed: () {
                       setState(() {

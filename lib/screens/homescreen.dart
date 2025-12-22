@@ -55,83 +55,89 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   int _selectedIndex = 0;
 
-  final List<ServiceItem> _services = [
-    ServiceItem(
-      Icons.medication_liquid,
+  final List<QuickAction> _quickActions = [
+    QuickAction(
       'Medicines',
-      const Color(0xFFE3F2FD),
-      const Color(0xFF1976D2),
-      const Color(0xFF2196F3),
+      Icons.medication_liquid_rounded,
+      const Color(0xFF6366F1),
+      'Shop Medicines',
     ),
-    ServiceItem(
-      Icons.pets,
+    QuickAction(
       'Adoption',
-      const Color(0xFFE8F5E9),
-      const Color(0xFF388E3C),
-      const Color(0xFF4CAF50),
+      Icons.favorite_rounded,
+      const Color(0xFFEC4899),
+      'Find Pets',
     ),
-    ServiceItem(
-      Icons.library_books,
+    QuickAction(
       'Pet Resources',
-      const Color(0xFFFFF3E0),
-      const Color(0xFFF57C00),
-      const Color(0xFFFF9800),
+      Icons.shopping_bag_rounded,
+      const Color(0xFF10B981),
+      'Pet Essentials',
     ),
-    ServiceItem(
-      Icons.family_restroom,
+    QuickAction(
       'Raising a Pet',
-      const Color(0xFFF3E5F5),
-      const Color(0xFF7B1FA2),
-      const Color(0xFF9C27B0),
+      Icons.menu_book_rounded,
+      const Color(0xFFF59E0B),
+      'Learn about Pets',
     ),
-    ServiceItem(
-      Icons.category,
+  ];
+
+  final List<FeatureCard> _features = [
+    FeatureCard(
       'Animal Breeds',
-      const Color(0xFFFFEBEE),
-      const Color(0xFFD32F2F),
-      const Color(0xFFF44336),
+      'Discover different breeds and their characteristics',
+      Icons.pets_rounded,
+      const Color(0xFF6366F1),
+      '25+ Breeds',
+      'https://static.vecteezy.com/system/resources/previews/013/589/599/non_2x/a-set-of-round-icons-with-dogs-a-set-of-different-dog-breeds-dog-avatar-icon-collection-isolated-illustration-vector.jpg',
     ),
-    ServiceItem(
-      Icons.favorite_border,
-      'Put for Adoption',
-      const Color(0xFFFCE4EC),
-      const Color(0xFFC2185B),
-      const Color(0xFFE91E63),
+    FeatureCard(
+      'Rehome a Pet',
+      'List your pet for adoption and find loving homes',
+      Icons.add_circle_rounded,
+      const Color(0xFFEC4899),
+      'Easy Process',
+      'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQebc7hR0lb9pMVaRptTqU0oGdRcV6Q1KO8UA&s',
     ),
-    ServiceItem(
-      Icons.analytics,
+    FeatureCard(
       'Sales Report',
-      const Color(0xFFE0F2F1),
-      const Color(0xFF00796B),
-      const Color(0xFF009688),
+      'Track sales and business analytics',
+      Icons.trending_up_rounded,
+      const Color(0xFF10B981),
+      'Live Data',
+      'https://cdn3d.iconscout.com/3d/premium/thumb/sales-report-3d-icon-png-download-5283629.png',
     ),
-    ServiceItem(
-      Icons.pets_sharp,
-      'Pet Management',
-      const Color(0xFFEDE7F6),
-      const Color(0xFF512DA8),
-      const Color(0xFF673AB7),
+    FeatureCard(
+      'My Pets',
+      'Manage all your pet profiles in one place',
+      Icons.dashboard_rounded,
+      const Color(0xFFF59E0B),
+      'Organized',
+      'https://cdn-icons-png.flaticon.com/512/3460/3460335.png',
     ),
-    ServiceItem(
-      Icons.medication,
+    FeatureCard(
       'Manage Medicines',
-      const Color(0xFFEDE7F6),
-      const Color(0xFF512DA8),
-      const Color(0xFF673AB7),
+      'Update and control medicines inventory',
+      Icons.inventory_rounded,
+      const Color(0xFF8B5CF6),
+      'Stock Control',
+      'https://static.vecteezy.com/system/resources/previews/002/062/463/non_2x/medication-management-rgb-color-icon-vector.jpg',
     ),
-    ServiceItem(
-      Icons.inventory,
-      'Manage Resources',
-      const Color(0xFFE0F7FA),
-      const Color(0xFF0097A7),
-      const Color(0xFF00BCD4),
+    FeatureCard(
+      'Manage Pet Essentials',
+      'Handle all pet care resources efficiently',
+      Icons.inventory_2_rounded,
+      const Color(0xFF06B6D4),
+      'Efficient',
+      'https://static.vecteezy.com/system/resources/thumbnails/000/156/189/small/dog-supplies-icon-set-vector.jpg',
     ),
-    ServiceItem(
-      Icons.contact_support,
+    FeatureCard(
       'Contact Us',
-      const Color(0xFFFBE9E7),
-      const Color(0xFFBF360C),
-      const Color(0xFFFF5722),
+      'Get in touch with our support team anytime',
+      Icons.headset_mic_rounded,
+      const Color(0xFFF43F5E),
+      '24/7 Support',
+      'https://cdn-icons-png.flaticon.com/512/7269/7269950.png',
     ),
   ];
 
@@ -291,127 +297,382 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Widget _buildHomeContent() {
-    return Column(
-      children: [
-        Expanded(
-          child: Padding(
-            padding: const EdgeInsets.all(20),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const Row(
-                  children: [
-                    Icon(Icons.grid_view, color: Color(0xFF4A6FA5), size: 22),
-                    SizedBox(width: 8),
-                    Text(
-                      'Our Services',
-                      style: TextStyle(
-                        fontSize: 20,
-                        fontWeight: FontWeight.w700,
-                        color: Color(0xFF333333),
+    return Container(
+      decoration: const BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topCenter,
+          end: Alignment.bottomCenter,
+          colors: [Color(0xFFF8FAFC), Color(0xFFFFFFFF)],
+        ),
+      ),
+      child: CustomScrollView(
+        physics: const BouncingScrollPhysics(),
+        slivers: [
+          // Quick Actions Card
+          SliverToBoxAdapter(
+            child: Transform.translate(
+              offset: const Offset(0, -24),
+              child: Padding(
+                padding: const EdgeInsets.only(
+                  left: 24,
+                  right: 24,
+                  top: 40,
+                  bottom: 16,
+                ),
+                child: Container(
+                  padding: const EdgeInsets.all(24),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(28),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withOpacity(0.06),
+                        blurRadius: 30,
+                        offset: const Offset(0, 10),
+                        spreadRadius: -5,
                       ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  'Tap on any service to explore',
-                  style: TextStyle(fontSize: 14, color: Colors.grey[600]),
-                ),
-                const SizedBox(height: 25),
-
-                // Services Grid
-                Expanded(
-                  child: GridView.builder(
-                    gridDelegate:
-                        const SliverGridDelegateWithFixedCrossAxisCount(
-                          crossAxisCount: 3,
-                          crossAxisSpacing: 16,
-                          mainAxisSpacing: 16,
-                          childAspectRatio: 0.85,
-                        ),
-                    itemCount: _services.length,
-                    itemBuilder: (context, index) {
-                      return _buildServiceCard(_services[index]);
-                    },
+                    ],
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        children: [
+                          Container(
+                            width: 4,
+                            height: 24,
+                            decoration: BoxDecoration(
+                              gradient: const LinearGradient(
+                                colors: [Color(0xFF5B6CED), Color(0xFF9D5EE9)],
+                              ),
+                              borderRadius: BorderRadius.circular(2),
+                            ),
+                          ),
+                          const SizedBox(width: 12),
+                          const Text(
+                            'Quick Access',
+                            style: TextStyle(
+                              fontSize: 20,
+                              fontWeight: FontWeight.w800,
+                              color: Color(0xFF0F172A),
+                              letterSpacing: -0.5,
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 20),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: _quickActions.map((action) {
+                          return _buildQuickAction(action);
+                        }).toList(),
+                      ),
+                    ],
                   ),
                 ),
-              ],
+              ),
             ),
           ),
-        ),
-      ],
+
+          // Features Grid
+          SliverPadding(
+            padding: const EdgeInsets.fromLTRB(24, 0, 24, 32),
+            sliver: SliverToBoxAdapter(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      Container(
+                        width: 4,
+                        height: 24,
+                        decoration: BoxDecoration(
+                          gradient: const LinearGradient(
+                            colors: [Color(0xFF5B6CED), Color(0xFF9D5EE9)],
+                          ),
+                          borderRadius: BorderRadius.circular(2),
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      const Text(
+                        'All Services',
+                        style: TextStyle(
+                          fontSize: 20,
+                          fontWeight: FontWeight.w800,
+                          color: Color(0xFF0F172A),
+                          letterSpacing: -0.5,
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 20),
+                  GridView.builder(
+                    shrinkWrap: true,
+                    physics: const NeverScrollableScrollPhysics(),
+                    gridDelegate:
+                        const SliverGridDelegateWithFixedCrossAxisCount(
+                          crossAxisCount: 2,
+                          crossAxisSpacing: 14,
+                          mainAxisSpacing: 14,
+                          childAspectRatio: 0.85,
+                        ),
+                    itemCount: _features.length,
+                    itemBuilder: (context, index) {
+                      return _buildFeatureCard(_features[index]);
+                    },
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ],
+      ),
     );
   }
 
-  Widget _buildServiceCard(ServiceItem service) {
+  Widget _buildQuickAction(QuickAction action) {
     return GestureDetector(
       onTap: () {
         Navigator.push(
           context,
-          MaterialPageRoute(builder: (context) => _getPage(service.title)),
+          MaterialPageRoute(builder: (context) => _getPage(action.title)),
+        );
+      },
+      child: Column(
+        children: [
+          Container(
+            width: 68,
+            height: 68,
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+                colors: [action.color, action.color.withOpacity(0.8)],
+              ),
+              borderRadius: BorderRadius.circular(20),
+              boxShadow: [
+                BoxShadow(
+                  color: action.color.withOpacity(0.35),
+                  blurRadius: 16,
+                  offset: const Offset(0, 6),
+                  spreadRadius: 0,
+                ),
+              ],
+            ),
+            child: Icon(action.icon, color: Colors.white, size: 32),
+          ),
+          const SizedBox(height: 10),
+          Text(
+            action.label,
+            style: const TextStyle(
+              fontSize: 12,
+              fontWeight: FontWeight.w700,
+              color: Color(0xFF475569),
+              letterSpacing: -0.2,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildFeatureCard(FeatureCard feature) {
+    return GestureDetector(
+      onTap: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => _getPage(feature.title)),
         );
       },
       child: Container(
         decoration: BoxDecoration(
           color: Colors.white,
-          borderRadius: BorderRadius.circular(16),
+          borderRadius: BorderRadius.circular(24),
+          border: Border.all(color: const Color(0xFFE2E8F0), width: 1.5),
           boxShadow: [
             BoxShadow(
-              color: service.bgColor.withOpacity(0.3),
-              blurRadius: 10,
-              offset: const Offset(0, 4),
-              spreadRadius: 0.5,
-            ),
-            BoxShadow(
-              color: Colors.grey.withOpacity(0.1),
-              offset: const Offset(0, 2),
+              color: feature.color.withOpacity(0.08),
+              blurRadius: 20,
+              offset: const Offset(0, 8),
+              spreadRadius: -4,
             ),
           ],
-          border: Border.all(color: service.bgColor.withOpacity(0.3), width: 5),
         ),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Container(
-              width: 80,
-              height: 80,
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                  colors: [service.bgColor, service.bgColor.withOpacity(0.8)],
-                ),
-                borderRadius: BorderRadius.circular(14),
-                boxShadow: [
-                  BoxShadow(
-                    color: service.iconColor.withOpacity(0.1),
-                    blurRadius: 5,
-                    offset: const Offset(0, 4),
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(24),
+          child: Stack(
+            children: [
+              /// Top gradient background
+              Positioned(
+                top: 0,
+                left: 0,
+                right: 0,
+                height: 80,
+                child: Container(
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                      colors: [
+                        feature.color.withOpacity(0.12),
+                        feature.color.withOpacity(0.04),
+                      ],
+                    ),
                   ),
-                ],
-              ),
-              child: Icon(service.icon, color: service.iconColor, size: 75),
-            ),
-            const SizedBox(height: 25),
-
-            // Service Title
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 8),
-              child: Text(
-                service.title,
-                textAlign: TextAlign.center,
-                style: TextStyle(
-                  fontSize: 17,
-                  fontWeight: FontWeight.w600,
-                  color: service.titleColor,
-                  height: 1.3,
                 ),
-                maxLines: 2,
-                overflow: TextOverflow.ellipsis,
               ),
-            ),
-          ],
+
+              /// Content
+              Padding(
+                padding: const EdgeInsets.symmetric(vertical: 15),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    /// Icon
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 15),
+                      child: Container(
+                        padding: const EdgeInsets.all(13),
+                        decoration: BoxDecoration(
+                          gradient: LinearGradient(
+                            begin: Alignment.topLeft,
+                            end: Alignment.bottomRight,
+                            colors: [
+                              feature.color,
+                              feature.color.withOpacity(0.85),
+                            ],
+                          ),
+                          borderRadius: BorderRadius.circular(16),
+                          boxShadow: [
+                            BoxShadow(
+                              color: feature.color.withOpacity(0.35),
+                              blurRadius: 16,
+                              offset: const Offset(0, 6),
+                            ),
+                          ],
+                        ),
+                        child: Icon(
+                          feature.icon,
+                          color: Colors.white,
+                          size: 30,
+                        ),
+                      ),
+                    ),
+
+                    const SizedBox(height: 8),
+
+                    ClipRRect(
+                      borderRadius: BorderRadius.circular(4),
+                      child: SizedBox(
+                        width: double.infinity,
+                        height: 230,
+                        child: Stack(
+                          fit: StackFit.expand,
+                          children: [
+                            Image.network(feature.image, fit: BoxFit.fill),
+                            Container(
+                              decoration: BoxDecoration(
+                                gradient: LinearGradient(
+                                  begin: Alignment.topCenter,
+                                  end: Alignment.bottomCenter,
+                                  colors: [
+                                    Colors.transparent,
+                                    feature.color.withOpacity(0.25),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+
+                    const SizedBox(height: 12),
+
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 15),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            feature.title,
+                            style: const TextStyle(
+                              fontSize: 17,
+                              fontWeight: FontWeight.w800,
+                              color: Color(0xFF0F172A),
+                              height: 1.2,
+                              letterSpacing: -0.3,
+                            ),
+                            maxLines: 2,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                          const SizedBox(height: 6),
+                          Text(
+                            feature.subtitle,
+                            style: const TextStyle(
+                              fontSize: 12,
+                              color: Color(0xFF64748B),
+                              height: 1.4,
+                              fontWeight: FontWeight.w500,
+                            ),
+                            maxLines: 2,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                          const SizedBox(height: 12),
+                          Row(
+                            children: [
+                              Container(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 10,
+                                  vertical: 5,
+                                ),
+                                decoration: BoxDecoration(
+                                  color: feature.color.withOpacity(0.15),
+                                  borderRadius: BorderRadius.circular(8),
+                                ),
+                                child: Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    Icon(
+                                      Icons.star_rounded,
+                                      size: 14,
+                                      color: feature.color,
+                                    ),
+                                    const SizedBox(width: 4),
+                                    Text(
+                                      feature.badge,
+                                      style: TextStyle(
+                                        fontSize: 11,
+                                        fontWeight: FontWeight.w700,
+                                        color: feature.color,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              const Spacer(),
+                              Container(
+                                padding: const EdgeInsets.all(6),
+                                decoration: BoxDecoration(
+                                  color: feature.color.withOpacity(0.1),
+                                  borderRadius: BorderRadius.circular(8),
+                                ),
+                                child: Icon(
+                                  Icons.arrow_forward_rounded,
+                                  size: 16,
+                                  color: feature.color,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );
@@ -429,15 +690,15 @@ class _HomeScreenState extends State<HomeScreen> {
         return PetGuidePage();
       case 'Animal Breeds':
         return AnimalTypesPage();
-      case 'Put for Adoption':
+      case 'Rehome a Pet':
         return PutForAdoptionPage();
       case 'Sales Report':
         return SalesReportScreen();
-      case 'Pet Management':
+      case 'My Pets':
         return PetManagementPage();
       case 'Manage Medicines':
         return MedicineManagementPage();
-      case 'Manage Resources':
+      case 'Manage Pet Essentials':
         return ResourcesManagementPage();
       case 'Contact Us':
         return ContactUsPage();
@@ -447,18 +708,29 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 }
 
-class ServiceItem {
-  final IconData icon;
+class QuickAction {
   final String title;
-  final Color bgColor;
-  final Color iconColor;
-  final Color titleColor;
+  final IconData icon;
+  final Color color;
+  final String label;
 
-  ServiceItem(
-    this.icon,
+  QuickAction(this.title, this.icon, this.color, this.label);
+}
+
+class FeatureCard {
+  final String title;
+  final String subtitle;
+  final IconData icon;
+  final Color color;
+  final String badge;
+  final String image;
+
+  FeatureCard(
     this.title,
-    this.bgColor,
-    this.iconColor,
-    this.titleColor,
+    this.subtitle,
+    this.icon,
+    this.color,
+    this.badge,
+    this.image,
   );
 }

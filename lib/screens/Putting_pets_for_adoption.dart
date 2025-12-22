@@ -183,7 +183,7 @@ class _PutForAdoptionPageState extends State<PutForAdoptionPage> {
     return Scaffold(
       appBar: AppBar(
         title: const Text(
-          'Put your Pet for Adoption',
+          'Rehome your Pet',
           style: TextStyle(color: Colors.white),
         ),
         iconTheme: IconThemeData(color: Colors.white),

@@ -5,7 +5,10 @@ import 'package:vet_clinic/screens/homescreen.dart';
 
 void main() {
   runApp(
-    MaterialApp(debugShowCheckedModeBanner: false, home: const LoginPage()),
+    MaterialApp(
+      debugShowCheckedModeBanner: false,
+      home: const VeterinaryClinicApp(),
+    ),
   );
 }
 
@@ -231,25 +234,3 @@ class _LoginPageState extends State<LoginPage> {
     );
   }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

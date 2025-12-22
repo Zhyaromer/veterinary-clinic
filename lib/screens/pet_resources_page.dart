@@ -49,7 +49,7 @@ class PetResourcesPage extends StatelessWidget {
       backgroundColor: Colors.white,
       appBar: AppBar(
         title: const Text(
-          'Pet Resources',
+          'Pet Essentials',
           style: TextStyle(
             color: Colors.white,
             fontSize: 20,

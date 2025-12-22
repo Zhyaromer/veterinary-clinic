@@ -79,6 +79,7 @@ class _PetGuidePageState extends State<PetGuidePage> {
           'Pet Care Guides',
           style: TextStyle(color: Colors.white),
         ),
+        centerTitle: true,
         iconTheme: IconThemeData(color: Colors.white),
         backgroundColor: const Color(0xFF4A6FA5),
         actions: [

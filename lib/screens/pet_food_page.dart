@@ -508,6 +508,7 @@ class _PetFoodPageState extends State<PetFoodPage> {
           'Food & Treats',
           style: TextStyle(color: Colors.white, fontSize: 20),
         ),
+        centerTitle: true,
         backgroundColor: const Color(0xFF4A6FA5),
         iconTheme: const IconThemeData(color: Colors.white),
         elevation: 0,

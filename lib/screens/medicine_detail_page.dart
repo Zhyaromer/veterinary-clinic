@@ -44,7 +44,7 @@ class _MedicineDetailPageState extends State<MedicineDetailPage> {
                       borderRadius: BorderRadius.circular(20),
                       child: Image.network(
                         medicine.imageUrl,
-                        fit: BoxFit.cover,
+                        fit: BoxFit.fill,
                         width: double.infinity,
                         height: double.infinity,
                         errorBuilder: (context, error, stackTrace) {

@@ -250,6 +250,7 @@ class _AddEditFoodPageState extends State<AddEditFoodPage> {
           isEditing ? 'Edit Food' : 'Add New Food',
           style: TextStyle(color: Colors.white),
         ),
+        centerTitle: true,
         backgroundColor: const Color(0xFF4A6FA5),
         iconTheme: const IconThemeData(color: Colors.white),
         actions: [

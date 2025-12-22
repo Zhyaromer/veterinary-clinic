@@ -357,6 +357,7 @@ class _PetToysPageState extends State<PetToysPage> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Pet Toys', style: TextStyle(color: Colors.white)),
+        centerTitle: true,
         backgroundColor: const Color(0xFF4A6FA5),
         iconTheme: const IconThemeData(color: Colors.white),
         actions: [

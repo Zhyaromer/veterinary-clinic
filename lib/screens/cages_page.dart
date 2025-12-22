@@ -351,6 +351,7 @@ class _CagesPageState extends State<CagesPage> {
           'Cages & Habitats',
           style: TextStyle(color: Colors.white),
         ),
+        centerTitle: true,
         backgroundColor: const Color(0xFF4A6FA5),
         iconTheme: const IconThemeData(color: Colors.white),
         actions: [
