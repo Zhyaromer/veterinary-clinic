@@ -19,6 +19,23 @@ class _AppointmentsScreenState extends State<AppointmentsScreen> {
     _loadAppointments();
   }
 
+  /// Combines appointment date + time into one DateTime for sorting
+  DateTime _fullDateTime(Appointment a) {
+    return DateTime(
+      a.appointmentDate.year,
+      a.appointmentDate.month,
+      a.appointmentDate.day,
+      a.appointmentTime.hour,
+      a.appointmentTime.minute,
+    );
+  }
+
+  void _sortAppointments() {
+    appointments.sort(
+      (a, b) => _fullDateTime(a).compareTo(_fullDateTime(b)),
+    );
+  }
+
   void _loadAppointments() {
     setState(() {
       appointments = [
@@ -58,7 +75,7 @@ class _AppointmentsScreenState extends State<AppointmentsScreen> {
         ),
         Appointment(
           id: '3',
-          petName: 'jack',
+          petName: 'Jack',
           ownerName: 'Jane Smith',
           phoneNumber: '+0987654321',
           email: 'jane@email.com',
@@ -75,7 +92,7 @@ class _AppointmentsScreenState extends State<AppointmentsScreen> {
         ),
         Appointment(
           id: '4',
-          petName: 'angela',
+          petName: 'Angela',
           ownerName: 'Jane Smith',
           phoneNumber: '+0987654321',
           email: 'jane@email.com',
@@ -91,12 +108,15 @@ class _AppointmentsScreenState extends State<AppointmentsScreen> {
           createdAt: DateTime.now().subtract(const Duration(days: 3)),
         ),
       ];
+
+      _sortAppointments();
     });
   }
 
   void _addAppointment(Appointment newAppointment) {
     setState(() {
       appointments.add(newAppointment);
+      _sortAppointments();
     });
   }
 
@@ -105,9 +125,7 @@ class _AppointmentsScreenState extends State<AppointmentsScreen> {
       context: context,
       builder: (context) => AlertDialog(
         title: const Text('Cancel Appointment'),
-        content: const Text(
-          'Are you sure you want to cancel this appointment?',
-        ),
+        content: const Text('Are you sure you want to cancel this appointment?'),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
@@ -116,7 +134,7 @@ class _AppointmentsScreenState extends State<AppointmentsScreen> {
           TextButton(
             onPressed: () {
               setState(() {
-                appointments.removeWhere((appt) => appt.id == id);
+                appointments.removeWhere((a) => a.id == id);
               });
               Navigator.pop(context);
               ScaffoldMessenger.of(context).showSnackBar(
@@ -133,6 +151,23 @@ class _AppointmentsScreenState extends State<AppointmentsScreen> {
     );
   }
 
+  void _navigateToBookAppointment() async {
+    final result = await Navigator.push(
+      context,
+      MaterialPageRoute(builder: (_) => const BookAppointmentScreen()),
+    );
+
+    if (result is Appointment) {
+      _addAppointment(result);
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Appointment booked successfully!'),
+          backgroundColor: Colors.green,
+        ),
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -141,7 +176,7 @@ class _AppointmentsScreenState extends State<AppointmentsScreen> {
         padding: const EdgeInsets.all(16),
         child: appointments.isEmpty
             ? EmptyAppointmentsWidget(
-                onBookAppointment: () => _navigateToBookAppointment(),
+                onBookAppointment: _navigateToBookAppointment,
               )
             : Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -171,26 +206,9 @@ class _AppointmentsScreenState extends State<AppointmentsScreen> {
               ),
       ),
       floatingActionButton: appointments.isNotEmpty
-          ? BookAppointmentButton(onPressed: () => _navigateToBookAppointment())
+          ? BookAppointmentButton(onPressed: _navigateToBookAppointment)
           : null,
       floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
     );
-  }
-
-  void _navigateToBookAppointment() async {
-    final result = await Navigator.push(
-      context,
-      MaterialPageRoute(builder: (context) => BookAppointmentScreen()),
-    );
-
-    if (result != null && result is Appointment) {
-      _addAppointment(result);
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Appointment booked successfully!'),
-          backgroundColor: Colors.green,
-        ),
-      );
-    }
   }
 }
