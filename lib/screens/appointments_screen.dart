@@ -19,21 +19,8 @@ class _AppointmentsScreenState extends State<AppointmentsScreen> {
     _loadAppointments();
   }
 
-  /// Combines appointment date + time into one DateTime for sorting
-  DateTime _fullDateTime(Appointment a) {
-    return DateTime(
-      a.appointmentDate.year,
-      a.appointmentDate.month,
-      a.appointmentDate.day,
-      a.appointmentTime.hour,
-      a.appointmentTime.minute,
-    );
-  }
-
   void _sortAppointments() {
-    appointments.sort(
-      (a, b) => _fullDateTime(a).compareTo(_fullDateTime(b)),
-    );
+    appointments.sort((a, b) => b.createdAt.compareTo(a.createdAt));
   }
 
   void _loadAppointments() {
@@ -88,7 +75,7 @@ class _AppointmentsScreenState extends State<AppointmentsScreen> {
           symptoms: 'Slight lethargy',
           emergency: true,
           vetPreference: 'Any',
-          createdAt: DateTime.now().subtract(const Duration(days: 3)),
+          createdAt: DateTime.now().subtract(const Duration(days: 7)),
         ),
         Appointment(
           id: '4',
@@ -105,7 +92,7 @@ class _AppointmentsScreenState extends State<AppointmentsScreen> {
           symptoms: 'Slight lethargy',
           emergency: true,
           vetPreference: 'Any',
-          createdAt: DateTime.now().subtract(const Duration(days: 3)),
+          createdAt: DateTime.now().subtract(const Duration(days: 5)),
         ),
       ];
 
@@ -125,7 +112,9 @@ class _AppointmentsScreenState extends State<AppointmentsScreen> {
       context: context,
       builder: (context) => AlertDialog(
         title: const Text('Cancel Appointment'),
-        content: const Text('Are you sure you want to cancel this appointment?'),
+        content: const Text(
+          'Are you sure you want to cancel this appointment?',
+        ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
