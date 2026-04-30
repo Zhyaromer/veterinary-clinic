@@ -1,6 +1,12 @@
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:vet_clinic/firebase_options.dart';
+import 'package:vet_clinic/providers/auth_provider.dart';
 import 'package:vet_clinic/screens/appointments_screen.dart';
 import 'package:vet_clinic/screens/contact_us.dart';
+import 'package:vet_clinic/screens/email_verification_screen.dart';
+import 'package:vet_clinic/screens/login_screen.dart';
 import 'package:vet_clinic/screens/medicine_management_page.dart';
 import 'package:vet_clinic/screens/medicines_page.dart';
 import 'package:vet_clinic/screens/Putting_pets_for_adoption.dart';
@@ -11,7 +17,19 @@ import 'package:vet_clinic/screens/animal_types_page.dart';
 import 'package:vet_clinic/screens/sales_report_screen.dart';
 import 'package:vet_clinic/screens/shelter_pets_screen.dart';
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+
+  try {
+    await Firebase.initializeApp(
+      options: DefaultFirebaseOptions.currentPlatform,
+    );
+    print('Firebase initialized successfully');
+  } catch (e) {
+    print('Firebase initialization error: $e');
+    // App will still run, but authentication may not work
+  }
+
   runApp(const VeterinaryClinicApp());
 }
 
@@ -20,20 +38,90 @@ class VeterinaryClinicApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      debugShowCheckedModeBanner: false,
-      title: 'VetCare Center',
-      theme: ThemeData(
-        primaryColor: const Color(0xFF4A6FA5),
-        colorScheme: ColorScheme.fromSeed(
-          seedColor: const Color(0xFF4A6FA5),
-          primary: const Color(0xFF4A6FA5),
-          secondary: const Color(0xFF6B9F8C),
+    return MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (_) => AuthProvider()),
+      ],
+      child: MaterialApp(
+        debugShowCheckedModeBanner: false,
+        title: 'VetCare Center',
+        theme: ThemeData(
+          primaryColor: const Color(0xFF4A6FA5),
+          colorScheme: ColorScheme.fromSeed(
+            seedColor: const Color(0xFF4A6FA5),
+            primary: const Color(0xFF4A6FA5),
+            secondary: const Color(0xFF6B9F8C),
+          ),
+          useMaterial3: true,
+          fontFamily: 'Inter',
         ),
-        useMaterial3: true,
-        fontFamily: 'Inter',
+        home: const AuthWrapper(),
       ),
-      home: const HomeScreen(),
+    );
+  }
+}
+
+class AuthWrapper extends StatelessWidget {
+  const AuthWrapper({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Consumer<AuthProvider>(
+      builder: (context, authProvider, _) {
+        // Show loading screen while initializing
+        if (!authProvider.initialized) {
+          return Scaffold(
+            body: Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Container(
+                    width: 80,
+                    height: 80,
+                    decoration: BoxDecoration(
+                      color: const Color(0xFF4A6FA5),
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                    child: const Icon(
+                      Icons.pets,
+                      size: 48,
+                      color: Colors.white,
+                    ),
+                  ),
+                  const SizedBox(height: 20),
+                  const Text(
+                    'VetCare Center',
+                    style: TextStyle(
+                      fontSize: 24,
+                      fontWeight: FontWeight.bold,
+                      color: Color(0xFF4A6FA5),
+                    ),
+                  ),
+                  const SizedBox(height: 20),
+                  const CircularProgressIndicator(
+                    valueColor: AlwaysStoppedAnimation<Color>(
+                      Color(0xFF4A6FA5),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          );
+        }
+
+        // Show appropriate screen based on authentication and verification state
+        if (authProvider.isAuthenticated) {
+          // If authenticated but email not verified, show verification screen
+          if (!authProvider.isEmailVerified) {
+            return const EmailVerificationScreen();
+          }
+          // If authenticated and verified, show home screen
+          return const HomeScreen();
+        } else {
+          // Not authenticated, show login screen
+          return const LoginScreen();
+        }
+      },
     );
   }
 }
@@ -148,6 +236,95 @@ class _HomeScreenState extends State<HomeScreen> {
         shape: const RoundedRectangleBorder(
           borderRadius: BorderRadius.vertical(bottom: Radius.circular(20)),
         ),
+        actions: [
+          Consumer<AuthProvider>(
+            builder: (context, authProvider, _) {
+              return PopupMenuButton(
+                itemBuilder: (context) => [
+                  PopupMenuItem(
+                    child: const Row(
+                      children: [
+                        Icon(Icons.person, size: 18),
+                        SizedBox(width: 8),
+                        Text('Profile'),
+                      ],
+                    ),
+                    onTap: () {
+                      // Show user profile
+                      showDialog(
+                        context: context,
+                        builder: (context) => AlertDialog(
+                          title: const Text('User Profile'),
+                          content: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                'Email: ${authProvider.user?.email}',
+                                style: const TextStyle(fontSize: 14),
+                              ),
+                              const SizedBox(height: 8),
+                              Text(
+                                'Name: ${authProvider.user?.displayName ?? "Not set"}',
+                                style: const TextStyle(fontSize: 14),
+                              ),
+                            ],
+                          ),
+                          actions: [
+                            TextButton(
+                              onPressed: () => Navigator.pop(context),
+                              child: const Text('Close'),
+                            ),
+                          ],
+                        ),
+                      );
+                    },
+                  ),
+                  PopupMenuItem(
+                    child: const Row(
+                      children: [
+                        Icon(Icons.logout, size: 18),
+                        SizedBox(width: 8),
+                        Text('Logout'),
+                      ],
+                    ),
+                    onTap: () {
+                      showDialog(
+                        context: context,
+                        builder: (context) => AlertDialog(
+                          title: const Text('Logout'),
+                          content: const Text(
+                            'Are you sure you want to logout?',
+                          ),
+                          actions: [
+                            TextButton(
+                              onPressed: () => Navigator.pop(context),
+                              child: const Text('Cancel'),
+                            ),
+                            TextButton(
+                              onPressed: () {
+                                authProvider.signOut();
+                                Navigator.pop(context);
+                              },
+                              child: const Text(
+                                'Logout',
+                                style: TextStyle(color: Colors.red),
+                              ),
+                            ),
+                          ],
+                        ),
+                      );
+                    },
+                  ),
+                ],
+                child: const Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 16),
+                  child: Icon(Icons.account_circle, size: 28),
+                ),
+              );
+            },
+          ),
+        ],
       ),
       body: _selectedIndex == 0 ? _buildHomeContent() : AppointmentsScreen(),
       bottomNavigationBar: Container(
