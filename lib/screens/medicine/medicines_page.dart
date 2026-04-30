@@ -1,7 +1,9 @@
 // screens/medicines_page.dart
 import 'package:flutter/material.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import '../../models/medicine.dart';
 import '../../widgets/medicine_card.dart';
+import '../../services/medicine_firestore_service.dart';
 import 'medicine_detail_page.dart';
 
 class MedicinesPage extends StatefulWidget {
@@ -13,7 +15,9 @@ class MedicinesPage extends StatefulWidget {
 
 class _MedicinesPageState extends State<MedicinesPage> {
   final TextEditingController _searchController = TextEditingController();
-  List<Medicine> filteredMedicines = List.from(medicines);
+  final MedicineFirestoreService _medicineService = MedicineFirestoreService();
+  List<Medicine> filteredMedicines = [];
+  List<Medicine> allMedicines = [];
 
   // Filter states
   String _selectedAnimalType = 'All';
@@ -55,12 +59,35 @@ class _MedicinesPageState extends State<MedicinesPage> {
   void initState() {
     super.initState();
     _searchController.addListener(_filterMedicines);
+    _loadMedicines();
+  }
 
-    if (medicines.isNotEmpty) {
-      final maxPriceInList = medicines
-          .map((m) => m.price)
-          .reduce((a, b) => a > b ? a : b);
-      _maxPrice = (maxPriceInList + 20).ceilToDouble();
+  void _loadMedicines() async {
+    try {
+      final medicines = await _medicineService.getAllMedicines();
+      if (mounted) {
+        setState(() {
+          allMedicines = medicines;
+          filteredMedicines = List.from(allMedicines);
+          if (allMedicines.isNotEmpty) {
+            final maxPriceInList = allMedicines
+                .map((m) => m.price)
+                .reduce((a, b) => a > b ? a : b);
+            _maxPrice = (maxPriceInList + 20).ceilToDouble();
+          }
+        });
+      }
+    } catch (e) {
+      print('Error loading medicines: $e');
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Error loading medicines: $e\n\nPlease check your Firestore configuration.'),
+            backgroundColor: Colors.red,
+            duration: const Duration(seconds: 5),
+          ),
+        );
+      }
     }
   }
 
@@ -72,7 +99,7 @@ class _MedicinesPageState extends State<MedicinesPage> {
 
   void _filterMedicines() {
     setState(() {
-      filteredMedicines = medicines.where((medicine) {
+      filteredMedicines = allMedicines.where((medicine) {
         final matchesSearch =
             _searchController.text.isEmpty ||
             medicine.name.toLowerCase().contains(
@@ -119,18 +146,22 @@ class _MedicinesPageState extends State<MedicinesPage> {
       _selectedForm = 'All';
       _minPrice = 0;
       // Reset max price to actual max from medicines
-      final maxPriceInList = medicines
-          .map((m) => m.price)
-          .reduce((a, b) => a > b ? a : b);
-      _maxPrice = (maxPriceInList + 20).ceilToDouble();
+      if (allMedicines.isNotEmpty) {
+        final maxPriceInList = allMedicines
+            .map((m) => m.price)
+            .reduce((a, b) => a > b ? a : b);
+        _maxPrice = (maxPriceInList + 20).ceilToDouble();
+      }
       _filterMedicines();
     });
   }
 
   void _showFilterDialog() {
-    final maxPriceInList = medicines
-        .map((m) => m.price)
-        .reduce((a, b) => a > b ? a : b);
+    final maxPriceInList = allMedicines.isNotEmpty
+        ? allMedicines
+            .map((m) => m.price)
+            .reduce((a, b) => a > b ? a : b)
+        : 100;
     final sliderMaxPrice = (maxPriceInList + 20).ceilToDouble();
 
     // Local dialog variables
