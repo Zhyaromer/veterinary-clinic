@@ -3,19 +3,19 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:vet_clinic/firebase_options.dart';
 import 'package:vet_clinic/providers/auth_provider.dart';
-import 'package:vet_clinic/screens/appointments_screen.dart';
+import 'package:vet_clinic/screens/Manage_Pet_Essentials.dart';
+import 'package:vet_clinic/screens/adoption/Putting_pets_for_adoption.dart';
+import 'package:vet_clinic/screens/adoption/shelter_pets_screen.dart';
+import 'package:vet_clinic/screens/appointments/appointments_screen.dart';
+import 'package:vet_clinic/screens/breed/animal_types_page.dart';
 import 'package:vet_clinic/screens/contact_us.dart';
 import 'package:vet_clinic/screens/email_verification_screen.dart';
 import 'package:vet_clinic/screens/login_screen.dart';
-import 'package:vet_clinic/screens/medicine_management_page.dart';
-import 'package:vet_clinic/screens/medicines_page.dart';
-import 'package:vet_clinic/screens/Putting_pets_for_adoption.dart';
-import 'package:vet_clinic/screens/pet_guide_page.dart';
-import 'package:vet_clinic/screens/pet_resources_page.dart';
-import 'package:vet_clinic/screens/resources_management_page.dart';
-import 'package:vet_clinic/screens/animal_types_page.dart';
+import 'package:vet_clinic/screens/medicine/medicine_management_page.dart';
+import 'package:vet_clinic/screens/medicine/medicines_page.dart';
+import 'package:vet_clinic/screens/pet%20essential.dart';
+import 'package:vet_clinic/screens/pet%20guide/pet_guide_page.dart';
 import 'package:vet_clinic/screens/sales_report_screen.dart';
-import 'package:vet_clinic/screens/shelter_pets_screen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();

@@ -4,8 +4,14 @@ import '../models/medicine.dart';
 class MedicineCard extends StatelessWidget {
   final Medicine medicine;
   final VoidCallback onTap;
+  final VoidCallback? onAddToCart;
 
-  const MedicineCard({super.key, required this.medicine, required this.onTap});
+  const MedicineCard({
+    super.key,
+    required this.medicine,
+    required this.onTap,
+    this.onAddToCart,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -37,7 +43,7 @@ class MedicineCard extends StatelessWidget {
               children: [
                 // Main Image with Gradient Overlay
                 Container(
-                  height: 160,
+                  height: 220,
                   decoration: BoxDecoration(
                     borderRadius: const BorderRadius.only(
                       topLeft: Radius.circular(16),
@@ -45,7 +51,7 @@ class MedicineCard extends StatelessWidget {
                     ),
                     image: DecorationImage(
                       image: NetworkImage(medicine.imageUrl),
-                      fit: BoxFit.cover,
+                      fit: BoxFit.fill,
                       colorFilter: ColorFilter.mode(
                         Colors.black.withOpacity(0.1),
                         BlendMode.darken,
@@ -267,30 +273,37 @@ class MedicineCard extends StatelessWidget {
                   const SizedBox(height: 16),
 
                   Row(
-                    mainAxisSize: MainAxisSize.min,
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Container(
-                        padding: const EdgeInsets.all(6),
-                        decoration: BoxDecoration(
-                          color: Colors.grey[100],
-                          shape: BoxShape.circle,
-                        ),
-                        child: Icon(
-                          Icons.business,
-                          size: 14,
-                          color: Colors.grey[700],
-                        ),
-                      ),
-                      const SizedBox(width: 8),
                       Expanded(
-                        child: Text(
-                          medicine.manufacturer.name,
-                          style: TextStyle(
-                            fontSize: 16,
-                            color: Colors.grey[700],
-                            fontWeight: FontWeight.w500,
-                          ),
-                          overflow: TextOverflow.ellipsis,
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Container(
+                              padding: const EdgeInsets.all(6),
+                              decoration: BoxDecoration(
+                                color: Colors.grey[100],
+                                shape: BoxShape.circle,
+                              ),
+                              child: Icon(
+                                Icons.business,
+                                size: 14,
+                                color: Colors.grey[700],
+                              ),
+                            ),
+                            const SizedBox(width: 8),
+                            Expanded(
+                              child: Text(
+                                medicine.manufacturer.name,
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  color: Colors.grey[700],
+                                  fontWeight: FontWeight.w500,
+                                ),
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ),
+                          ],
                         ),
                       ),
                     ],

@@ -103,7 +103,7 @@ List<PetToy> petToys = [
     brand: "Pawfect Play",
     manufacturer: "Pet Innovations Inc.",
     imageUrl:
-        "https://images.unsplash.com/photo-1591946653358-5a2e0a234d1c?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80",
+        "https://m.media-amazon.com/images/I/71fKw2h0bZL._AC_UF1000,1000_QL80_.jpg",
     cleaningInstructions:
         "Hand wash with mild soap and water. Air dry completely before use.",
     warranty: "1-year manufacturer warranty",
@@ -133,7 +133,7 @@ List<PetToy> petToys = [
     brand: "Meow Magic",
     manufacturer: "Feline Fun Co.",
     imageUrl:
-        "https://images.unsplash.com/photo-1513360371669-4adf3dd7dff8?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80",
+        "https://cdn.shoplightspeed.com/shops/618184/files/31723518/image.jpg",
     cleaningInstructions: "Machine wash gentle cycle. Tumble dry low.",
     warranty: "6-month warranty",
     isInteractive: true,
@@ -162,7 +162,7 @@ List<PetToy> petToys = [
     brand: "ChewMaster",
     manufacturer: "Durable Dog Toys Ltd.",
     imageUrl:
-        "https://images.unsplash.com/photo-1596492784531-6e6eb5ea9993?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80",
+        "https://thebetterbone.com/cdn/shop/files/SOFT_CLASSIC_SMALL_b8fa2b0b-a0b5-48de-830d-fd4f10fb6553.jpg?v=1717876117",
     cleaningInstructions:
         "Dishwasher safe top rack only. Can be boiled for sterilization.",
     warranty: "Lifetime guarantee for aggressive chewers",
@@ -192,7 +192,7 @@ List<PetToy> petToys = [
     brand: "Whisker Wonder",
     manufacturer: "CatPlay Innovations",
     imageUrl:
-        "https://images.unsplash.com/photo-1543852786-1cf6624b9987?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80",
+        "https://mademoggie.com.au/cdn/shop/files/Cat-Toy-Teaser-Wand-XXL-Fishing-Rod-5.jpg?v=1745313496&width=2000",
     cleaningInstructions:
         "Wipe rod with damp cloth. Feathers not washable - replace when damaged.",
     warranty: "1-year warranty on rod",
@@ -251,7 +251,7 @@ List<PetToy> petToys = [
     brand: "Avian Adventures",
     manufacturer: "Bird Enrichment Co.",
     imageUrl:
-        "https://images.unsplash.com/photo-1552728089-57bdde30beb3?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80",
+        "https://cdn11.bigcommerce.com/s-bbbdf/images/stencil/original/products/773/4229/tug_n_slide__03002.1423677502.jpg?c=2",
     cleaningInstructions:
         "Wipe clean with bird-safe disinfectant. Do not submerge in water.",
     warranty: "2-year warranty",
@@ -282,7 +282,7 @@ List<PetToy> petToys = [
     brand: "TechCat",
     manufacturer: "Smart Pet Tech",
     imageUrl:
-        "https://images.unsplash.com/photo-1513360371669-4adf3dd7dff8?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80",
+        "https://i5.walmartimages.com/seo/Prociv-Automatic-Cat-Laser-Toys-Interactive-Laser-Cat-Toys-for-Indoor-Cats-Kitty-Dogs-Cat-Laser-Toy-Automatic-White_17fda043-0896-42ed-8460-82368d5d6448.9b70ed3475af42d234b003209bc02873.jpeg?odnHeight=768&odnWidth=768&odnBg=FFFFFF",
     cleaningInstructions: "Wipe with dry cloth only. Do not use liquids.",
     warranty: "1-year warranty",
     isInteractive: true,
@@ -312,7 +312,7 @@ List<PetToy> petToys = [
     brand: "Natural Pup",
     manufacturer: "Eco Pet Products",
     imageUrl:
-        "https://images.unsplash.com/photo-1596492784531-6e6eb5ea9993?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80",
+        "https://images.wagwalkingweb.com/media/daily_wag/behavior_guides/why-dogs-like-tug-of-war/hero/Why-Dogs-Like-Tug-Of-War.jpg",
     cleaningInstructions: "Machine washable. Use mild detergent.",
     warranty: "No warranty (consumable item)",
     isInteractive: true,

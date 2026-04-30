@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import '../models/pet_cage.dart';
 
+enum _CageAction { edit, duplicate, delete }
+
 class CageManagementCard extends StatelessWidget {
   final PetCage cage;
   final VoidCallback onEdit;
@@ -36,7 +38,7 @@ class CageManagementCard extends StatelessWidget {
               children: [
                 // Image
                 Container(
-                  height: 210,
+                  height: 320,
                   width: double.infinity,
                   decoration: BoxDecoration(
                     color: petTypeColor.withOpacity(0.1),
@@ -52,7 +54,7 @@ class CageManagementCard extends StatelessWidget {
                     ),
                     child: Image.network(
                       cage.imageUrl,
-                      fit: BoxFit.cover,
+                      fit: BoxFit.fill,
                       errorBuilder: (context, error, stackTrace) {
                         return Center(
                           child: Icon(
@@ -65,7 +67,7 @@ class CageManagementCard extends StatelessWidget {
                     ),
                   ),
                 ),
-                
+
                 // Badges
                 Positioned(
                   top: 12,
@@ -82,14 +84,14 @@ class CageManagementCard extends StatelessWidget {
                     child: Text(
                       cage.category,
                       style: const TextStyle(
-                        fontSize: 12,
+                        fontSize: 15,
                         color: Colors.white,
                         fontWeight: FontWeight.w600,
                       ),
                     ),
                   ),
                 ),
-                
+
                 // Stock Badge
                 Positioned(
                   top: 12,
@@ -106,7 +108,7 @@ class CageManagementCard extends StatelessWidget {
                     child: Text(
                       '${cage.stock} in stock',
                       style: const TextStyle(
-                        fontSize: 12,
+                        fontSize: 16,
                         color: Colors.white,
                         fontWeight: FontWeight.w600,
                       ),
@@ -115,7 +117,7 @@ class CageManagementCard extends StatelessWidget {
                 ),
               ],
             ),
-            
+
             // Details
             Padding(
               padding: const EdgeInsets.all(16),
@@ -130,7 +132,7 @@ class CageManagementCard extends StatelessWidget {
                         child: Text(
                           cage.name,
                           style: const TextStyle(
-                            fontSize: 16,
+                            fontSize: 20,
                             fontWeight: FontWeight.w700,
                             color: Color(0xFF222222),
                           ),
@@ -149,12 +151,16 @@ class CageManagementCard extends StatelessWidget {
                         ),
                         child: Row(
                           children: [
-                            Icon(cage.getPetTypeIcon(), size: 14, color: petTypeColor),
+                            Icon(
+                              cage.getPetTypeIcon(),
+                              size: 14,
+                              color: petTypeColor,
+                            ),
                             const SizedBox(width: 4),
                             Text(
                               cage.petType,
                               style: TextStyle(
-                                fontSize: 12,
+                                fontSize: 14,
                                 fontWeight: FontWeight.w600,
                                 color: petTypeColor,
                               ),
@@ -162,24 +168,73 @@ class CageManagementCard extends StatelessWidget {
                           ],
                         ),
                       ),
+                      PopupMenuButton<_CageAction>(
+                        tooltip: 'Actions',
+                        icon: const Icon(Icons.more_vert),
+                        onSelected: (value) {
+                          switch (value) {
+                            case _CageAction.edit:
+                              onEdit();
+                              break;
+                            case _CageAction.duplicate:
+                              onDuplicate();
+                              break;
+                            case _CageAction.delete:
+                              onDelete();
+                              break;
+                          }
+                        },
+                        itemBuilder: (context) => [
+                          PopupMenuItem(
+                            value: _CageAction.edit,
+                            child: Row(
+                              children: const [
+                                Icon(Icons.edit, size: 18),
+                                SizedBox(width: 8),
+                                Text('Edit'),
+                              ],
+                            ),
+                          ),
+                          PopupMenuItem(
+                            value: _CageAction.duplicate,
+                            child: Row(
+                              children: const [
+                                Icon(Icons.content_copy, size: 18),
+                                SizedBox(width: 8),
+                                Text('Duplicate'),
+                              ],
+                            ),
+                          ),
+                          PopupMenuItem(
+                            value: _CageAction.delete,
+                            child: Row(
+                              children: const [
+                                Icon(Icons.delete, size: 18, color: Colors.red),
+                                SizedBox(width: 8),
+                                Text(
+                                  'Delete',
+                                  style: TextStyle(color: Colors.red),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
                     ],
                   ),
-                  
+
                   const SizedBox(height: 8),
-                  
+
                   // Description
                   Text(
                     cage.description,
-                    style: const TextStyle(
-                      fontSize: 13,
-                      color: Colors.grey,
-                    ),
+                    style: const TextStyle(fontSize: 15, color: Colors.grey),
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
                   ),
-                  
+
                   const SizedBox(height: 12),
-                  
+
                   // Quick Info
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -190,14 +245,14 @@ class CageManagementCard extends StatelessWidget {
                         label: 'Size',
                         value: cage.dimensions,
                       ),
-                      
+
                       // Material
                       _buildInfoItem(
                         icon: Icons.build,
                         label: 'Material',
                         value: cage.material,
                       ),
-                      
+
                       // Price
                       _buildInfoItem(
                         icon: Icons.attach_money,
@@ -206,9 +261,9 @@ class CageManagementCard extends StatelessWidget {
                       ),
                     ],
                   ),
-                  
+
                   const SizedBox(height: 16),
-                  
+
                   // Features
                   Wrap(
                     spacing: 8,
@@ -228,7 +283,11 @@ class CageManagementCard extends StatelessWidget {
                           child: Row(
                             mainAxisSize: MainAxisSize.min,
                             children: [
-                              Icon(Icons.directions_walk, size: 12, color: Colors.blue[700]),
+                              Icon(
+                                Icons.directions_walk,
+                                size: 12,
+                                color: Colors.blue[700],
+                              ),
                               const SizedBox(width: 4),
                               Text(
                                 'Portable',
@@ -241,7 +300,7 @@ class CageManagementCard extends StatelessWidget {
                             ],
                           ),
                         ),
-                      
+
                       if (cage.hasWheels)
                         Container(
                           padding: const EdgeInsets.symmetric(
@@ -256,7 +315,11 @@ class CageManagementCard extends StatelessWidget {
                           child: Row(
                             mainAxisSize: MainAxisSize.min,
                             children: [
-                              Icon(Icons.directions_walk, size: 12, color: Colors.green[700]),
+                              Icon(
+                                Icons.directions_walk,
+                                size: 12,
+                                color: Colors.green[700],
+                              ),
                               const SizedBox(width: 4),
                               Text(
                                 'With Wheels',
@@ -271,62 +334,10 @@ class CageManagementCard extends StatelessWidget {
                         ),
                     ],
                   ),
-                  
+
                   const SizedBox(height: 16),
-                  
-                  // Action Buttons
-                  Row(
-                    children: [
-                      // Edit Button
-                      Expanded(
-                        child: OutlinedButton.icon(
-                          onPressed: onEdit,
-                          icon: const Icon(Icons.edit, size: 16),
-                          label: const Text('Edit'),
-                          style: OutlinedButton.styleFrom(
-                            side: BorderSide(color: petTypeColor),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(8),
-                            ),
-                          ),
-                        ),
-                      ),
-                      const SizedBox(width: 8),
-                      
-                      // Duplicate Button
-                      Expanded(
-                        child: OutlinedButton.icon(
-                          onPressed: onDuplicate,
-                          icon: const Icon(Icons.content_copy, size: 16),
-                          label: const Text('Duplicate'),
-                          style: OutlinedButton.styleFrom(
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(8),
-                            ),
-                          ),
-                        ),
-                      ),
-                      const SizedBox(width: 8),
-                      
-                      // Delete Button
-                      Expanded(
-                        child: OutlinedButton.icon(
-                          onPressed: onDelete,
-                          icon: const Icon(Icons.delete, size: 16, color: Colors.red),
-                          label: const Text(
-                            'Delete',
-                            style: TextStyle(color: Colors.red),
-                          ),
-                          style: OutlinedButton.styleFrom(
-                            side: const BorderSide(color: Colors.red),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(8),
-                            ),
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
+
+                  // Actions moved to top menu (three dots)
                 ],
               ),
             ),
@@ -345,14 +356,11 @@ class CageManagementCard extends StatelessWidget {
       children: [
         Row(
           children: [
-            Icon(icon, size: 14, color: Colors.grey),
+            Icon(icon, size: 16, color: Colors.grey),
             const SizedBox(width: 4),
             Text(
               label,
-              style: TextStyle(
-                fontSize: 12,
-                color: Colors.grey[600],
-              ),
+              style: TextStyle(fontSize: 15, color: Colors.grey[600]),
             ),
           ],
         ),
@@ -360,7 +368,7 @@ class CageManagementCard extends StatelessWidget {
         Text(
           value,
           style: const TextStyle(
-            fontSize: 13,
+            fontSize: 15,
             fontWeight: FontWeight.w600,
             color: Color(0xFF222222),
           ),

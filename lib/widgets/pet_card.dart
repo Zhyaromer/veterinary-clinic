@@ -38,7 +38,7 @@ class PetCard extends StatelessWidget {
                       ),
                       child: Image.network(
                         petGuide.imageUrl,
-                        fit: BoxFit.cover,
+                        fit: BoxFit.fill,
                         width: double.infinity,
                         height: double.infinity,
                         errorBuilder: (context, error, stackTrace) {

@@ -4,8 +4,14 @@ import '../models/pet_food.dart';
 class PetFoodCard extends StatelessWidget {
   final PetFood petFood;
   final VoidCallback onTap;
+  final VoidCallback? onAddToCart;
 
-  const PetFoodCard({super.key, required this.petFood, required this.onTap});
+  const PetFoodCard({
+    super.key,
+    required this.petFood,
+    required this.onTap,
+    this.onAddToCart,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -45,7 +51,7 @@ class PetFoodCard extends StatelessWidget {
                       ),
                       child: Image.network(
                         petFood.imageUrl,
-                        fit: BoxFit.cover,
+                        fit: BoxFit.fill,
                         width: double.infinity,
                         height: double.infinity,
                         errorBuilder: (context, error, stackTrace) {

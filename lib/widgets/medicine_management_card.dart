@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import '../models/medicine.dart';
 
+enum _MedicineAction { edit, duplicate, delete }
+
 class MedicineManagementCard extends StatelessWidget {
   final Medicine medicine;
   final VoidCallback onEdit;
@@ -48,8 +50,8 @@ class MedicineManagementCard extends StatelessWidget {
                 children: [
                   // Image
                   Container(
-                    width: 60,
-                    height: 60,
+                    width: 100,
+                    height: 100,
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(12),
                       color: Colors.white,
@@ -57,18 +59,26 @@ class MedicineManagementCard extends StatelessWidget {
                     ),
                     child: ClipRRect(
                       borderRadius: BorderRadius.circular(12),
-                      child: Image.network(
-                        medicine.imageUrl,
-                        fit: BoxFit.cover,
-                        errorBuilder: (context, error, stackTrace) {
-                          return Center(
-                            child: Icon(
-                              medicine.getAnimalIcon(),
-                              size: 30,
-                              color: categoryColor,
-                            ),
-                          );
+                      child: GestureDetector(
+                        onTap: () {
+                          _openImagePreview(context, medicine.imageUrl);
                         },
+                        child: Hero(
+                          tag: medicine.imageUrl,
+                          child: Image.network(
+                            medicine.imageUrl,
+                            fit: BoxFit.fill,
+                            errorBuilder: (context, error, stackTrace) {
+                              return Center(
+                                child: Icon(
+                                  medicine.getAnimalIcon(),
+                                  size: 30,
+                                  color: categoryColor,
+                                ),
+                              );
+                            },
+                          ),
+                        ),
                       ),
                     ),
                   ),
@@ -79,15 +89,79 @@ class MedicineManagementCard extends StatelessWidget {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(
-                          medicine.name,
-                          style: const TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.w700,
-                            color: Color(0xFF222222),
-                          ),
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
+                        Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Expanded(
+                              child: Text(
+                                medicine.name,
+                                style: const TextStyle(
+                                  fontSize: 20,
+                                  fontWeight: FontWeight.w700,
+                                  color: Color(0xFF222222),
+                                ),
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ),
+                            const SizedBox(width: 8),
+                            PopupMenuButton<_MedicineAction>(
+                              tooltip: 'Actions',
+                              icon: const Icon(Icons.more_vert),
+                              onSelected: (value) {
+                                switch (value) {
+                                  case _MedicineAction.edit:
+                                    onEdit();
+                                    break;
+                                  case _MedicineAction.duplicate:
+                                    onDuplicate();
+                                    break;
+                                  case _MedicineAction.delete:
+                                    onDelete();
+                                    break;
+                                }
+                              },
+                              itemBuilder: (context) => [
+                                PopupMenuItem(
+                                  value: _MedicineAction.edit,
+                                  child: Row(
+                                    children: const [
+                                      Icon(Icons.edit, size: 18),
+                                      SizedBox(width: 8),
+                                      Text('Edit'),
+                                    ],
+                                  ),
+                                ),
+                                PopupMenuItem(
+                                  value: _MedicineAction.duplicate,
+                                  child: Row(
+                                    children: const [
+                                      Icon(Icons.content_copy, size: 18),
+                                      SizedBox(width: 8),
+                                      Text('Duplicate'),
+                                    ],
+                                  ),
+                                ),
+                                PopupMenuItem(
+                                  value: _MedicineAction.delete,
+                                  child: Row(
+                                    children: const [
+                                      Icon(
+                                        Icons.delete,
+                                        size: 18,
+                                        color: Colors.red,
+                                      ),
+                                      SizedBox(width: 8),
+                                      Text(
+                                        'Delete',
+                                        style: TextStyle(color: Colors.red),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ],
                         ),
                         const SizedBox(height: 4),
                         Row(
@@ -104,7 +178,7 @@ class MedicineManagementCard extends StatelessWidget {
                               child: Text(
                                 medicine.category,
                                 style: TextStyle(
-                                  fontSize: 12,
+                                  fontSize: 16,
                                   fontWeight: FontWeight.w600,
                                   color: categoryColor,
                                 ),
@@ -114,7 +188,7 @@ class MedicineManagementCard extends StatelessWidget {
                             Text(
                               medicine.animalType,
                               style: const TextStyle(
-                                fontSize: 12,
+                                fontSize: 16,
                                 color: Colors.grey,
                               ),
                             ),
@@ -125,14 +199,14 @@ class MedicineManagementCard extends StatelessWidget {
                           children: [
                             const Icon(
                               Icons.local_offer,
-                              size: 12,
+                              size: 16,
                               color: Colors.green,
                             ),
                             const SizedBox(width: 4),
                             Text(
                               '\$${medicine.price.toStringAsFixed(2)}',
                               style: const TextStyle(
-                                fontSize: 14,
+                                fontSize: 16,
                                 fontWeight: FontWeight.w700,
                                 color: Color(0xFF2E7D32),
                               ),
@@ -210,65 +284,7 @@ class MedicineManagementCard extends StatelessWidget {
                     ],
                   ),
 
-                  const SizedBox(height: 16),
-
-                  // Action Buttons
-                  Row(
-                    children: [
-                      // Edit Button
-                      Expanded(
-                        child: OutlinedButton.icon(
-                          onPressed: onEdit,
-                          icon: const Icon(Icons.edit, size: 16),
-                          label: const Text('Edit'),
-                          style: OutlinedButton.styleFrom(
-                            side: BorderSide(color: categoryColor),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(8),
-                            ),
-                          ),
-                        ),
-                      ),
-                      const SizedBox(width: 8),
-
-                      // Duplicate Button
-                      Expanded(
-                        child: OutlinedButton.icon(
-                          onPressed: onDuplicate,
-                          icon: const Icon(Icons.content_copy, size: 16),
-                          label: const Text('Duplicate'),
-                          style: OutlinedButton.styleFrom(
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(8),
-                            ),
-                          ),
-                        ),
-                      ),
-                      const SizedBox(width: 8),
-
-                      // Delete Button
-                      Expanded(
-                        child: OutlinedButton.icon(
-                          onPressed: onDelete,
-                          icon: const Icon(
-                            Icons.delete,
-                            size: 16,
-                            color: Colors.red,
-                          ),
-                          label: const Text(
-                            'Delete',
-                            style: TextStyle(color: Colors.red),
-                          ),
-                          style: OutlinedButton.styleFrom(
-                            side: const BorderSide(color: Colors.red),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(8),
-                            ),
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
+                  const SizedBox(height: 4),
                 ],
               ),
             ),
@@ -290,11 +306,11 @@ class MedicineManagementCard extends StatelessWidget {
       children: [
         Row(
           children: [
-            Icon(icon, size: 14, color: Colors.grey),
+            Icon(icon, size: 16, color: Colors.grey),
             const SizedBox(width: 4),
             Text(
               label,
-              style: TextStyle(fontSize: 12, color: Colors.grey[600]),
+              style: TextStyle(fontSize: 16, color: Colors.grey[600]),
             ),
           ],
         ),
@@ -302,7 +318,7 @@ class MedicineManagementCard extends StatelessWidget {
         Text(
           value,
           style: TextStyle(
-            fontSize: 13,
+            fontSize: 15,
             fontWeight: FontWeight.w600,
             color: isWarning ? Colors.orange : const Color(0xFF222222),
           ),
@@ -323,4 +339,29 @@ class MedicineManagementCard extends StatelessWidget {
       return false;
     }
   }
+}
+
+void _openImagePreview(BuildContext context, String imageUrl) {
+  showGeneralDialog(
+    context: context,
+    barrierDismissible: true,
+    barrierLabel: '',
+    barrierColor: Colors.black.withOpacity(0.9),
+    transitionDuration: const Duration(milliseconds: 250),
+    pageBuilder: (_, _, _) {
+      return GestureDetector(
+        onTap: () => Navigator.pop(context),
+        child: Center(
+          child: Hero(
+            tag: imageUrl,
+            child: InteractiveViewer(
+              minScale: 1,
+              maxScale: 4,
+              child: Image.network(imageUrl, fit: BoxFit.fill),
+            ),
+          ),
+        ),
+      );
+    },
+  );
 }

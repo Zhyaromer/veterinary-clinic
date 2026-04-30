@@ -136,7 +136,7 @@ List<PetFood> petFoods = [
     brand: "Wellness Core",
     manufacturer: "Wellness Pet Food",
     imageUrl:
-        "https://images.unsplash.com/photo-1560743641-3914f2c45636?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80",
+        "https://m.media-amazon.com/images/I/911Gu7iqMdL.jpg",
     feedingGuidelines:
         "Adult dogs: 2-3 cups per day based on weight. Adjust for activity level.",
     storageInstructions:
@@ -180,7 +180,7 @@ List<PetFood> petFoods = [
     brand: "Royal Canin",
     manufacturer: "Royal Canin",
     imageUrl:
-        "https://images.unsplash.com/photo-1576201836106-db1758fd1c97?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80",
+        "https://www.petsense.com/cdn/shop/products/1153000_3000x.jpg?v=1744211585",
     feedingGuidelines:
         "Adult cats: 1/2 to 3/4 cup per day. Provide fresh water at all times.",
     storageInstructions: "Store in original bag in cool, dry location.",
@@ -222,7 +222,7 @@ List<PetFood> petFoods = [
     brand: "Purina Fancy Feast",
     manufacturer: "Nestlé Purina",
     imageUrl:
-        "https://images.unsplash.com/photo-1592927307986-8d4c5dbf8cc7?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80",
+        "https://cdn11.bigcommerce.com/s-ucjiusw7rc/images/stencil/1280x1280/products/1144/9443/BHC101_Grain_Free_Wet_Adult_Chicken_FINAL_20200528_02_Mobile_Optimised_Pack_Hero_100g__61821.1731283541.jpg?c=2",
     feedingGuidelines:
         "Feed 2-3 cans per day for average adult cat. Adjust based on weight.",
     storageInstructions: "Refrigerate after opening. Use within 3 days.",
@@ -251,7 +251,7 @@ List<PetFood> petFoods = [
     brand: "Stella & Chewy's",
     manufacturer: "Stella & Chewy's",
     imageUrl:
-        "https://images.unsplash.com/photo-1572686790712-c9dcdd8d041d?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80",
+        "https://www.stellaandchewys.com/cdn/shop/files/B07G36J42R.Main.jpg?v=1741902739",
     feedingGuidelines:
         "Use as training reward or meal topper. 1-3 pieces per 5kg body weight.",
     storageInstructions: "Store in cool, dry place. Reseal bag after use.",
@@ -294,7 +294,7 @@ List<PetFood> petFoods = [
     brand: "Hill's Science Diet",
     manufacturer: "Hill's Pet Nutrition",
     imageUrl:
-        "https://images.unsplash.com/photo-1596040033221-a382f8c2ceb6?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80",
+        "https://m.media-amazon.com/images/I/71ec081R0eL._AC_UF1000,1000_QL80_.jpg",
     feedingGuidelines:
         "Senior dogs: 2-4 cups daily based on weight and activity level.",
     storageInstructions:
@@ -338,7 +338,7 @@ List<PetFood> petFoods = [
     brand: "Kaytee",
     manufacturer: "Kaytee Products",
     imageUrl:
-        "https://images.unsplash.com/photo-1583339522879-6e1fdf2d07f8?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80",
+        "https://www.flytesofancy.co.uk/cdn/shop/files/Berry-feast-wild-bird-mix-ingredients.webp?v=1707917308&width=1000",
     feedingGuidelines:
         "Provide 1-2 tablespoons daily. Remove empty shells regularly.",
     storageInstructions: "Store in airtight container. Protect from moisture.",
@@ -374,7 +374,7 @@ List<PetFood> petFoods = [
     brand: "Greenies",
     manufacturer: "Mars Petcare",
     imageUrl:
-        "https://images.unsplash.com/photo-1592861956120-3865d8c723e3?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80",
+        "https://diergigant.nl/cdn/shop/files/knash-dental-chew-stick-kip-tandverzorgende-kauwsnack-6st-2400832.png?v=1765357575",
     feedingGuidelines:
         "One treat per day for dogs over 25 lbs. Not for puppies.",
     storageInstructions: "Store in original package at room temperature.",
@@ -409,7 +409,7 @@ List<PetFood> petFoods = [
     brand: "Oxbow",
     manufacturer: "Oxbow Animal Health",
     imageUrl:
-        "https://images.unsplash.com/photo-1579363364286-5dab27c4f107?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80",
+        "https://cdn.shopify.com/s/files/1/0530/3762/9610/files/Rabbit_eating_a_pile_of_hay_1_1024x1024.png?v=1698831496",
     feedingGuidelines:
         "Unlimited access to hay. Supplement with pellets and fresh vegetables.",
     storageInstructions:
