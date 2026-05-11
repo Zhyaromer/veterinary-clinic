@@ -53,7 +53,6 @@ class PetFood {
     required this.nutritionalGuarantee,
   });
 
-  // Get color based on pet type
   Color getPetTypeColor() {
     switch (petType.toLowerCase()) {
       case 'dog':
@@ -73,7 +72,6 @@ class PetFood {
     }
   }
 
-  // Get icon based on pet type
   IconData getPetTypeIcon() {
     switch (petType.toLowerCase()) {
       case 'dog':
@@ -91,17 +89,15 @@ class PetFood {
     }
   }
 
-  // Calculate price per weight unit
-  String getPricePerUnit() {
-    if (weight > 0) {
-      final pricePerKg = (price / weight) * 1000;
-      return '\$${pricePerKg.toStringAsFixed(2)}/kg';
-    }
-    return '\$${price.toStringAsFixed(2)}';
-  }
+  // String getPricePerUnit() {
+  //   if (weight > 0) {
+  //     final pricePerKg = (price / weight) * 1000;
+  //     return '\$${pricePerKg.toStringAsFixed(2)}/kg';
+  //   }
+  //   return '\$${price.toStringAsFixed(2)}';
+  // }
 }
 
-// Sample pet foods data
 List<PetFood> petFoods = [
   PetFood(
     id: 1,
@@ -135,8 +131,7 @@ List<PetFood> petFoods = [
     stock: 45,
     brand: "Wellness Core",
     manufacturer: "Wellness Pet Food",
-    imageUrl:
-        "https://m.media-amazon.com/images/I/911Gu7iqMdL.jpg",
+    imageUrl: "https://m.media-amazon.com/images/I/911Gu7iqMdL.jpg",
     feedingGuidelines:
         "Adult dogs: 2-3 cups per day based on weight. Adjust for activity level.",
     storageInstructions:

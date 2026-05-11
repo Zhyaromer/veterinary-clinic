@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 class ShelterPet {
   final int id;
   final String name;
-  final String type; // Dog, Cat, Bird, Rabbit, etc.
+  final String type; 
   final String breed;
   final String age;
   final String gender;
@@ -20,8 +20,8 @@ class ShelterPet {
   final String imageUrl;
   final bool isAdopted;
   final double adoptionFee;
-  final int careLevel; // 1-5 stars
-  final int activityLevel; // 1-5 stars
+  final int careLevel; 
+  final int activityLevel; 
   final bool isGoodWithKids;
   final bool isGoodWithPets;
   final List<String> requirements;
@@ -53,7 +53,6 @@ class ShelterPet {
     required this.requirements,
   });
 
-  // Get pet type color
   Color getPetTypeColor() {
     switch (type.toLowerCase()) {
       case 'dog':
@@ -71,7 +70,6 @@ class ShelterPet {
     }
   }
 
-  // Get pet type icon
   IconData getPetTypeIcon() {
     switch (type.toLowerCase()) {
       case 'dog':
@@ -89,26 +87,21 @@ class ShelterPet {
     }
   }
 
-  // Calculate days in shelter
   int get daysInShelter {
     final now = DateTime.now();
     return now.difference(arrivalDate).inDays;
   }
 
-  // Get adoption status text
   String get adoptionStatus => isAdopted ? 'Adopted' : 'Available';
   Color get adoptionStatusColor =>
       isAdopted ? Colors.green : const Color(0xFF4A6FA5);
 
-  // Get formatted arrival date
   String get formattedArrivalDate {
     return '${arrivalDate.day}/${arrivalDate.month}/${arrivalDate.year}';
   }
 
-  // Get formatted adoption fee
   String get formattedFee => '\$${adoptionFee.toStringAsFixed(2)}';
 
-  // Get health status color
   Color get healthStatusColor {
     switch (healthStatus.toLowerCase()) {
       case 'excellent':
@@ -125,7 +118,6 @@ class ShelterPet {
   }
 }
 
-// Sample shelter pets data
 List<ShelterPet> shelterPets = [
   ShelterPet(
     id: 1,

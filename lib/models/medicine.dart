@@ -84,7 +84,6 @@ class Medicine {
     required this.imageUrl,
   });
 
-  // Get color based on category
   Color getCategoryColor() {
     switch (category.toLowerCase()) {
       case 'antibiotic':
@@ -104,7 +103,6 @@ class Medicine {
     }
   }
 
-  // Get animal icon
   IconData getAnimalIcon() {
     if (animalType.toLowerCase().contains('cat')) {
       return Icons.pets;
@@ -116,7 +114,6 @@ class Medicine {
   }
 }
 
-// Sample medicines data with real image URLs
 List<Medicine> medicines = [
   Medicine(
     id: 1,

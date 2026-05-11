@@ -154,7 +154,6 @@ class _PetAdoptionDetailScreenState extends State<PetAdoptionDetailScreen> {
     return Scaffold(
       body: CustomScrollView(
         slivers: [
-          // App Bar with Image
           SliverAppBar(
             expandedHeight: 500,
             floating: false,
@@ -165,7 +164,7 @@ class _PetAdoptionDetailScreenState extends State<PetAdoptionDetailScreen> {
               background: Stack(
                 fit: StackFit.expand,
                 children: [
-                  // Pet Image
+
                   Image.network(
                     pet.imageUrl,
                     fit: BoxFit.cover,
@@ -182,7 +181,7 @@ class _PetAdoptionDetailScreenState extends State<PetAdoptionDetailScreen> {
                       );
                     },
                   ),
-                  // Gradient Overlay
+                  
                   Container(
                     decoration: BoxDecoration(
                       gradient: LinearGradient(
@@ -197,6 +196,7 @@ class _PetAdoptionDetailScreenState extends State<PetAdoptionDetailScreen> {
                   ),
                 ],
               ),
+
               title: Text(
                 pet.name,
                 style: const TextStyle(
@@ -212,13 +212,13 @@ class _PetAdoptionDetailScreenState extends State<PetAdoptionDetailScreen> {
             ),
           ),
 
-          // Pet Details
+          
           SliverToBoxAdapter(
             child: Padding(
               padding: const EdgeInsets.all(16),
               child: Column(
                 children: [
-                  // Quick Info Row
+                  
                   Container(
                     padding: const EdgeInsets.all(16),
                     decoration: BoxDecoration(
@@ -301,7 +301,7 @@ class _PetAdoptionDetailScreenState extends State<PetAdoptionDetailScreen> {
 
                   const SizedBox(height: 20),
 
-                  // Description
+                  
                   _buildDetailCard(
                     title: 'About ${pet.name}',
                     icon: Icons.description,
@@ -330,7 +330,7 @@ class _PetAdoptionDetailScreenState extends State<PetAdoptionDetailScreen> {
                     ),
                   ),
 
-                  // Health & Care
+                  
                   _buildDetailCard(
                     title: 'Health & Care',
                     icon: Icons.health_and_safety,
@@ -420,7 +420,7 @@ class _PetAdoptionDetailScreenState extends State<PetAdoptionDetailScreen> {
                     ),
                   ),
 
-                  // Requirements & Compatibility
+                  
                   _buildDetailCard(
                     title: 'Requirements & Compatibility',
                     icon: Icons.home,
@@ -527,8 +527,9 @@ class _PetAdoptionDetailScreenState extends State<PetAdoptionDetailScreen> {
                               ),
                           ],
                         ),
+
                         const SizedBox(height: 12),
-                        // Requirements
+                        
                         if (pet.requirements.isNotEmpty)
                           Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
@@ -574,7 +575,7 @@ class _PetAdoptionDetailScreenState extends State<PetAdoptionDetailScreen> {
                     ),
                   ),
 
-                  // Adoption Form
+                  
                   Container(
                     margin: const EdgeInsets.only(top: 8, bottom: 16),
                     padding: const EdgeInsets.all(20),
@@ -624,7 +625,7 @@ class _PetAdoptionDetailScreenState extends State<PetAdoptionDetailScreen> {
                           key: _formKey,
                           child: Column(
                             children: [
-                              // Name Field
+                              
                               TextFormField(
                                 controller: _nameController,
                                 decoration: InputDecoration(
@@ -645,7 +646,7 @@ class _PetAdoptionDetailScreenState extends State<PetAdoptionDetailScreen> {
                               ),
                               const SizedBox(height: 16),
 
-                              // Phone Field
+                              
                               TextFormField(
                                 controller: _phoneController,
                                 decoration: InputDecoration(
@@ -670,7 +671,7 @@ class _PetAdoptionDetailScreenState extends State<PetAdoptionDetailScreen> {
                               ),
                               const SizedBox(height: 16),
 
-                              // Email Field
+                              
                               TextFormField(
                                 controller: _emailController,
                                 decoration: InputDecoration(
@@ -696,7 +697,7 @@ class _PetAdoptionDetailScreenState extends State<PetAdoptionDetailScreen> {
                               ),
                               const SizedBox(height: 16),
 
-                              // Reason for Adoption
+                              
                               TextFormField(
                                 controller: _reasonController,
                                 decoration: InputDecoration(
@@ -723,7 +724,7 @@ class _PetAdoptionDetailScreenState extends State<PetAdoptionDetailScreen> {
                               ),
                               const SizedBox(height: 20),
 
-                              // Checkboxes
+                              
                               Column(
                                 children: [
                                   CheckboxListTile(

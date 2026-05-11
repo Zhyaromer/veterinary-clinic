@@ -34,7 +34,6 @@ class PetProfile {
   }
 }
 
-/// Seed data for local-only CRUD operations.
 List<PetProfile> petProfiles = [
   PetProfile(
     id: 1,

@@ -90,7 +90,6 @@ class AnimalBreed {
 
   String getFormattedWeight() {
     if (weight.min < 0.1) {
-      // Convert to grams for small birds
       final minGrams = (weight.min * 1000).toInt();
       final maxGrams = (weight.max * 1000).toInt();
       return '$minGrams-${maxGrams}g';
@@ -100,7 +99,6 @@ class AnimalBreed {
   }
 }
 
-// Sample cat breeds data
 List<AnimalBreed> catBreeds = [
   AnimalBreed(
     id: 1,
@@ -408,7 +406,7 @@ List<AnimalBreed> dogBreeds = [
     name: 'Poodle',
     description:
         'An elegant and intelligent breed known for its curly coat and versatility in various sizes.',
-    weight: const WeightRange(min: 4, max: 32), // Varies by size
+    weight: const WeightRange(min: 4, max: 32),
     lifespan: const LifespanRange(min: 12, max: 15),
     colors: ['Black', 'White', 'Apricot', 'Silver', 'Brown'],
     origin: const Origin(country: 'Germany', region: 'Germany'),
@@ -564,7 +562,6 @@ List<AnimalBreed> dogBreeds = [
   ),
 ];
 
-// Add these bird breeds to the existing AnimalBreed model
 
 List<AnimalBreed> birdBreeds = [
   AnimalBreed(

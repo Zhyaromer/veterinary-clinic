@@ -10,13 +10,11 @@ class ContactUsPage extends StatefulWidget {
 }
 
 class _ContactUsPageState extends State<ContactUsPage> {
-  // Form controllers
   final TextEditingController _nameController = TextEditingController();
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _phoneController = TextEditingController();
   final TextEditingController _messageController = TextEditingController();
 
-  // Form key for validation
   final _formKey = GlobalKey<FormState>();
 
   @override
@@ -39,7 +37,6 @@ class _ContactUsPageState extends State<ContactUsPage> {
 
   Future<void> _submitForm() async {
     if (_formKey.currentState!.validate()) {
-      // Show confirmation dialog
       showDialog(
         context: context,
         builder: (context) => AlertDialog(
@@ -67,7 +64,6 @@ class _ContactUsPageState extends State<ContactUsPage> {
     }
   }
 
-  // Function to launch URLs
   Future<void> _launchUrl(String url) async {
     final Uri uri = Uri.parse(url);
     if (!await launchUrl(uri)) {
@@ -89,7 +85,6 @@ class _ContactUsPageState extends State<ContactUsPage> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Header Section
             Container(
               padding: const EdgeInsets.all(20),
               decoration: BoxDecoration(
@@ -137,7 +132,6 @@ class _ContactUsPageState extends State<ContactUsPage> {
 
             const SizedBox(height: 32),
 
-            // Contact Methods Section
             const Text(
               'Get in Touch',
               style: TextStyle(
@@ -154,7 +148,6 @@ class _ContactUsPageState extends State<ContactUsPage> {
 
             const SizedBox(height: 24),
 
-            // Contact Cards
             _buildContactCard(
               icon: Icons.phone,
               title: 'Emergency Line',
@@ -194,7 +187,6 @@ class _ContactUsPageState extends State<ContactUsPage> {
 
             const SizedBox(height: 32),
 
-            // Visit Us Section
             const Text(
               'Visit Our Clinic',
               style: TextStyle(
@@ -263,7 +255,6 @@ class _ContactUsPageState extends State<ContactUsPage> {
                   ),
                   const SizedBox(height: 16),
 
-                  // Google Maps Embed
                   Container(
                     height: 200,
                     width: double.infinity,
@@ -303,7 +294,6 @@ class _ContactUsPageState extends State<ContactUsPage> {
                     width: double.infinity,
                     child: ElevatedButton.icon(
                       onPressed: () async {
-                        // Open in Google Maps app
                         await _launchUrl(
                           'https://www.google.com/maps?q=University+Of+Human+Development,Sulaymaniyah,Iraq',
                         );
@@ -326,7 +316,6 @@ class _ContactUsPageState extends State<ContactUsPage> {
 
             const SizedBox(height: 32),
 
-            // Quick Contact Form
             const Text(
               'Send Us a Message',
               style: TextStyle(
@@ -343,7 +332,6 @@ class _ContactUsPageState extends State<ContactUsPage> {
 
             const SizedBox(height: 20),
 
-            // Simple Contact Form with Validation
             Container(
               padding: const EdgeInsets.all(20),
               decoration: BoxDecoration(
@@ -490,7 +478,6 @@ class _ContactUsPageState extends State<ContactUsPage> {
 
             const SizedBox(height: 32),
 
-            // Social Media Section
             const Text(
               'Connect With Us',
               style: TextStyle(
@@ -539,7 +526,6 @@ class _ContactUsPageState extends State<ContactUsPage> {
 
             const SizedBox(height: 40),
 
-            // Footer Note
             Container(
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(

@@ -44,7 +44,6 @@ class PetToy {
     required this.ageSuitability,
   });
 
-  // Get color based on pet type
   Color getPetTypeColor() {
     switch (petType.toLowerCase()) {
       case 'dog':
@@ -62,7 +61,6 @@ class PetToy {
     }
   }
 
-  // Get icon based on pet type
   IconData getPetTypeIcon() {
     switch (petType.toLowerCase()) {
       case 'dog':
@@ -79,7 +77,6 @@ class PetToy {
   }
 }
 
-// Sample pet toys data
 List<PetToy> petToys = [
   PetToy(
     id: 1,

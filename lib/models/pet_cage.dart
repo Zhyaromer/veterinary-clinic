@@ -46,7 +46,6 @@ class PetCage {
     required this.includedAccessories,
   });
 
-  // Get color based on pet type
   Color getPetTypeColor() {
     switch (petType.toLowerCase()) {
       case 'dog':
@@ -64,7 +63,6 @@ class PetCage {
     }
   }
 
-  // Get icon based on pet type
   IconData getPetTypeIcon() {
     switch (petType.toLowerCase()) {
       case 'dog':
@@ -81,7 +79,6 @@ class PetCage {
   }
 }
 
-// Sample pet cages data
 List<PetCage> petCages = [
   PetCage(
     id: 1,

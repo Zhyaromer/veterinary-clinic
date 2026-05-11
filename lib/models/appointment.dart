@@ -14,7 +14,7 @@ class Appointment {
   final String reason;
   final String symptoms;
   final bool emergency;
-  final String vetPreference; // This should be unique
+  final String vetPreference; 
   final DateTime createdAt;
 
   Appointment({
@@ -31,11 +31,10 @@ class Appointment {
     required this.reason,
     required this.symptoms,
     required this.emergency,
-    required this.vetPreference, // Make sure this is unique
+    required this.vetPreference, 
     required this.createdAt,
   });
 
-  // Format date for display
   String get formattedDate {
     final day = appointmentDate.day.toString().padLeft(2, '0');
     final month = appointmentDate.month.toString().padLeft(2, '0');
@@ -43,7 +42,6 @@ class Appointment {
     return '$day/$month/$year';
   }
 
-  // Format time for display
   String get formattedTime {
     final hour = appointmentTime.hourOfPeriod;
     final minute = appointmentTime.minute.toString().padLeft(2, '0');
@@ -51,21 +49,19 @@ class Appointment {
     return '$hour:$minute $period';
   }
 
-  // Get status color based on date
   Color get statusColor {
     final now = DateTime.now();
     if (appointmentDate.isBefore(DateTime(now.year, now.month, now.day))) {
-      return Colors.grey; // Past appointment
+      return Colors.grey; 
     } else if (appointmentDate.day == now.day &&
         appointmentDate.month == now.month &&
         appointmentDate.year == now.year) {
-      return Colors.green; // Today's appointment
+      return Colors.green; 
     } else {
-      return Colors.blue; // Future appointment
+      return Colors.blue; 
     }
   }
 
-  // Get status text
   String get statusText {
     final now = DateTime.now();
     if (appointmentDate.isBefore(DateTime(now.year, now.month, now.day))) {

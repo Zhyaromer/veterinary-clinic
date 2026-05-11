@@ -15,12 +15,7 @@ import 'package:vet_clinic/models/cart.dart';
 import 'package:vet_clinic/screens/shopping/shopping_cart_page.dart';
 import 'package:vet_clinic/screens/settings_page.dart';
 
-// Global cart instance
 final globalCart = Cart();
-
-void main() {
-  runApp(const VeterinaryClinicApp());
-}
 
 class VeterinaryClinicApp extends StatelessWidget {
   const VeterinaryClinicApp({super.key});
@@ -308,7 +303,6 @@ class _HomeScreenState extends State<HomeScreen> {
       child: CustomScrollView(
         physics: const BouncingScrollPhysics(),
         slivers: [
-          // Quick Actions Card
           SliverToBoxAdapter(
             child: Transform.translate(
               offset: const Offset(0, -24),
@@ -374,7 +368,6 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
           ),
 
-          // Features Grid
           SliverPadding(
             padding: const EdgeInsets.fromLTRB(24, 0, 24, 32),
             sliver: SliverToBoxAdapter(
@@ -502,7 +495,6 @@ class _HomeScreenState extends State<HomeScreen> {
           borderRadius: BorderRadius.circular(24),
           child: Stack(
             children: [
-              /// Top gradient background
               Positioned(
                 top: 0,
                 left: 0,
@@ -522,13 +514,11 @@ class _HomeScreenState extends State<HomeScreen> {
                 ),
               ),
 
-              /// Content
               Padding(
                 padding: const EdgeInsets.symmetric(vertical: 15),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    /// Icon
                     Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 15),
                       child: Container(

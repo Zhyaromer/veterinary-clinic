@@ -5,10 +5,7 @@ import 'package:vet_clinic/screens/homescreen.dart';
 
 void main() {
   runApp(
-    MaterialApp(
-      debugShowCheckedModeBanner: false,
-      home: const VeterinaryClinicApp(),
-    ),
+    MaterialApp(debugShowCheckedModeBanner: false, home: const LoginPage()),
   );
 }
 

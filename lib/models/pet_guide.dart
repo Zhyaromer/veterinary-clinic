@@ -38,7 +38,6 @@ class PetGuide {
     required this.additionalTips,
   });
 
-  // Get color based on category
   Color getCategoryColor() {
     switch (category.toLowerCase()) {
       case 'dog':
@@ -58,7 +57,6 @@ class PetGuide {
     }
   }
 
-  // Get icon based on category
   IconData getCategoryIcon() {
     switch (category.toLowerCase()) {
       case 'dog':
@@ -79,7 +77,6 @@ class PetGuide {
   }
 }
 
-// Sample pet guides with detailed information
 List<PetGuide> petGuides = [
   PetGuide(
     id: 1,

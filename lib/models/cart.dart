@@ -29,7 +29,7 @@ class Cart {
     final existingIndex = _items.indexWhere((i) => i.id == item.id);
 
     if (existingIndex >= 0) {
-      // Item exists, update quantity but respect stock limit
+      // Item exists, update quantity
       final maxQuantity = item.maxQuantity;
       final newQuantity = _items[existingIndex].quantity + item.quantity;
 
@@ -37,7 +37,6 @@ class Cart {
         quantity: newQuantity > maxQuantity ? maxQuantity : newQuantity,
       );
     } else {
-      // New item
       _items.add(item);
     }
     _itemCountNotifier.value = itemCount;

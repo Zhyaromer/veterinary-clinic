@@ -15,7 +15,6 @@ class _MedicinesPageState extends State<MedicinesPage> {
   final TextEditingController _searchController = TextEditingController();
   List<Medicine> filteredMedicines = List.from(medicines);
 
-  // Filter states
   String _selectedAnimalType = 'All';
   String _selectedCategory = 'All';
   String _selectedManufacturer = 'All';
@@ -118,7 +117,6 @@ class _MedicinesPageState extends State<MedicinesPage> {
       _selectedManufacturer = 'All';
       _selectedForm = 'All';
       _minPrice = 0;
-      // Reset max price to actual max from medicines
       final maxPriceInList = medicines
           .map((m) => m.price)
           .reduce((a, b) => a > b ? a : b);
@@ -133,7 +131,6 @@ class _MedicinesPageState extends State<MedicinesPage> {
         .reduce((a, b) => a > b ? a : b);
     final sliderMaxPrice = (maxPriceInList + 20).ceilToDouble();
 
-    // Local dialog variables
     String dialogAnimalType = _selectedAnimalType;
     String dialogCategory = _selectedCategory;
     String dialogManufacturer = _selectedManufacturer;
@@ -513,7 +510,6 @@ class _MedicinesPageState extends State<MedicinesPage> {
               ),
             ),
 
-          // Results Count
           Padding(
             padding: const EdgeInsets.all(16),
             child: Row(
@@ -543,7 +539,6 @@ class _MedicinesPageState extends State<MedicinesPage> {
             ),
           ),
 
-          // Medicines Grid
           Expanded(
             child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16),

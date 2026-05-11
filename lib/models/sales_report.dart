@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 
-// Product Sale Class
 class ProductSale {
   final String name;
   final String category;
@@ -28,7 +27,6 @@ class ProductSale {
   String get profitMarginFormatted => '${profitMargin.toStringAsFixed(1)}%';
 }
 
-// Category Summary Class
 class CategorySummary {
   final String category;
   final double revenue;
@@ -42,11 +40,10 @@ class CategorySummary {
     required this.color,
   });
 
-  double get percentageOfTotal => 0.0; // Will be calculated later
+  double get percentageOfTotal => 0.0; 
   String get revenueFormatted => '\$${revenue.toStringAsFixed(2)}';
 }
 
-// Category colors
 Map<String, Color> categoryColors = {
   'Medicine': const Color(0xFF2196F3),
   'Cage': const Color(0xFFFF9800),
@@ -54,7 +51,6 @@ Map<String, Color> categoryColors = {
   'Toy': const Color(0xFF9C27B0),
 };
 
-// Get icon for category
 IconData getCategoryIcon(String category) {
   switch (category) {
     case 'Medicine':
@@ -70,7 +66,6 @@ IconData getCategoryIcon(String category) {
   }
 }
 
-// Main Sales Report Class
 class SalesReport {
   final DateTime startDate;
   final DateTime endDate;
@@ -124,19 +119,17 @@ class SalesReport {
     final dailyUnits = <String, int>{};
     final weeklyRevenue = <String, double>{};
 
-    // Determine scale factor based on time period
     double timeScaleFactor = 1.0;
     if (days <= 7) {
-      timeScaleFactor = 0.3; // Less sales in short period
+      timeScaleFactor = 0.3;
     } else if (days <= 30) {
-      timeScaleFactor = 1.0; // Normal scale
+      timeScaleFactor = 1.0;
     } else if (days <= 90) {
-      timeScaleFactor = 3.0; // More sales in longer period
+      timeScaleFactor = 3.0; 
     } else {
-      timeScaleFactor = 4.0; // Extended period
+      timeScaleFactor = 4.0; 
     }
 
-    // Generate sales for medicines
     for (var medicine in medicines) {
       final baseUnits = (medicine.stock * 0.1).round();
       final unitsSold = (baseUnits * timeScaleFactor).round().clamp(
@@ -160,7 +153,6 @@ class SalesReport {
       );
     }
 
-    // Generate sales for cages
     for (var cage in cages) {
       final baseUnits = (cage.stock * 0.05).round();
       final unitsSold = (baseUnits * timeScaleFactor).round().clamp(
@@ -184,7 +176,6 @@ class SalesReport {
       );
     }
 
-    // Generate sales for foods
     for (var food in foods) {
       final baseUnits = (food.stock * 0.15).round();
       final unitsSold = (baseUnits * timeScaleFactor).round().clamp(
@@ -208,7 +199,6 @@ class SalesReport {
       );
     }
 
-    // Generate sales for toys
     for (var toy in toys) {
       final baseUnits = (toy.stock * 0.12).round();
       final unitsSold = (baseUnits * timeScaleFactor).round().clamp(
@@ -232,16 +222,14 @@ class SalesReport {
       );
     }
 
-    // Generate daily revenue and units data
     for (var i = 0; i < days; i++) {
       final date = startDate.add(Duration(days: i));
       final dateStr = '${date.day}/${date.month}';
 
-      // Simulate daily variations
       final dayOfWeekFactor = date.weekday == 6 || date.weekday == 7
           ? 1.5
-          : 1.0; // Weekend boost
-      final dailyFactor = (1 + (i % 7) * 0.1); // Weekly pattern
+          : 1.0; 
+      final dailyFactor = (1 + (i % 7) * 0.1); 
 
       final dailyTotal = allProducts.fold(
         0.0,
@@ -259,7 +247,6 @@ class SalesReport {
           timeScaleFactor.toInt();
     }
 
-    // Generate weekly revenue
     final weeks = (days / 7).ceil();
     for (var i = 0; i < weeks; i++) {
       final weekNum = i + 1;
@@ -270,7 +257,6 @@ class SalesReport {
       weeklyRevenue['Week $weekNum'] = weekRevenue * timeScaleFactor;
     }
 
-    // Calculate category sales
     final categorySales = <String, double>{};
     final categoryUnits = <String, int>{};
     final categoryGrowth = <String, double>{};
@@ -288,7 +274,6 @@ class SalesReport {
         ifAbsent: () => sale.unitsSold,
       );
 
-      // Simulate category growth based on time period
       final growthFactor = days <= 30
           ? 0.1
           : days <= 90
@@ -298,7 +283,6 @@ class SalesReport {
           growthFactor * (sale.category == 'Food' ? 1.2 : 1.0);
     }
 
-    // Calculate totals
     final totalRevenue =
         allProducts.fold(0.0, (sum, sale) => sum + sale.revenue) *
         timeScaleFactor;
@@ -307,7 +291,6 @@ class SalesReport {
         timeScaleFactor.toInt();
     final averageSaleValue = totalUnits > 0 ? totalRevenue / totalUnits : 0;
 
-    // Find best sellers
     final bestSellingCategory = categorySales.entries.isNotEmpty
         ? categorySales.entries.reduce((a, b) => a.value > b.value ? a : b).key
         : 'No Data';
@@ -316,7 +299,6 @@ class SalesReport {
         ? allProducts.reduce((a, b) => a.unitsSold > b.unitsSold ? a : b).name
         : 'No Data';
 
-    // Calculate growth percentage (simulated based on time period)
     final growthPercentage = days <= 7
         ? 2.5
         : days <= 30
@@ -325,7 +307,6 @@ class SalesReport {
         ? 15.2
         : 22.4;
 
-    // Calculate profit margin
     final totalProfit =
         allProducts.fold(0.0, (sum, sale) => sum + sale.profit) *
         timeScaleFactor;
@@ -333,7 +314,6 @@ class SalesReport {
         ? (totalProfit / totalRevenue) * 100
         : 0;
 
-    // Calculate inventory turnover
     final totalCost = totalRevenue - totalProfit;
     final averageInventory = allProducts.isNotEmpty
         ? allProducts.fold(0.0, (sum, sale) => sum + sale.stockRemaining) /
@@ -364,7 +344,6 @@ class SalesReport {
     );
   }
 
-  // Get performance rating
   String getPerformanceRating() {
     if (growthPercentage >= 20) return 'Excellent';
     if (growthPercentage >= 10) return 'Good';
