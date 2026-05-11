@@ -5,10 +5,36 @@ import 'package:vet_clinic/models/pet_food.dart';
 import 'package:vet_clinic/models/pet_toy.dart';
 import 'package:vet_clinic/screens/cage/cages_page.dart';
 import 'package:vet_clinic/screens/food/pet_food_page.dart';
+import 'package:vet_clinic/services/cage_firestore_service.dart';
 import 'toy/pet_toys_page.dart';
 
-class PetResourcesPage extends StatelessWidget {
+class PetResourcesPage extends StatefulWidget {
   const PetResourcesPage({super.key});
+
+  @override
+  State<PetResourcesPage> createState() => _PetResourcesPageState();
+}
+
+class _PetResourcesPageState extends State<PetResourcesPage> {
+  final CageFirestoreService _cageService = CageFirestoreService();
+  int _cageCount = 0;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadCageCount();
+  }
+
+  Future<void> _loadCageCount() async {
+    try {
+      final cages = await _cageService.getAllCages();
+      setState(() {
+        _cageCount = cages.length;
+      });
+    } catch (e) {
+      print('Error loading cage count: $e');
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -28,7 +54,7 @@ class PetResourcesPage extends StatelessWidget {
         'subtitle': 'Comfortable homes and enclosures',
         'icon': Icons.home_outlined,
         'color': const Color(0xFF2196F3),
-        'count': petCages.length,
+        'count': _cageCount,
         'image':
             'https://images.unsplash.com/photo-1541364983171-a8ba01e95cfc?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
         'page': const CagesPage(),
@@ -140,20 +166,10 @@ class PetResourcesPage extends StatelessWidget {
       shadowColor: Colors.black.withOpacity(0.18),
       child: InkWell(
         onTap: () {
-          if (page is Container) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: Text('$title section coming soon!'),
-                backgroundColor: color,
-                behavior: SnackBarBehavior.floating,
-              ),
-            );
-          } else {
-            Navigator.push(
-              context,
-              MaterialPageRoute(builder: (context) => page),
-            );
-          }
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => page),
+          );
         },
         splashColor: color.withOpacity(0.14),
         highlightColor: Colors.transparent,
@@ -173,8 +189,6 @@ class PetResourcesPage extends StatelessWidget {
                 ),
               ),
             ),
-
-            // dual gradient overlay for depth
             Positioned.fill(
               child: DecoratedBox(
                 decoration: BoxDecoration(
@@ -200,7 +214,6 @@ class PetResourcesPage extends StatelessWidget {
                 ),
               ),
             ),
-
             Padding(
               padding: const EdgeInsets.all(16),
               child: Column(

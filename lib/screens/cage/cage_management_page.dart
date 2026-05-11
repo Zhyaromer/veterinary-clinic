@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../models/pet_cage.dart';
 import '../../widgets/cage_management_card.dart';
+import '../../services/cage_firestore_service.dart';
 import 'add_edit_cage_page.dart';
 
 class CageManagementPage extends StatefulWidget {
@@ -12,7 +13,7 @@ class CageManagementPage extends StatefulWidget {
 
 class _CageManagementPageState extends State<CageManagementPage> {
   final TextEditingController _searchController = TextEditingController();
-  List<PetCage> filteredCages = List.from(petCages);
+  final CageFirestoreService _cageService = CageFirestoreService();
   String _selectedPetType = 'All';
   String _selectedCategory = 'All';
   String _sortBy = 'Name (A-Z)';
@@ -32,7 +33,7 @@ class _CageManagementPageState extends State<CageManagementPage> {
   @override
   void initState() {
     super.initState();
-    _searchController.addListener(_filterCages);
+    _searchController.addListener(_updateFilters);
   }
 
   @override
@@ -41,9 +42,14 @@ class _CageManagementPageState extends State<CageManagementPage> {
     super.dispose();
   }
 
-  void _filterCages() {
+  void _updateFilters() {
+    // Just trigger a rebuild - the filter logic will run in build method
+    setState(() {});
+  }
+
+  List<PetCage> _getFilteredCages(List<PetCage> allCages) {
     final searchTerm = _searchController.text.toLowerCase();
-    List<PetCage> filtered = List.from(petCages);
+    List<PetCage> filtered = List.from(allCages);
 
     if (searchTerm.isNotEmpty) {
       filtered = filtered.where((cage) {
@@ -66,35 +72,28 @@ class _CageManagementPageState extends State<CageManagementPage> {
       }).toList();
     }
 
-    filtered = _sortCages(filtered);
-
-    setState(() {
-      filteredCages = filtered;
-    });
-  }
-
-  List<PetCage> _sortCages(List<PetCage> list) {
+    // Apply sorting
     switch (_sortBy) {
       case 'Name (A-Z)':
-        list.sort((a, b) => a.name.compareTo(b.name));
+        filtered.sort((a, b) => a.name.compareTo(b.name));
         break;
       case 'Name (Z-A)':
-        list.sort((a, b) => b.name.compareTo(a.name));
+        filtered.sort((a, b) => b.name.compareTo(a.name));
         break;
       case 'Price (Low-High)':
-        list.sort((a, b) => a.price.compareTo(b.price));
+        filtered.sort((a, b) => a.price.compareTo(b.price));
         break;
       case 'Price (High-Low)':
-        list.sort((a, b) => b.price.compareTo(a.price));
+        filtered.sort((a, b) => b.price.compareTo(a.price));
         break;
       case 'Stock (Low-High)':
-        list.sort((a, b) => a.stock.compareTo(b.stock));
+        filtered.sort((a, b) => a.stock.compareTo(b.stock));
         break;
       case 'Stock (High-Low)':
-        list.sort((a, b) => b.stock.compareTo(a.stock));
+        filtered.sort((a, b) => b.stock.compareTo(a.stock));
         break;
     }
-    return list;
+    return filtered;
   }
 
   void _addNewCage() {
@@ -104,19 +103,31 @@ class _CageManagementPageState extends State<CageManagementPage> {
         builder: (context) => const AddEditCagePage(),
         fullscreenDialog: true,
       ),
-    ).then((value) {
+    ).then((value) async {
       if (value != null) {
-        setState(() {
-          petCages.add(value as PetCage);
-          _filterCages();
-        });
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: const Text('Cage added successfully'),
-            backgroundColor: Colors.green,
-            behavior: SnackBarBehavior.floating,
-          ),
-        );
+        try {
+          final cage = value as PetCage;
+          await _cageService.addCage(cage);
+          if (mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: const Text('Cage added successfully'),
+                backgroundColor: Colors.green,
+                behavior: SnackBarBehavior.floating,
+              ),
+            );
+          }
+        } catch (e) {
+          if (mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text('Error adding cage: $e'),
+                backgroundColor: Colors.red,
+                behavior: SnackBarBehavior.floating,
+              ),
+            );
+          }
+        }
       }
     });
   }
@@ -128,22 +139,31 @@ class _CageManagementPageState extends State<CageManagementPage> {
         builder: (context) => AddEditCagePage(cage: cage),
         fullscreenDialog: true,
       ),
-    ).then((value) {
+    ).then((value) async {
       if (value != null) {
-        setState(() {
-          final index = petCages.indexWhere((c) => c.id == cage.id);
-          if (index != -1) {
-            petCages[index] = value as PetCage;
-            _filterCages();
+        try {
+          final updatedCage = value as PetCage;
+          await _cageService.updateCage(cage.id, updatedCage);
+          if (mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: const Text('Cage updated successfully'),
+                backgroundColor: Colors.blue,
+                behavior: SnackBarBehavior.floating,
+              ),
+            );
           }
-        });
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: const Text('Cage updated successfully'),
-            backgroundColor: Colors.blue,
-            behavior: SnackBarBehavior.floating,
-          ),
-        );
+        } catch (e) {
+          if (mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text('Error updating cage: $e'),
+                backgroundColor: Colors.red,
+                behavior: SnackBarBehavior.floating,
+              ),
+            );
+          }
+        }
       }
     });
   }
@@ -160,19 +180,31 @@ class _CageManagementPageState extends State<CageManagementPage> {
             child: const Text('Cancel'),
           ),
           TextButton(
-            onPressed: () {
-              setState(() {
-                petCages.removeWhere((c) => c.id == cage.id);
-                _filterCages();
-              });
-              Navigator.pop(context);
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-                  content: Text('"${cage.name}" deleted successfully'),
-                  backgroundColor: Colors.red,
-                  behavior: SnackBarBehavior.floating,
-                ),
-              );
+            onPressed: () async {
+              try {
+                await _cageService.deleteCage(cage.id);
+                if (mounted) {
+                  Navigator.pop(context);
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text('"${cage.name}" deleted successfully'),
+                      backgroundColor: Colors.red,
+                      behavior: SnackBarBehavior.floating,
+                    ),
+                  );
+                }
+              } catch (e) {
+                if (mounted) {
+                  Navigator.pop(context);
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text('Error deleting cage: $e'),
+                      backgroundColor: Colors.red,
+                      behavior: SnackBarBehavior.floating,
+                    ),
+                  );
+                }
+              }
             },
             child: const Text('Delete', style: TextStyle(color: Colors.red)),
           ),
@@ -182,9 +214,8 @@ class _CageManagementPageState extends State<CageManagementPage> {
   }
 
   void _duplicateCage(PetCage cage) {
-    final newId = petCages.map((c) => c.id).reduce((a, b) => a > b ? a : b) + 1;
     final duplicatedCage = PetCage(
-      id: newId,
+      id: '', // Firestore will generate the ID
       name: '${cage.name} (Copy)',
       description: cage.description,
       category: cage.category,
@@ -206,18 +237,30 @@ class _CageManagementPageState extends State<CageManagementPage> {
       includedAccessories: cage.includedAccessories,
     );
 
-    setState(() {
-      petCages.add(duplicatedCage);
-      _filterCages();
-    });
-
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text('"${cage.name}" duplicated successfully'),
-        backgroundColor: Colors.blue,
-        behavior: SnackBarBehavior.floating,
-      ),
-    );
+    _cageService
+        .addCage(duplicatedCage)
+        .then((_) {
+          if (mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text('"${cage.name}" duplicated successfully'),
+                backgroundColor: Colors.blue,
+                behavior: SnackBarBehavior.floating,
+              ),
+            );
+          }
+        })
+        .catchError((e) {
+          if (mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text('Error duplicating cage: $e'),
+                backgroundColor: Colors.red,
+                behavior: SnackBarBehavior.floating,
+              ),
+            );
+          }
+        });
   }
 
   @override
@@ -231,221 +274,251 @@ class _CageManagementPageState extends State<CageManagementPage> {
       'Stock (High-Low)',
     ];
 
-    return Column(
-      children: [
-        // Search and Filters
-        Container(
-          padding: const EdgeInsets.all(16),
-          color: Colors.grey[50],
-          child: Column(
-            children: [
-              // Search Bar
-              TextField(
-                controller: _searchController,
-                decoration: InputDecoration(
-                  hintText: 'Search cages...',
-                  prefixIcon: const Icon(Icons.search),
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  filled: true,
-                  fillColor: Colors.white,
-                  suffixIcon: _searchController.text.isNotEmpty
-                      ? IconButton(
-                          icon: const Icon(Icons.clear),
-                          onPressed: () {
-                            _searchController.clear();
-                            _filterCages();
-                          },
-                        )
-                      : null,
-                ),
-                onChanged: (value) => _filterCages(),
-              ),
-              const SizedBox(height: 16),
+    return StreamBuilder<List<PetCage>>(
+      stream: _cageService.getCagesStream(),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const Center(child: CircularProgressIndicator());
+        }
 
-              // Filters Row
-              Row(
+        if (snapshot.hasError) {
+          return Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                const Icon(Icons.error, size: 80, color: Colors.red),
+                const SizedBox(height: 16),
+                const Text('Error loading cages'),
+                const SizedBox(height: 8),
+                Text(snapshot.error.toString()),
+              ],
+            ),
+          );
+        }
+
+        final allCages = snapshot.data ?? [];
+        final filteredCages = _getFilteredCages(allCages);
+
+        return Column(
+          children: [
+            // Search and Filters
+            Container(
+              padding: const EdgeInsets.all(16),
+              color: Colors.grey[50],
+              child: Column(
                 children: [
-                  // Pet Type Filter
-                  Expanded(
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 12),
-                      decoration: BoxDecoration(
-                        color: Colors.white,
+                  // Search Bar
+                  TextField(
+                    controller: _searchController,
+                    decoration: InputDecoration(
+                      hintText: 'Search cages...',
+                      prefixIcon: const Icon(Icons.search),
+                      border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12),
-                        border: Border.all(color: Colors.grey[300]!),
                       ),
-                      child: DropdownButtonHideUnderline(
-                        child: DropdownButton<String>(
-                          value: _selectedPetType,
-                          isExpanded: true,
-                          icon: const Icon(Icons.arrow_drop_down),
-                          items: petTypes.map((type) {
-                            return DropdownMenuItem<String>(
-                              value: type,
-                              child: Text(type),
-                            );
-                          }).toList(),
-                          onChanged: (value) {
-                            setState(() {
-                              _selectedPetType = value!;
-                              _filterCages();
-                            });
-                          },
-                        ),
-                      ),
+                      filled: true,
+                      fillColor: Colors.white,
+                      suffixIcon: _searchController.text.isNotEmpty
+                          ? IconButton(
+                              icon: const Icon(Icons.clear),
+                              onPressed: () {
+                                _searchController.clear();
+                                _updateFilters();
+                              },
+                            )
+                          : null,
                     ),
+                    onChanged: (value) => _updateFilters(),
                   ),
-                  const SizedBox(width: 12),
+                  const SizedBox(height: 16),
 
-                  // Category Filter
-                  Expanded(
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 12),
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(12),
-                        border: Border.all(color: Colors.grey[300]!),
-                      ),
-                      child: DropdownButtonHideUnderline(
-                        child: DropdownButton<String>(
-                          value: _selectedCategory,
-                          isExpanded: true,
-                          icon: const Icon(Icons.category),
-                          items: categories.map((category) {
-                            return DropdownMenuItem<String>(
-                              value: category,
-                              child: Text(category),
-                            );
-                          }).toList(),
-                          onChanged: (value) {
-                            setState(() {
-                              _selectedCategory = value!;
-                              _filterCages();
-                            });
-                          },
-                        ),
-                      ),
-                    ),
-                  ),
-                  const SizedBox(width: 12),
-
-                  // Sort Filter
-                  Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 12),
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(12),
-                      border: Border.all(color: Colors.grey[300]!),
-                    ),
-                    child: DropdownButtonHideUnderline(
-                      child: DropdownButton<String>(
-                        value: _sortBy,
-                        icon: const Icon(Icons.sort),
-                        items: sortOptions.map((option) {
-                          return DropdownMenuItem<String>(
-                            value: option,
-                            child: Text(option),
-                          );
-                        }).toList(),
-                        onChanged: (value) {
-                          setState(() {
-                            _sortBy = value!;
-                            _filterCages();
-                          });
-                        },
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ],
-          ),
-        ),
-
-        // Results Count
-        Padding(
-          padding: const EdgeInsets.all(16),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(
-                '${filteredCages.length} Cages',
-                style: const TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.w600,
-                  color: Color(0xFF444444),
-                ),
-              ),
-              ElevatedButton.icon(
-                onPressed: _addNewCage,
-                icon: const Icon(Icons.add, size: 18, color: Colors.white),
-                label: const Text(
-                  'Add New Cage',
-                  style: TextStyle(color: Colors.white),
-                ),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFF4A6FA5),
-                ),
-              ),
-            ],
-          ),
-        ),
-
-        // Cages List
-        Expanded(
-          child: filteredCages.isEmpty
-              ? Center(
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
+                  // Filters Row
+                  Row(
                     children: [
-                      Icon(
-                        Icons.pets,
-                        size: 80,
-                        color: Colors.grey.withOpacity(0.3),
-                      ),
-                      const SizedBox(height: 20),
-                      const Text(
-                        'No cages found',
-                        style: TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.w600,
-                          color: Colors.grey,
+                      // Pet Type Filter
+                      Expanded(
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 12),
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(12),
+                            border: Border.all(color: Colors.grey[300]!),
+                          ),
+                          child: DropdownButtonHideUnderline(
+                            child: DropdownButton<String>(
+                              value: _selectedPetType,
+                              isExpanded: true,
+                              icon: const Icon(Icons.arrow_drop_down),
+                              items: petTypes.map((type) {
+                                return DropdownMenuItem<String>(
+                                  value: type,
+                                  child: Text(type),
+                                );
+                              }).toList(),
+                              onChanged: (value) {
+                                setState(() {
+                                  _selectedPetType = value!;
+                                });
+                                _updateFilters();
+                              },
+                            ),
+                          ),
                         ),
                       ),
-                      const SizedBox(height: 8),
-                      const Text(
-                        'Try adjusting your search or filters',
-                        style: TextStyle(color: Colors.grey),
+                      const SizedBox(width: 12),
+
+                      // Category Filter
+                      Expanded(
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 12),
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(12),
+                            border: Border.all(color: Colors.grey[300]!),
+                          ),
+                          child: DropdownButtonHideUnderline(
+                            child: DropdownButton<String>(
+                              value: _selectedCategory,
+                              isExpanded: true,
+                              icon: const Icon(Icons.category),
+                              items: categories.map((category) {
+                                return DropdownMenuItem<String>(
+                                  value: category,
+                                  child: Text(category),
+                                );
+                              }).toList(),
+                              onChanged: (value) {
+                                setState(() {
+                                  _selectedCategory = value!;
+                                });
+                                _updateFilters();
+                              },
+                            ),
+                          ),
+                        ),
                       ),
-                      const SizedBox(height: 20),
-                      ElevatedButton.icon(
-                        onPressed: _addNewCage,
-                        icon: const Icon(Icons.add,color: Colors.white),
-                        label: const Text('Add New Cage',style: TextStyle(color: Colors.white),),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: const Color(0xFF4A6FA5),
+                      const SizedBox(width: 12),
+
+                      // Sort Filter
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 12),
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(12),
+                          border: Border.all(color: Colors.grey[300]!),
+                        ),
+                        child: DropdownButtonHideUnderline(
+                          child: DropdownButton<String>(
+                            value: _sortBy,
+                            icon: const Icon(Icons.sort),
+                            items: sortOptions.map((option) {
+                              return DropdownMenuItem<String>(
+                                value: option,
+                                child: Text(option),
+                              );
+                            }).toList(),
+                            onChanged: (value) {
+                              setState(() {
+                                _sortBy = value!;
+                              });
+                              _updateFilters();
+                            },
+                          ),
                         ),
                       ),
                     ],
                   ),
-                )
-              : ListView.builder(
-                  padding: const EdgeInsets.symmetric(horizontal: 16),
-                  itemCount: filteredCages.length,
-                  itemBuilder: (context, index) {
-                    final cage = filteredCages[index];
-                    return CageManagementCard(
-                      cage: cage,
-                      onEdit: () => _editCage(cage),
-                      onDelete: () => _deleteCage(cage),
-                      onDuplicate: () => _duplicateCage(cage),
-                    );
-                  },
-                ),
-        ),
-      ],
+                ],
+              ),
+            ),
+
+            // Results Count
+            Padding(
+              padding: const EdgeInsets.all(16),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    '${filteredCages.length} Cages',
+                    style: const TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w600,
+                      color: Color(0xFF444444),
+                    ),
+                  ),
+                  ElevatedButton.icon(
+                    onPressed: _addNewCage,
+                    icon: const Icon(Icons.add, size: 18, color: Colors.white),
+                    label: const Text(
+                      'Add New Cage',
+                      style: TextStyle(color: Colors.white),
+                    ),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xFF4A6FA5),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+
+            // Cages List
+            Expanded(
+              child: filteredCages.isEmpty
+                  ? Center(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(
+                            Icons.pets,
+                            size: 80,
+                            color: Colors.grey.withOpacity(0.3),
+                          ),
+                          const SizedBox(height: 20),
+                          const Text(
+                            'No cages found',
+                            style: TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.w600,
+                              color: Colors.grey,
+                            ),
+                          ),
+                          const SizedBox(height: 8),
+                          const Text(
+                            'Try adjusting your search or filters',
+                            style: TextStyle(color: Colors.grey),
+                          ),
+                          const SizedBox(height: 20),
+                          ElevatedButton.icon(
+                            onPressed: _addNewCage,
+                            icon: const Icon(Icons.add, color: Colors.white),
+                            label: const Text(
+                              'Add New Cage',
+                              style: TextStyle(color: Colors.white),
+                            ),
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: const Color(0xFF4A6FA5),
+                            ),
+                          ),
+                        ],
+                      ),
+                    )
+                  : ListView.builder(
+                      padding: const EdgeInsets.symmetric(horizontal: 16),
+                      itemCount: filteredCages.length,
+                      itemBuilder: (context, index) {
+                        final cage = filteredCages[index];
+                        return CageManagementCard(
+                          cage: cage,
+                          onEdit: () => _editCage(cage),
+                          onDelete: () => _deleteCage(cage),
+                          onDuplicate: () => _duplicateCage(cage),
+                        );
+                      },
+                    ),
+            ),
+          ],
+        );
+      },
     );
   }
 }

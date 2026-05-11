@@ -20,11 +20,8 @@ class AuthService {
   }) async {
     try {
       // Create user with email and password
-      UserCredential userCredential =
-          await _firebaseAuth.createUserWithEmailAndPassword(
-        email: email,
-        password: password,
-      );
+      UserCredential userCredential = await _firebaseAuth
+          .createUserWithEmailAndPassword(email: email, password: password);
 
       // Update user profile with display name
       await userCredential.user?.updateDisplayName(displayName);
@@ -49,11 +46,8 @@ class AuthService {
     required String password,
   }) async {
     try {
-      UserCredential userCredential =
-          await _firebaseAuth.signInWithEmailAndPassword(
-        email: email,
-        password: password,
-      );
+      UserCredential userCredential = await _firebaseAuth
+          .signInWithEmailAndPassword(email: email, password: password);
       return userCredential;
     } on FirebaseAuthException {
       rethrow;
@@ -138,10 +132,10 @@ class AuthService {
           message: 'No user found. Please login again.',
         );
       }
-      
+
       // Reload user data from Firebase
       await user.reload();
-      
+
       // Get fresh user instance
       user = _firebaseAuth.currentUser;
       return user?.emailVerified ?? false;

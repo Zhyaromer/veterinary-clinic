@@ -1,4 +1,3 @@
-
 import 'package:flutter/material.dart';
 import 'package:vet_clinic/models/pet_cage.dart';
 
@@ -17,8 +16,6 @@ class _AddEditCagePageState extends State<AddEditCagePage> {
 
   late TextEditingController _nameController;
   late TextEditingController _descriptionController;
-  late TextEditingController _categoryController;
-  late TextEditingController _petTypeController;
   late TextEditingController _dimensionsController;
   late TextEditingController _materialController;
   late TextEditingController _weightController;
@@ -32,9 +29,56 @@ class _AddEditCagePageState extends State<AddEditCagePage> {
   late TextEditingController _warrantyController;
   late TextEditingController _includedAccessoriesController;
 
+  late String _selectedCategory;
+  late String _selectedPetType;
+  late String _selectedDimensions;
+  late String _selectedMaterial;
   late List<String> _features;
   late bool _isPortable;
   late bool _hasWheels;
+
+  // Dropdown options
+  final List<String> categoryOptions = [
+    'Dog Crate',
+    'Cat Condo',
+    'Bird Cage',
+    'Small Animal Habitat',
+    'Travel Carrier',
+    'Outdoor Kennel',
+    'Playpen',
+  ];
+
+  final List<String> petTypeOptions = [
+    'Dog',
+    'Cat',
+    'Bird',
+    'Small Animal',
+    'Rabbit',
+    'Guinea Pig',
+    'Hamster',
+    'Ferret',
+  ];
+
+  final List<String> dimensionsOptions = [
+    'Small (18"L x 12"W x 14"H)',
+    'Medium (24"L x 18"W x 20"H)',
+    'Large (30"L x 24"W x 25"H)',
+    'Extra Large (36"L x 24"W x 27"H)',
+    'XXL (42"L x 28"W x 30"H)',
+    'Custom Size',
+  ];
+
+  final List<String> materialOptions = [
+    'Steel',
+    'Plastic',
+    'Wood',
+    'Wire Mesh',
+    'Acrylic',
+    'Glass',
+    'Aluminum',
+    'Fabric',
+    'Stainless Steel',
+  ];
 
   @override
   void initState() {
@@ -46,8 +90,6 @@ class _AddEditCagePageState extends State<AddEditCagePage> {
     _descriptionController = TextEditingController(
       text: cage?.description ?? '',
     );
-    _categoryController = TextEditingController(text: cage?.category ?? '');
-    _petTypeController = TextEditingController(text: cage?.petType ?? '');
     _dimensionsController = TextEditingController(text: cage?.dimensions ?? '');
     _materialController = TextEditingController(text: cage?.material ?? '');
     _weightController = TextEditingController(text: cage?.weight ?? '');
@@ -73,6 +115,10 @@ class _AddEditCagePageState extends State<AddEditCagePage> {
       text: cage?.includedAccessories ?? '',
     );
 
+    _selectedCategory = cage?.category ?? categoryOptions.first;
+    _selectedPetType = cage?.petType ?? petTypeOptions.first;
+    _selectedDimensions = cage?.dimensions ?? dimensionsOptions.first;
+    _selectedMaterial = cage?.material ?? materialOptions.first;
     _features = cage?.features ?? [];
     _isPortable = cage?.isPortable ?? false;
     _hasWheels = cage?.hasWheels ?? false;
@@ -84,8 +130,6 @@ class _AddEditCagePageState extends State<AddEditCagePage> {
   void dispose() {
     _nameController.dispose();
     _descriptionController.dispose();
-    _categoryController.dispose();
-    _petTypeController.dispose();
     _dimensionsController.dispose();
     _materialController.dispose();
     _weightController.dispose();
@@ -110,14 +154,25 @@ class _AddEditCagePageState extends State<AddEditCagePage> {
           .where((e) => e.isNotEmpty)
           .toList();
 
+      // Get actual dimension and material values
+      final dimensions = _selectedDimensions == 'Custom Size'
+          ? _dimensionsController.text
+          : _selectedDimensions;
+
+      final material = _selectedMaterial == 'Custom'
+          ? _materialController.text
+          : _selectedMaterial;
+
       final cage = PetCage(
-        id: widget.cage?.id ?? DateTime.now().millisecondsSinceEpoch,
+        id:
+            widget.cage?.id ??
+            '', // Empty string for new cages - Firestore will generate ID
         name: _nameController.text,
         description: _descriptionController.text,
-        category: _categoryController.text,
-        petType: _petTypeController.text,
-        dimensions: _dimensionsController.text,
-        material: _materialController.text,
+        category: _selectedCategory,
+        petType: _selectedPetType,
+        dimensions: dimensions,
+        material: material,
         weight: _weightController.text,
         assemblyRequired: _assemblyRequiredController.text,
         features: features,
@@ -211,13 +266,116 @@ class _AddEditCagePageState extends State<AddEditCagePage> {
     );
   }
 
+  Widget _buildDropdownField({
+    required String label,
+    required String hint,
+    required List<String> items,
+    required String value,
+    required Function(String?) onChanged,
+    TextEditingController? customController,
+    bool showCustomOption = false,
+  }) {
+    if (showCustomOption && value == 'Custom') {
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          DropdownButtonFormField<String>(
+            value: value,
+            decoration: InputDecoration(
+              labelText: label,
+              hintText: hint,
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(8),
+              ),
+              contentPadding: const EdgeInsets.symmetric(
+                horizontal: 16,
+                vertical: 12,
+              ),
+            ),
+            items: [
+              ...items.map((item) {
+                return DropdownMenuItem<String>(value: item, child: Text(item));
+              }),
+              const DropdownMenuItem<String>(
+                value: 'Custom',
+                child: Text('Custom (Enter below)'),
+              ),
+            ],
+            onChanged: onChanged,
+            validator: (value) {
+              if (value == null || value.isEmpty) {
+                return 'Please select $label';
+              }
+              return null;
+            },
+          ),
+          const SizedBox(height: 12),
+          TextFormField(
+            controller: customController,
+            decoration: InputDecoration(
+              labelText: 'Enter custom $label',
+              hintText: 'Enter custom $label',
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(8),
+              ),
+              contentPadding: const EdgeInsets.symmetric(
+                horizontal: 16,
+                vertical: 12,
+              ),
+            ),
+            maxLines: 2,
+            validator: (value) {
+              if (value == null || value.isEmpty) {
+                return 'Please enter custom $label';
+              }
+              return null;
+            },
+          ),
+        ],
+      );
+    }
+
+    return DropdownButtonFormField<String>(
+      value: value,
+      decoration: InputDecoration(
+        labelText: label,
+        hintText: hint,
+        border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
+        contentPadding: const EdgeInsets.symmetric(
+          horizontal: 16,
+          vertical: 12,
+        ),
+      ),
+      items: [
+        ...items.map((item) {
+          return DropdownMenuItem<String>(value: item, child: Text(item));
+        }),
+        if (showCustomOption)
+          const DropdownMenuItem<String>(
+            value: 'Custom',
+            child: Text('Custom (Enter below)'),
+          ),
+      ],
+      onChanged: onChanged,
+      validator: (value) {
+        if (value == null || value.isEmpty) {
+          return 'Please select $label';
+        }
+        return null;
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final isEditing = widget.cage != null;
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(isEditing ? 'Edit Cage' : 'Add New Cage',style: TextStyle(color: Colors.white),),
+        title: Text(
+          isEditing ? 'Edit Cage' : 'Add New Cage',
+          style: const TextStyle(color: Colors.white),
+        ),
         backgroundColor: const Color(0xFF4A6FA5),
         centerTitle: true,
         iconTheme: const IconThemeData(color: Colors.white),
@@ -270,30 +428,32 @@ class _AddEditCagePageState extends State<AddEditCagePage> {
                   Row(
                     children: [
                       Expanded(
-                        child: _buildTextField(
-                          controller: _categoryController,
+                        child: _buildDropdownField(
                           label: 'Category *',
-                          hint: 'e.g., Dog Crate, Bird Cage',
-                          validator: (value) {
-                            if (value == null || value.isEmpty) {
-                              return 'Please enter category';
-                            }
-                            return null;
+                          hint: 'Select category',
+                          items: categoryOptions,
+                          value: _selectedCategory,
+                          onChanged: (value) {
+                            setState(() {
+                              _selectedCategory = value!;
+                            });
                           },
+                          showCustomOption: true,
                         ),
                       ),
                       const SizedBox(width: 12),
                       Expanded(
-                        child: _buildTextField(
-                          controller: _petTypeController,
+                        child: _buildDropdownField(
                           label: 'Pet Type *',
-                          hint: 'e.g., Dog, Cat, Bird',
-                          validator: (value) {
-                            if (value == null || value.isEmpty) {
-                              return 'Please enter pet type';
-                            }
-                            return null;
+                          hint: 'Select pet type',
+                          items: petTypeOptions,
+                          value: _selectedPetType,
+                          onChanged: (value) {
+                            setState(() {
+                              _selectedPetType = value!;
+                            });
                           },
+                          showCustomOption: true,
                         ),
                       ),
                     ],
@@ -310,30 +470,34 @@ class _AddEditCagePageState extends State<AddEditCagePage> {
                   Row(
                     children: [
                       Expanded(
-                        child: _buildTextField(
-                          controller: _dimensionsController,
+                        child: _buildDropdownField(
                           label: 'Dimensions *',
-                          hint: 'e.g., 36"L x 24"W x 27"H',
-                          validator: (value) {
-                            if (value == null || value.isEmpty) {
-                              return 'Please enter dimensions';
-                            }
-                            return null;
+                          hint: 'Select dimensions',
+                          items: dimensionsOptions,
+                          value: _selectedDimensions,
+                          onChanged: (value) {
+                            setState(() {
+                              _selectedDimensions = value!;
+                            });
                           },
+                          customController: _dimensionsController,
+                          showCustomOption: true,
                         ),
                       ),
                       const SizedBox(width: 12),
                       Expanded(
-                        child: _buildTextField(
-                          controller: _materialController,
+                        child: _buildDropdownField(
                           label: 'Material *',
-                          hint: 'e.g., Steel, Plastic',
-                          validator: (value) {
-                            if (value == null || value.isEmpty) {
-                              return 'Please enter material';
-                            }
-                            return null;
+                          hint: 'Select material',
+                          items: materialOptions,
+                          value: _selectedMaterial,
+                          onChanged: (value) {
+                            setState(() {
+                              _selectedMaterial = value!;
+                            });
                           },
+                          customController: _materialController,
+                          showCustomOption: true,
                         ),
                       ),
                     ],
