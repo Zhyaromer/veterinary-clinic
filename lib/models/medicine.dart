@@ -26,7 +26,7 @@ class MedicineStorage {
 }
 
 class Medicine {
-  final int id;
+  final dynamic id; // Changed to dynamic to support both int and String
   final String name;
   final String barcode;
   final String batchNumber;

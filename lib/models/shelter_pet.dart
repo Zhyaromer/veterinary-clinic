@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 class ShelterPet {
-  final int id;
+  final dynamic id; // Support both int and String (Firestore doc IDs)
   final String name;
   final String type; 
   final String breed;

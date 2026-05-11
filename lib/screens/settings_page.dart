@@ -2,6 +2,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:vet_clinic/main.dart';
+import 'package:vet_clinic/screens/login_screen.dart';
 
 class SettingsPage extends StatefulWidget {
   const SettingsPage({Key? key}) : super(key: key);
@@ -35,7 +36,7 @@ class _SettingsPageState extends State<SettingsPage> {
                 Navigator.of(context).pop(); // Close dialog
                 Navigator.pushReplacement(
                   context,
-                  MaterialPageRoute(builder: (context) => const LoginPage()),
+                  MaterialPageRoute(builder: (context) => const LoginScreen()),
                 );
               },
               child: const Text("Logout", style: TextStyle(color: Colors.red)),

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../models/medicine.dart';
 import '../../widgets/medicine_management_card.dart';
+import '../../services/medicine_firestore_service.dart';
 import 'add_edit_medicine_page.dart';
 
 class MedicineManagementPage extends StatefulWidget {
@@ -13,14 +14,43 @@ class MedicineManagementPage extends StatefulWidget {
 class _MedicineManagementPageState extends State<MedicineManagementPage> {
   late List<Medicine> medicinesList;
   final TextEditingController _searchController = TextEditingController();
+  final MedicineFirestoreService _medicineService = MedicineFirestoreService();
   String _selectedCategory = 'All';
   String _sortBy = 'Name (A-Z)';
+  bool _isLoading = true;
+  List<Medicine> _allMedicines = [];
 
   @override
   void initState() {
     super.initState();
-    medicinesList = List.from(medicines);
+    medicinesList = [];
     _searchController.addListener(_filterMedicines);
+    _loadMedicines();
+  }
+
+  void _loadMedicines() async {
+    try {
+      final medicines = await _medicineService.getAllMedicines();
+      if (mounted) {
+        setState(() {
+          _allMedicines = medicines;
+          medicinesList = List.from(_allMedicines);
+          _isLoading = false;
+        });
+      }
+    } catch (e) {
+      print('Error loading medicines: $e');
+      if (mounted) {
+        setState(() => _isLoading = false);
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Error loading medicines: $e\n\nMake sure Firestore is configured correctly.'),
+            backgroundColor: Colors.red,
+            duration: const Duration(seconds: 5),
+          ),
+        );
+      }
+    }
   }
 
   @override
@@ -31,7 +61,7 @@ class _MedicineManagementPageState extends State<MedicineManagementPage> {
 
   void _filterMedicines() {
     final searchTerm = _searchController.text.toLowerCase();
-    List<Medicine> filtered = List.from(medicines);
+    List<Medicine> filtered = List.from(_allMedicines);
 
     if (searchTerm.isNotEmpty) {
       filtered = filtered.where((medicine) {
@@ -93,17 +123,7 @@ class _MedicineManagementPageState extends State<MedicineManagementPage> {
       ),
     ).then((value) {
       if (value != null) {
-        setState(() {
-          medicines.add(value as Medicine);
-          _filterMedicines();
-        });
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: const Text('Medicine added successfully'),
-            backgroundColor: Colors.green,
-            behavior: SnackBarBehavior.floating,
-          ),
-        );
+        _loadMedicines(); // Refresh list from Firestore
       }
     });
   }
@@ -117,20 +137,7 @@ class _MedicineManagementPageState extends State<MedicineManagementPage> {
       ),
     ).then((value) {
       if (value != null) {
-        setState(() {
-          final index = medicines.indexWhere((m) => m.id == medicine.id);
-          if (index != -1) {
-            medicines[index] = value as Medicine;
-            _filterMedicines();
-          }
-        });
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: const Text('Medicine updated successfully'),
-            backgroundColor: Colors.blue,
-            behavior: SnackBarBehavior.floating,
-          ),
-        );
+        _loadMedicines(); // Refresh list from Firestore
       }
     });
   }
@@ -147,19 +154,26 @@ class _MedicineManagementPageState extends State<MedicineManagementPage> {
             child: const Text('Cancel'),
           ),
           TextButton(
-            onPressed: () {
-              setState(() {
-                medicines.removeWhere((m) => m.id == medicine.id);
-                _filterMedicines();
-              });
+            onPressed: () async {
               Navigator.pop(context);
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-                  content: Text('"${medicine.name}" deleted successfully'),
-                  backgroundColor: Colors.red,
-                  behavior: SnackBarBehavior.floating,
-                ),
-              );
+              try {
+                await _medicineService.deleteMedicine(medicine.id);
+                _loadMedicines(); // Refresh list
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text('"${medicine.name}" deleted successfully'),
+                    backgroundColor: Colors.red,
+                    behavior: SnackBarBehavior.floating,
+                  ),
+                );
+              } catch (e) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text('Error deleting medicine: $e'),
+                    backgroundColor: Colors.red,
+                  ),
+                );
+              }
             },
             child: const Text('Delete', style: TextStyle(color: Colors.red)),
           ),
@@ -168,9 +182,8 @@ class _MedicineManagementPageState extends State<MedicineManagementPage> {
     );
   }
 
-  void _duplicateMedicine(Medicine medicine) {
-    final newId =
-        medicines.map((m) => m.id).reduce((a, b) => a > b ? a : b) + 1;
+  void _duplicateMedicine(Medicine medicine) async {
+    final newId = DateTime.now().millisecondsSinceEpoch.toString();
     final duplicatedMedicine = Medicine(
       id: newId,
       name: '${medicine.name} (Copy)',
@@ -209,21 +222,29 @@ class _MedicineManagementPageState extends State<MedicineManagementPage> {
       imageUrl: medicine.imageUrl,
     );
 
-    setState(() {
-      medicines.add(duplicatedMedicine);
-      _filterMedicines();
-    });
-
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text('"${medicine.name}" duplicated successfully'),
-        backgroundColor: Colors.blue,
-        behavior: SnackBarBehavior.floating,
-      ),
-    );
+    try {
+      await _medicineService.addMedicine(duplicatedMedicine);
+      _loadMedicines(); // Refresh list
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('"${medicine.name}" duplicated successfully'),
+          backgroundColor: Colors.blue,
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Error duplicating medicine: $e'),
+          backgroundColor: Colors.red,
+        ),
+      );
+    }
   }
 
   void _resetStock(Medicine medicine) {
+    final stockController = TextEditingController(text: medicine.stock.toString());
+    
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
@@ -236,8 +257,8 @@ class _MedicineManagementPageState extends State<MedicineManagementPage> {
             const Text('Enter new stock quantity:'),
             const SizedBox(height: 8),
             TextFormField(
+              controller: stockController,
               keyboardType: TextInputType.number,
-              initialValue: medicine.stock.toString(),
               decoration: const InputDecoration(
                 border: OutlineInputBorder(),
                 labelText: 'Stock Quantity',
@@ -251,16 +272,27 @@ class _MedicineManagementPageState extends State<MedicineManagementPage> {
             child: const Text('Cancel'),
           ),
           TextButton(
-            onPressed: () {
-              // In a real app, you would update the stock here
+            onPressed: () async {
               Navigator.pop(context);
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-                  content: const Text('Stock updated successfully'),
-                  backgroundColor: Colors.green,
-                  behavior: SnackBarBehavior.floating,
-                ),
-              );
+              try {
+                final newStock = int.parse(stockController.text);
+                await _medicineService.updateStock(medicine.id, newStock);
+                _loadMedicines(); // Refresh list
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: const Text('Stock updated successfully'),
+                    backgroundColor: Colors.green,
+                    behavior: SnackBarBehavior.floating,
+                  ),
+                );
+              } catch (e) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text('Error updating stock: $e'),
+                    backgroundColor: Colors.red,
+                  ),
+                );
+              }
             },
             child: const Text('Update'),
           ),
@@ -273,7 +305,7 @@ class _MedicineManagementPageState extends State<MedicineManagementPage> {
   Widget build(BuildContext context) {
     final categories = [
       'All',
-      ...medicines.map((m) => m.category).toSet().toList(),
+      ..._allMedicines.map((m) => m.category).toSet().toList(),
     ];
     final sortOptions = [
       'Name (A-Z)',
@@ -303,7 +335,11 @@ class _MedicineManagementPageState extends State<MedicineManagementPage> {
           ),
         ],
       ),
-      body: Column(
+      body: _isLoading
+          ? const Center(
+              child: CircularProgressIndicator(),
+            )
+          : Column(
         children: [
           // Search and Filters
           Container(

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../models/shelter_pet.dart';
 import '../../widgets/shelter_pet_card.dart';
+import '../../services/adoption_firestore_service.dart';
 import 'pet_adoption_detail_screen.dart';
 
 class ShelterPetsScreen extends StatefulWidget {
@@ -12,7 +13,10 @@ class ShelterPetsScreen extends StatefulWidget {
 
 class _ShelterPetsScreenState extends State<ShelterPetsScreen> {
   final TextEditingController _searchController = TextEditingController();
-  List<ShelterPet> filteredPets = List.from(shelterPets);
+  final AdoptionFirestoreService _adoptionService = AdoptionFirestoreService();
+  List<ShelterPet> filteredPets = [];
+  List<ShelterPet> allPets = [];
+  bool _isLoading = true;
 
   // Filter states
   String _selectedPetType = 'All';
@@ -61,7 +65,33 @@ class _ShelterPetsScreenState extends State<ShelterPetsScreen> {
   void initState() {
     super.initState();
     _searchController.addListener(_filterPets);
-    _applySorting();
+    _loadPets();
+  }
+
+  void _loadPets() async {
+    try {
+      final pets = await _adoptionService.getAllShelterPets();
+      if (mounted) {
+        setState(() {
+          allPets = pets;
+          filteredPets = List.from(allPets);
+          _isLoading = false;
+          _applySorting();
+        });
+      }
+    } catch (e) {
+      print('Error loading pets: $e');
+      if (mounted) {
+        setState(() => _isLoading = false);
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Error loading pets: $e'),
+            backgroundColor: Colors.red,
+            duration: const Duration(seconds: 5),
+          ),
+        );
+      }
+    }
   }
 
   @override
@@ -72,7 +102,7 @@ class _ShelterPetsScreenState extends State<ShelterPetsScreen> {
 
   void _filterPets() {
     setState(() {
-      filteredPets = shelterPets.where((pet) {
+      filteredPets = allPets.where((pet) {
         // Search filter
         final matchesSearch =
             _searchController.text.isEmpty ||
@@ -693,8 +723,8 @@ class _ShelterPetsScreenState extends State<ShelterPetsScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final availablePets = shelterPets.where((pet) => !pet.isAdopted).length;
-    final totalPets = shelterPets.length;
+    final availablePets = allPets.where((pet) => !pet.isAdopted).length;
+    final totalPets = allPets.length;
 
     return Scaffold(
       appBar: AppBar(
@@ -717,7 +747,9 @@ class _ShelterPetsScreenState extends State<ShelterPetsScreen> {
           ),
         ],
       ),
-      body: Column(
+      body: _isLoading
+          ? const Center(child: CircularProgressIndicator())
+          : Column(
         children: [
           // Stats Bar
           Container(

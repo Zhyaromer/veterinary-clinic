@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../models/shelter_pet.dart';
+import '../../models/adoption_request.dart';
+import '../../services/adoption_firestore_service.dart';
 
 class PetAdoptionDetailScreen extends StatefulWidget {
   final ShelterPet pet;
@@ -13,14 +15,18 @@ class PetAdoptionDetailScreen extends StatefulWidget {
 
 class _PetAdoptionDetailScreenState extends State<PetAdoptionDetailScreen> {
   final _formKey = GlobalKey<FormState>();
+  final AdoptionFirestoreService _adoptionService = AdoptionFirestoreService();
+  
   final TextEditingController _nameController = TextEditingController();
   final TextEditingController _phoneController = TextEditingController();
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _reasonController = TextEditingController();
+  
   bool _agreeToTerms = false;
   bool _homeVisitAgreed = false;
   bool _canAffordCare = false;
   bool _hasExperience = false;
+  bool _isSaving = false;
 
   @override
   void dispose() {
@@ -31,55 +37,107 @@ class _PetAdoptionDetailScreenState extends State<PetAdoptionDetailScreen> {
     super.dispose();
   }
 
-  void _submitAdoptionForm() {
-    if (_formKey.currentState!.validate() && _agreeToTerms) {
-      showDialog(
-        context: context,
-        builder: (context) => AlertDialog(
-          title: const Row(
-            children: [
-              Icon(Icons.check_circle, color: Colors.green),
-              SizedBox(width: 10),
-              Text('Adoption Request Submitted'),
-            ],
+  void _submitAdoptionForm() async {
+    if (!_formKey.currentState!.validate() || !_agreeToTerms) {
+      if (!_agreeToTerms) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Please agree to the adoption terms and conditions'),
+            backgroundColor: Colors.red,
           ),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                'Thank you, ${_nameController.text}!',
-                style: const TextStyle(fontSize: 16),
-              ),
-              const SizedBox(height: 10),
-              Text(
-                'Your adoption request for ${widget.pet.name} has been submitted successfully.',
-              ),
-              const SizedBox(height: 10),
-              const Text(
-                'Our adoption team will contact you within 3 business days to discuss next steps.',
-                style: TextStyle(fontSize: 12, color: Colors.grey),
-              ),
-            ],
-          ),
-          actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.pop(context);
-                Navigator.pop(context);
-              },
-              child: const Text('Close'),
+        );
+      }
+      return;
+    }
+
+    setState(() => _isSaving = true);
+
+    try {
+      final request = AdoptionRequest(
+        id: DateTime.now().millisecondsSinceEpoch.toString(),
+        firstName: _nameController.text.trim().split(' ').first,
+        lastName: _nameController.text.trim().split(' ').skip(1).join(' '),
+        email: _emailController.text.trim(),
+        phone: _phoneController.text.trim(),
+        address: '', // Not collected on this form
+        petType: '', // Not collected on this form
+        petName: '', // Not collected on this form
+        breed: '', // Not collected on this form
+        age: '', // Not collected on this form
+        gender: '', // Not collected on this form
+        reason: _reasonController.text.trim(),
+        specialNeeds: '', // Not collected on this form
+        isVaccinated: false, // Not collected on this form
+        isNeutered: false, // Not collected on this form
+        hasMedicalIssues: false, // Not collected on this form
+        isHouseTrained: false, // Not collected on this form
+        agreeToTerms: _agreeToTerms,
+        homeVisitAgreed: _homeVisitAgreed,
+        canAffordCare: _canAffordCare,
+        hasExperience: _hasExperience,
+        submittedDate: DateTime.now(),
+        status: 'pending',
+        shelterPetId: widget.pet.id.toString(),
+        notes: null,
+      );
+
+      await _adoptionService.submitAdoptionRequest(request);
+
+      if (mounted) {
+        setState(() => _isSaving = false);
+        showDialog(
+          context: context,
+          builder: (context) => AlertDialog(
+            title: const Row(
+              children: [
+                Icon(Icons.check_circle, color: Colors.green),
+                SizedBox(width: 10),
+                Text('Adoption Request Submitted'),
+              ],
             ),
-          ],
-        ),
-      );
-    } else if (!_agreeToTerms) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Please agree to the adoption terms and conditions'),
-          backgroundColor: Colors.red,
-        ),
-      );
+            content: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Thank you, ${_nameController.text}!',
+                  style: const TextStyle(fontSize: 16),
+                ),
+                const SizedBox(height: 10),
+                Text(
+                  'Your adoption request for ${widget.pet.name} has been submitted successfully.',
+                ),
+                const SizedBox(height: 10),
+                const Text(
+                  'Our adoption team will contact you within 3 business days to discuss next steps.',
+                  style: TextStyle(fontSize: 12, color: Colors.grey),
+                ),
+              ],
+            ),
+            actions: [
+              TextButton(
+                onPressed: () {
+                  Navigator.pop(context);
+                  Navigator.pop(context);
+                },
+                child: const Text('Close'),
+              ),
+            ],
+          ),
+        );
+      }
+    } catch (e) {
+      print('Error submitting adoption request: $e');
+      if (mounted) {
+        setState(() => _isSaving = false);
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Error submitting request: $e'),
+            backgroundColor: Colors.red,
+            duration: const Duration(seconds: 5),
+          ),
+        );
+      }
     }
   }
 
@@ -883,7 +941,7 @@ class _PetAdoptionDetailScreenState extends State<PetAdoptionDetailScreen> {
                                 width: double.infinity,
                                 height: 56,
                                 child: ElevatedButton(
-                                  onPressed: _submitAdoptionForm,
+                                  onPressed: _isSaving ? null : _submitAdoptionForm,
                                   style: ElevatedButton.styleFrom(
                                     backgroundColor: Colors.green.shade700,
                                     foregroundColor: Colors.white,
@@ -892,13 +950,22 @@ class _PetAdoptionDetailScreenState extends State<PetAdoptionDetailScreen> {
                                     ),
                                     elevation: 2,
                                   ),
-                                  child: const Text(
-                                    'Submit Adoption Application',
-                                    style: TextStyle(
-                                      fontSize: 16,
-                                      fontWeight: FontWeight.w600,
-                                    ),
-                                  ),
+                                  child: _isSaving
+                                      ? const SizedBox(
+                                          height: 24,
+                                          width: 24,
+                                          child: CircularProgressIndicator(
+                                            valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                                            strokeWidth: 2,
+                                          ),
+                                        )
+                                      : const Text(
+                                          'Submit Adoption Application',
+                                          style: TextStyle(
+                                            fontSize: 16,
+                                            fontWeight: FontWeight.w600,
+                                          ),
+                                        ),
                                 ),
                               ),
 

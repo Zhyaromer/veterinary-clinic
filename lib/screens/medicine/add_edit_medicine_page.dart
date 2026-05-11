@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../models/medicine.dart';
+import '../../services/medicine_firestore_service.dart';
 
 class AddEditMedicinePage extends StatefulWidget {
   final Medicine? medicine;
@@ -16,6 +17,8 @@ class _AddEditMedicinePageState extends State<AddEditMedicinePage> {
   final _sideEffectsController = TextEditingController();
   final _interactionsController = TextEditingController();
   final _contraindicationsController = TextEditingController();
+  final MedicineFirestoreService _medicineService = MedicineFirestoreService();
+  bool _isSaving = false;
 
   late TextEditingController _nameController;
   late TextEditingController _barcodeController;
@@ -174,73 +177,122 @@ class _AddEditMedicinePageState extends State<AddEditMedicinePage> {
     super.dispose();
   }
 
-  void _saveMedicine() {
+  void _saveMedicine() async {
     if (_formKey.currentState!.validate()) {
-      // Process lists
-      final indications = _indicationsController.text
-          .split(',')
-          .map((e) => e.trim())
-          .where((e) => e.isNotEmpty)
-          .toList();
+      setState(() => _isSaving = true);
+      
+      try {
+        // Validate numeric fields
+        if (_priceController.text.isEmpty) {
+          throw Exception('Price cannot be empty');
+        }
+        if (_stockController.text.isEmpty) {
+          throw Exception('Stock cannot be empty');
+        }
 
-      final sideEffects = _sideEffectsController.text
-          .split(',')
-          .map((e) => e.trim())
-          .where((e) => e.isNotEmpty)
-          .toList();
+        // Process lists
+        final indications = _indicationsController.text
+            .split(',')
+            .map((e) => e.trim())
+            .where((e) => e.isNotEmpty)
+            .toList();
 
-      final interactions = _interactionsController.text
-          .split(',')
-          .map((e) => e.trim())
-          .where((e) => e.isNotEmpty)
-          .toList();
+        final sideEffects = _sideEffectsController.text
+            .split(',')
+            .map((e) => e.trim())
+            .where((e) => e.isNotEmpty)
+            .toList();
 
-      final contraindications = _contraindicationsController.text
-          .split(',')
-          .map((e) => e.trim())
-          .where((e) => e.isNotEmpty)
-          .toList();
+        final interactions = _interactionsController.text
+            .split(',')
+            .map((e) => e.trim())
+            .where((e) => e.isNotEmpty)
+            .toList();
 
-      // Create or update medicine
-      final medicine = Medicine(
-        id: widget.medicine?.id ?? DateTime.now().millisecondsSinceEpoch,
-        name: _nameController.text,
-        barcode: _barcodeController.text,
-        batchNumber: _batchNumberController.text,
-        composition: _compositionController.text,
-        form: _formController.text,
-        route: _routeController.text,
-        animalType: _animalTypeController.text,
-        category: _category,
-        indications: indications,
-        dosage: _dosageController.text,
-        administrationInstructions: _adminInstructionsController.text,
-        usage: _usageController.text,
-        sideEffects: sideEffects,
-        interactions: interactions,
-        contraindications: contraindications,
-        overdose: _overdoseController.text,
-        handlingPrecautions: _handlingPrecautionsController.text,
-        storage: MedicineStorage(
-          temperature: _tempController.text,
-          lightProtection: _lightProtectionController.text,
-          afterOpening: _afterOpeningController.text,
-        ),
-        withdrawalPeriod: _withdrawalPeriodController.text,
-        packaging: _packagingController.text,
-        manufacturer: Manufacturer(
-          name: _manufacturerNameController.text,
-          address: _manufacturerAddressController.text,
-          phone: _manufacturerPhoneController.text,
-        ),
-        regulatoryApprovalNumber: _regulatoryNumberController.text,
-        price: double.parse(_priceController.text),
-        stock: int.parse(_stockController.text),
-        expiryDate: _expiryDateController.text,
-        imageUrl: _imageUrlController.text,
-      );
+        final contraindications = _contraindicationsController.text
+            .split(',')
+            .map((e) => e.trim())
+            .where((e) => e.isNotEmpty)
+            .toList();
 
-      Navigator.pop(context, medicine);
+        // Create or update medicine
+        final medicine = Medicine(
+          id: widget.medicine?.id ?? DateTime.now().millisecondsSinceEpoch.toString(),
+          name: _nameController.text.trim(),
+          barcode: _barcodeController.text.trim(),
+          batchNumber: _batchNumberController.text.trim(),
+          composition: _compositionController.text.trim(),
+          form: _formController.text.trim(),
+          route: _routeController.text.trim(),
+          animalType: _animalTypeController.text.trim(),
+          category: _category,
+          indications: indications,
+          dosage: _dosageController.text.trim(),
+          administrationInstructions: _adminInstructionsController.text.trim(),
+          usage: _usageController.text.trim(),
+          sideEffects: sideEffects,
+          interactions: interactions,
+          contraindications: contraindications,
+          overdose: _overdoseController.text.trim(),
+          handlingPrecautions: _handlingPrecautionsController.text.trim(),
+          storage: MedicineStorage(
+            temperature: _tempController.text.trim(),
+            lightProtection: _lightProtectionController.text.trim(),
+            afterOpening: _afterOpeningController.text.trim(),
+          ),
+          withdrawalPeriod: _withdrawalPeriodController.text.trim(),
+          packaging: _packagingController.text.trim(),
+          manufacturer: Manufacturer(
+            name: _manufacturerNameController.text.trim(),
+            address: _manufacturerAddressController.text.trim(),
+            phone: _manufacturerPhoneController.text.trim(),
+          ),
+          regulatoryApprovalNumber: _regulatoryNumberController.text.trim(),
+          price: double.tryParse(_priceController.text) ?? 0.0,
+          stock: int.tryParse(_stockController.text) ?? 0,
+          expiryDate: _expiryDateController.text.trim(),
+          imageUrl: _imageUrlController.text.trim(),
+        );
+
+        // Save to Firestore
+        if (widget.medicine != null) {
+          // Update existing
+          await _medicineService.updateMedicine(medicine.id.toString(), medicine);
+        } else {
+          // Add new
+          await _medicineService.addMedicine(medicine);
+        }
+
+        if (mounted) {
+          Navigator.pop(context, medicine);
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(widget.medicine != null 
+                  ? 'Medicine updated successfully'
+                  : 'Medicine added successfully'),
+              backgroundColor: Colors.green,
+              behavior: SnackBarBehavior.floating,
+              duration: const Duration(seconds: 2),
+            ),
+          );
+        }
+      } catch (e) {
+        print('Error saving medicine: $e');
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Error saving medicine: $e'),
+              backgroundColor: Colors.red,
+              behavior: SnackBarBehavior.floating,
+              duration: const Duration(seconds: 3),
+            ),
+          );
+        }
+      } finally {
+        if (mounted) {
+          setState(() => _isSaving = false);
+        }
+      }
     }
   }
 
@@ -336,8 +388,17 @@ class _AddEditMedicinePageState extends State<AddEditMedicinePage> {
         iconTheme: const IconThemeData(color: Colors.white),
         actions: [
           IconButton(
-            icon: const Icon(Icons.save, color: Colors.white),
-            onPressed: _saveMedicine,
+            icon: _isSaving 
+              ? const SizedBox(
+                  width: 20,
+                  height: 20,
+                  child: CircularProgressIndicator(
+                    strokeWidth: 2,
+                    valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                  ),
+                )
+              : const Icon(Icons.save, color: Colors.white),
+            onPressed: _isSaving ? null : _saveMedicine,
             tooltip: 'Save',
           ),
         ],
