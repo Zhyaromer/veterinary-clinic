@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import '../../services/adoption_firestore_service.dart';
+import '../../models/adoption_request.dart';
 
 class PutForAdoptionPage extends StatefulWidget {
   const PutForAdoptionPage({super.key});
@@ -8,6 +10,9 @@ class PutForAdoptionPage extends StatefulWidget {
 }
 
 class _PutForAdoptionPageState extends State<PutForAdoptionPage> {
+  // Services
+  final AdoptionFirestoreService _adoptionService = AdoptionFirestoreService();
+  
   // Form controllers
   final TextEditingController _firstNameController = TextEditingController();
   final TextEditingController _lastNameController = TextEditingController();
@@ -28,6 +33,7 @@ class _PutForAdoptionPageState extends State<PutForAdoptionPage> {
   bool _hasMedicalIssues = false;
   bool _isHouseTrained = false;
   bool _acceptTerms = false;
+  bool _isSaving = false;
 
   // Error states
   bool _firstNameError = false;
@@ -118,48 +124,95 @@ class _PutForAdoptionPageState extends State<PutForAdoptionPage> {
   }
 
   // Submit form
-  void _submitForm() {
-    if (_validateForm()) {
-      // Show success dialog
-      showDialog(
-        context: context,
-        builder: (context) {
-          return AlertDialog(
-            title: const Row(
-              children: [
-                Icon(Icons.check_circle, color: Colors.green),
-                SizedBox(width: 10),
-                Text('Submission Successful'),
-              ],
-            ),
-            content: const Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text('Thank you for submitting your pet for adoption.'),
-                SizedBox(height: 8),
-                Text('Our team will contact you within 24-48 hours.'),
-              ],
-            ),
-            actions: [
-              TextButton(
-                onPressed: () {
-                  Navigator.pop(context);
-                  _clearForm();
-                },
-                child: const Text('OK'),
-              ),
-            ],
-          );
-        },
-      );
-    } else {
+  void _submitForm() async {
+    if (!_validateForm()) {
       // Scroll to first error
       Scrollable.ensureVisible(
         context,
         duration: const Duration(milliseconds: 500),
         curve: Curves.easeInOut,
       );
+      return;
+    }
+
+    setState(() => _isSaving = true);
+
+    try {
+      final request = AdoptionRequest(
+        id: DateTime.now().millisecondsSinceEpoch.toString(),
+        firstName: _firstNameController.text.trim(),
+        lastName: _lastNameController.text.trim(),
+        email: _emailController.text.trim(),
+        phone: _phoneController.text.trim(),
+        address: _addressController.text.trim(),
+        petType: _selectedPetType ?? '',
+        petName: _petNameController.text.trim(),
+        breed: _breedController.text.trim(),
+        age: _petAgeController.text.trim(),
+        gender: _selectedGender ?? '',
+        reason: _reasonController.text.trim(),
+        specialNeeds: _specialNeedsController.text.trim(),
+        isVaccinated: _isVaccinated,
+        isNeutered: _isNeuteredSpayed,
+        hasMedicalIssues: _hasMedicalIssues,
+        isHouseTrained: _isHouseTrained,
+        agreeToTerms: _acceptTerms,
+        homeVisitAgreed: false,
+        canAffordCare: false,
+        hasExperience: false,
+        submittedDate: DateTime.now(),
+      );
+
+      await _adoptionService.submitAdoptionRequest(request);
+
+      if (mounted) {
+        setState(() => _isSaving = false);
+        // Show success dialog
+        showDialog(
+          context: context,
+          builder: (context) {
+            return AlertDialog(
+              title: const Row(
+                children: [
+                  Icon(Icons.check_circle, color: Colors.green),
+                  SizedBox(width: 10),
+                  Text('Submission Successful'),
+                ],
+              ),
+              content: const Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text('Thank you for submitting your pet for adoption.'),
+                  SizedBox(height: 8),
+                  Text('Our team will contact you within 24-48 hours.'),
+                ],
+              ),
+              actions: [
+                TextButton(
+                  onPressed: () {
+                    Navigator.pop(context);
+                    _clearForm();
+                  },
+                  child: const Text('OK'),
+                ),
+              ],
+            );
+          },
+        );
+      }
+    } catch (e) {
+      print('Error submitting adoption request: $e');
+      if (mounted) {
+        setState(() => _isSaving = false);
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Error submitting request: $e'),
+            backgroundColor: Colors.red,
+            duration: const Duration(seconds: 5),
+          ),
+        );
+      }
     }
   }
 
@@ -705,7 +758,7 @@ class _PutForAdoptionPageState extends State<PutForAdoptionPage> {
                 const SizedBox(width: 16),
                 Expanded(
                   child: ElevatedButton(
-                    onPressed: _submitForm,
+                    onPressed: _isSaving ? null : _submitForm,
                     style: ElevatedButton.styleFrom(
                       backgroundColor: const Color(0xFF4A6FA5),
                       foregroundColor: Colors.white,
@@ -715,10 +768,19 @@ class _PutForAdoptionPageState extends State<PutForAdoptionPage> {
                       ),
                       elevation: 2,
                     ),
-                    child: const Text(
-                      'Submit for Adoption',
-                      style: TextStyle(fontWeight: FontWeight.w600),
-                    ),
+                    child: _isSaving
+                        ? const SizedBox(
+                            height: 20,
+                            width: 20,
+                            child: CircularProgressIndicator(
+                              valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                              strokeWidth: 2,
+                            ),
+                          )
+                        : const Text(
+                            'Submit for Adoption',
+                            style: TextStyle(fontWeight: FontWeight.w600),
+                          ),
                   ),
                 ),
               ],
