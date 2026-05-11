@@ -13,10 +13,10 @@ class AddEditMedicinePage extends StatefulWidget {
 
 class _AddEditMedicinePageState extends State<AddEditMedicinePage> {
   final _formKey = GlobalKey<FormState>();
-  final _indicationsController = TextEditingController();
-  final _sideEffectsController = TextEditingController();
-  final _interactionsController = TextEditingController();
-  final _contraindicationsController = TextEditingController();
+  late TextEditingController _indicationsController;
+  late TextEditingController _sideEffectsController;
+  late TextEditingController _interactionsController;
+  late TextEditingController _contraindicationsController;
   final MedicineFirestoreService _medicineService = MedicineFirestoreService();
   bool _isSaving = false;
 
@@ -24,9 +24,9 @@ class _AddEditMedicinePageState extends State<AddEditMedicinePage> {
   late TextEditingController _barcodeController;
   late TextEditingController _batchNumberController;
   late TextEditingController _compositionController;
-  late TextEditingController _formController;
-  late TextEditingController _routeController;
-  late TextEditingController _animalTypeController;
+  late String _form;
+  late String _route;
+  late String _animalType;
   late TextEditingController _dosageController;
   late TextEditingController _adminInstructionsController;
   late TextEditingController _usageController;
@@ -62,6 +62,50 @@ class _AddEditMedicinePageState extends State<AddEditMedicinePage> {
     'Other',
   ];
 
+  final List<String> _forms = [
+    'Tablet',
+    'Capsule',
+    'Liquid',
+    'Injection',
+    'Powder',
+    'Cream',
+    'Ointment',
+    'Gel',
+    'Spray',
+    'Drops',
+    'Suspension',
+    'Other',
+  ];
+
+  final List<String> _routes = [
+    'Oral',
+    'Intravenous (IV)',
+    'Intramuscular (IM)',
+    'Subcutaneous (SC)',
+    'Topical',
+    'Intradermal',
+    'Intraperitoneal',
+    'Rectal',
+    'Ophthalmic',
+    'Otic',
+    'Nasal',
+    'Other',
+  ];
+
+  final List<String> _animalTypes = [
+    'Dogs',
+    'Cats',
+    'Birds',
+    'Rabbits',
+    'Horses',
+    'Cattle',
+    'Sheep',
+    'Goats',
+    'Pigs',
+    'All Animals',
+    'Other',
+  ];
+
   @override
   void initState() {
     super.initState();
@@ -77,11 +121,9 @@ class _AddEditMedicinePageState extends State<AddEditMedicinePage> {
     _compositionController = TextEditingController(
       text: medicine?.composition ?? '',
     );
-    _formController = TextEditingController(text: medicine?.form ?? '');
-    _routeController = TextEditingController(text: medicine?.route ?? '');
-    _animalTypeController = TextEditingController(
-      text: medicine?.animalType ?? '',
-    );
+    _form = medicine?.form ?? _forms.first;
+    _route = medicine?.route ?? _routes.first;
+    _animalType = medicine?.animalType ?? _animalTypes.first;
     _category = medicine?.category ?? _categories.first;
     _dosageController = TextEditingController(text: medicine?.dosage ?? '');
     _adminInstructionsController = TextEditingController(
@@ -136,11 +178,19 @@ class _AddEditMedicinePageState extends State<AddEditMedicinePage> {
     _interactions = medicine?.interactions ?? [];
     _contraindications = medicine?.contraindications ?? [];
 
-    // Set list text controllers
-    _indicationsController.text = _indications.join(', ');
-    _sideEffectsController.text = _sideEffects.join(', ');
-    _interactionsController.text = _interactions.join(', ');
-    _contraindicationsController.text = _contraindications.join(', ');
+    // Initialize list text controllers with values
+    _indicationsController = TextEditingController(
+      text: _indications.join(', '),
+    );
+    _sideEffectsController = TextEditingController(
+      text: _sideEffects.join(', '),
+    );
+    _interactionsController = TextEditingController(
+      text: _interactions.join(', '),
+    );
+    _contraindicationsController = TextEditingController(
+      text: _contraindications.join(', '),
+    );
   }
 
   @override
@@ -149,9 +199,6 @@ class _AddEditMedicinePageState extends State<AddEditMedicinePage> {
     _barcodeController.dispose();
     _batchNumberController.dispose();
     _compositionController.dispose();
-    _formController.dispose();
-    _routeController.dispose();
-    _animalTypeController.dispose();
     _dosageController.dispose();
     _adminInstructionsController.dispose();
     _usageController.dispose();
@@ -180,7 +227,7 @@ class _AddEditMedicinePageState extends State<AddEditMedicinePage> {
   void _saveMedicine() async {
     if (_formKey.currentState!.validate()) {
       setState(() => _isSaving = true);
-      
+
       try {
         // Validate numeric fields
         if (_priceController.text.isEmpty) {
@@ -217,14 +264,16 @@ class _AddEditMedicinePageState extends State<AddEditMedicinePage> {
 
         // Create or update medicine
         final medicine = Medicine(
-          id: widget.medicine?.id ?? DateTime.now().millisecondsSinceEpoch.toString(),
+          id:
+              widget.medicine?.id ??
+              DateTime.now().millisecondsSinceEpoch.toString(),
           name: _nameController.text.trim(),
           barcode: _barcodeController.text.trim(),
           batchNumber: _batchNumberController.text.trim(),
           composition: _compositionController.text.trim(),
-          form: _formController.text.trim(),
-          route: _routeController.text.trim(),
-          animalType: _animalTypeController.text.trim(),
+          form: _form,
+          route: _route,
+          animalType: _animalType,
           category: _category,
           indications: indications,
           dosage: _dosageController.text.trim(),
@@ -257,7 +306,10 @@ class _AddEditMedicinePageState extends State<AddEditMedicinePage> {
         // Save to Firestore
         if (widget.medicine != null) {
           // Update existing
-          await _medicineService.updateMedicine(medicine.id.toString(), medicine);
+          await _medicineService.updateMedicine(
+            medicine.id.toString(),
+            medicine,
+          );
         } else {
           // Add new
           await _medicineService.addMedicine(medicine);
@@ -267,9 +319,11 @@ class _AddEditMedicinePageState extends State<AddEditMedicinePage> {
           Navigator.pop(context, medicine);
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text(widget.medicine != null 
-                  ? 'Medicine updated successfully'
-                  : 'Medicine added successfully'),
+              content: Text(
+                widget.medicine != null
+                    ? 'Medicine updated successfully'
+                    : 'Medicine added successfully',
+              ),
               backgroundColor: Colors.green,
               behavior: SnackBarBehavior.floating,
               duration: const Duration(seconds: 2),
@@ -388,16 +442,16 @@ class _AddEditMedicinePageState extends State<AddEditMedicinePage> {
         iconTheme: const IconThemeData(color: Colors.white),
         actions: [
           IconButton(
-            icon: _isSaving 
-              ? const SizedBox(
-                  width: 20,
-                  height: 20,
-                  child: CircularProgressIndicator(
-                    strokeWidth: 2,
-                    valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
-                  ),
-                )
-              : const Icon(Icons.save, color: Colors.white),
+            icon: _isSaving
+                ? const SizedBox(
+                    width: 20,
+                    height: 20,
+                    child: CircularProgressIndicator(
+                      strokeWidth: 2,
+                      valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                    ),
+                  )
+                : const Icon(Icons.save, color: Colors.white),
             onPressed: _isSaving ? null : _saveMedicine,
             tooltip: 'Save',
           ),
@@ -511,13 +565,28 @@ class _AddEditMedicinePageState extends State<AddEditMedicinePage> {
                   Row(
                     children: [
                       Expanded(
-                        child: _buildTextField(
-                          controller: _formController,
-                          label: 'Form *',
-                          hint: 'e.g., Tablet, Injection',
+                        child: DropdownButtonFormField<String>(
+                          value: _form,
+                          decoration: InputDecoration(
+                            labelText: 'Form *',
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                          ),
+                          items: _forms.map((form) {
+                            return DropdownMenuItem<String>(
+                              value: form,
+                              child: Text(form),
+                            );
+                          }).toList(),
+                          onChanged: (value) {
+                            setState(() {
+                              _form = value!;
+                            });
+                          },
                           validator: (value) {
                             if (value == null || value.isEmpty) {
-                              return 'Please enter form';
+                              return 'Please select form';
                             }
                             return null;
                           },
@@ -525,13 +594,28 @@ class _AddEditMedicinePageState extends State<AddEditMedicinePage> {
                       ),
                       const SizedBox(width: 12),
                       Expanded(
-                        child: _buildTextField(
-                          controller: _routeController,
-                          label: 'Route *',
-                          hint: 'e.g., Oral, SC',
+                        child: DropdownButtonFormField<String>(
+                          value: _route,
+                          decoration: InputDecoration(
+                            labelText: 'Route *',
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                          ),
+                          items: _routes.map((route) {
+                            return DropdownMenuItem<String>(
+                              value: route,
+                              child: Text(route),
+                            );
+                          }).toList(),
+                          onChanged: (value) {
+                            setState(() {
+                              _route = value!;
+                            });
+                          },
                           validator: (value) {
                             if (value == null || value.isEmpty) {
-                              return 'Please enter route';
+                              return 'Please select route';
                             }
                             return null;
                           },
@@ -540,13 +624,28 @@ class _AddEditMedicinePageState extends State<AddEditMedicinePage> {
                     ],
                   ),
                   const SizedBox(height: 12),
-                  _buildTextField(
-                    controller: _animalTypeController,
-                    label: 'Animal Type *',
-                    hint: 'e.g., Dogs, Cats, All',
+                  DropdownButtonFormField<String>(
+                    value: _animalType,
+                    decoration: InputDecoration(
+                      labelText: 'Animal Type *',
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                    ),
+                    items: _animalTypes.map((animalType) {
+                      return DropdownMenuItem<String>(
+                        value: animalType,
+                        child: Text(animalType),
+                      );
+                    }).toList(),
+                    onChanged: (value) {
+                      setState(() {
+                        _animalType = value!;
+                      });
+                    },
                     validator: (value) {
                       if (value == null || value.isEmpty) {
-                        return 'Please enter animal type';
+                        return 'Please select animal type';
                       }
                       return null;
                     },
@@ -931,43 +1030,53 @@ class _AddEditMedicinePageState extends State<AddEditMedicinePage> {
     required String label,
     required VoidCallback onTap,
   }) {
-    return InkWell(
-      onTap: onTap,
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-        decoration: BoxDecoration(
-          border: Border.all(color: Colors.grey[400]!),
-          borderRadius: BorderRadius.circular(8),
-        ),
-        child: Row(
-          children: [
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    label,
-                    style: const TextStyle(fontSize: 12, color: Colors.grey),
-                  ),
-                  const SizedBox(height: 4),
-                  Text(
-                    controller.text.isEmpty ? 'Tap to edit' : controller.text,
-                    style: TextStyle(
-                      fontSize: 14,
-                      color: controller.text.isEmpty
-                          ? Colors.grey
-                          : Colors.black,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                    maxLines: 1,
-                  ),
-                ],
-              ),
+    return ValueListenableBuilder<TextEditingValue>(
+      valueListenable: controller,
+      builder: (context, value, child) {
+        return InkWell(
+          onTap: onTap,
+          child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+            decoration: BoxDecoration(
+              border: Border.all(color: Colors.grey[400]!),
+              borderRadius: BorderRadius.circular(8),
             ),
-            const Icon(Icons.edit, size: 16, color: Colors.grey),
-          ],
-        ),
-      ),
+            child: Row(
+              children: [
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        label,
+                        style: const TextStyle(
+                          fontSize: 12,
+                          color: Colors.grey,
+                        ),
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        controller.text.isEmpty
+                            ? 'Tap to edit'
+                            : controller.text,
+                        style: TextStyle(
+                          fontSize: 14,
+                          color: controller.text.isEmpty
+                              ? Colors.grey
+                              : Colors.black,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                        maxLines: 1,
+                      ),
+                    ],
+                  ),
+                ),
+                const Icon(Icons.edit, size: 16, color: Colors.grey),
+              ],
+            ),
+          ),
+        );
+      },
     );
   }
 }

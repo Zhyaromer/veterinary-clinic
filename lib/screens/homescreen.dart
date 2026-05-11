@@ -3,14 +3,12 @@ import 'package:vet_clinic/screens/appointments/appointments_screen.dart';
 import 'package:vet_clinic/screens/contact_us.dart';
 import 'package:vet_clinic/screens/medicine/medicine_management_page.dart';
 import 'package:vet_clinic/screens/medicine/medicines_page.dart';
-import 'package:vet_clinic/screens/adoption/Putting_pets_for_adoption.dart';
 import 'package:vet_clinic/screens/pet%20guide/pet_guide_page.dart';
 import 'package:vet_clinic/screens/my_pet_management_page.dart';
 import 'package:vet_clinic/screens/pet%20essential.dart';
 import 'package:vet_clinic/screens/Manage_Pet_Essentials.dart';
 import 'package:vet_clinic/screens/breed/animal_types_page.dart';
 import 'package:vet_clinic/screens/sales_report_screen.dart';
-import 'package:vet_clinic/screens/adoption/shelter_pets_screen.dart';
 import 'package:vet_clinic/models/cart.dart';
 import 'package:vet_clinic/screens/shopping/shopping_cart_page.dart';
 import 'package:vet_clinic/screens/settings_page.dart';
@@ -58,12 +56,6 @@ class _HomeScreenState extends State<HomeScreen> {
       'Shop Medicines',
     ),
     QuickAction(
-      'Adoption',
-      Icons.favorite_rounded,
-      const Color(0xFFEC4899),
-      'Find Pets',
-    ),
-    QuickAction(
       'Pet Resources',
       Icons.shopping_bag_rounded,
       const Color(0xFF10B981),
@@ -85,14 +77,6 @@ class _HomeScreenState extends State<HomeScreen> {
       const Color(0xFF6366F1),
       '25+ Breeds',
       'https://static.vecteezy.com/system/resources/previews/013/589/599/non_2x/a-set-of-round-icons-with-dogs-a-set-of-different-dog-breeds-dog-avatar-icon-collection-isolated-illustration-vector.jpg',
-    ),
-    FeatureCard(
-      'Rehome a Pet',
-      'List your pet for adoption and find loving homes',
-      Icons.add_circle_rounded,
-      const Color(0xFFEC4899),
-      'Easy Process',
-      'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQebc7hR0lb9pMVaRptTqU0oGdRcV6Q1KO8UA&s',
     ),
     FeatureCard(
       'Sales Report',
@@ -672,16 +656,12 @@ class _HomeScreenState extends State<HomeScreen> {
     switch (title) {
       case 'Medicines':
         return MedicinesPage();
-      case 'Adoption':
-        return ShelterPetsScreen();
       case 'Pet Resources':
         return PetResourcesPage();
       case 'Raising a Pet':
         return PetGuidePage();
       case 'Animal Breeds':
         return AnimalTypesPage();
-      case 'Rehome a Pet':
-        return PutForAdoptionPage();
       case 'Sales Report':
         return SalesReportScreen();
       case 'My Pets':

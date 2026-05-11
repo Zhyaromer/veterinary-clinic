@@ -31,7 +31,9 @@ class _EmailVerificationScreenState extends State<EmailVerificationScreen> {
       if (authProvider.isEmailVerified) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
-            content: Text('🎉 Email verified successfully! Welcome to VetCare.'),
+            content: Text(
+              '🎉 Email verified successfully! Welcome to VetCare.',
+            ),
             backgroundColor: Colors.green,
             duration: Duration(seconds: 2),
           ),
@@ -63,10 +65,11 @@ class _EmailVerificationScreenState extends State<EmailVerificationScreen> {
             success
                 ? 'Verification email resent! Check your inbox.'
                 : authProvider.errorMessage ??
-                    'Failed to resend verification email.',
+                      'Failed to resend verification email.',
           ),
-          backgroundColor:
-              success ? Colors.green : const Color.fromARGB(255, 244, 67, 54),
+          backgroundColor: success
+              ? Colors.green
+              : const Color.fromARGB(255, 244, 67, 54),
         ),
       );
     }
@@ -173,48 +176,31 @@ class _EmailVerificationScreenState extends State<EmailVerificationScreen> {
                             ),
                             const SizedBox(height: 16),
 
-                            // Step 1
-                            // _buildStep(
-                            //   number: '1',
-                            //   title: 'Check Your Email',
-                            //   description:
-                            //       'Look for our verification email from Firebase in your inbox. Check spam/junk folder if you don\'t see it.',
-                            // ),
-                            // const SizedBox(height: 12),
+                            _buildStep(
+                              number: '1',
+                              title: 'Check Your Email',
+                              description:
+                                  'Look for our verification email from Firebase in your inbox. Check spam/junk folder if you don\'t see it.',
+                            ),
 
-                            // _buildStep(
-                            //   number: '2',
-                            //   title: 'Click the Verification Link',
-                            //   description:
-                            //       'Click the link in the email to verify your email address. This must be done in your email app/browser.',
-                            // ),
-                            // const SizedBox(height: 12),
+                            const SizedBox(height: 12),
 
-                            // _buildStep(
-                            //   number: '3',
-                            //   title: 'Return & Check Status',
-                            //   description:
-                            //       'Come back to this app and click "I\'ve Verified My Email" to confirm your verification.',
-                            // ),
-                            // const SizedBox(height: 12),
+                            _buildStep(
+                              number: '2',
+                              title: 'Click the Verification Link',
+                              description:
+                                  'Click the link in the email to verify your email address. This must be done in your email app/browser.',
+                            ),
+                            const SizedBox(height: 12),
 
-                            // _buildStep(
-                            //   number: '2',
-                            //   title: 'Click the Link',
-                            //   description:
-                            //       'Click the verification link in the email to confirm your address.',
-                            // ),
-                            // const SizedBox(height: 12),
-
-                            // _buildStep(
-                            //   number: '3',
-                            //   title: 'Access Your Account',
-                            //   description:
-                            //       'Return to this app and click "I\'ve Verified" to continue.',
-                            // ),
+                            _buildStep(
+                              number: '2',
+                              title: 'Click the Link',
+                              description:
+                                  'Click the verification link in the email to confirm your address.',
+                            ),
                             const SizedBox(height: 28),
 
-                            // Helpful Tip
                             Container(
                               padding: const EdgeInsets.all(12),
                               decoration: BoxDecoration(
@@ -303,22 +289,23 @@ class _EmailVerificationScreenState extends State<EmailVerificationScreen> {
                             SizedBox(
                               width: double.infinity,
                               child: ElevatedButton(
-                                onPressed: authProvider.isEmailVerified ||
+                                onPressed:
+                                    authProvider.isEmailVerified ||
                                         _isChecking ||
                                         authProvider.isCheckingVerification
                                     ? null
-                                    : () =>
-                                        _checkEmailVerified(authProvider),
+                                    : () => _checkEmailVerified(authProvider),
                                 style: ElevatedButton.styleFrom(
-                                  backgroundColor:
-                                      const Color(0xFF4A6FA5),
-                                  padding:
-                                      const EdgeInsets.symmetric(vertical: 14),
+                                  backgroundColor: const Color(0xFF4A6FA5),
+                                  padding: const EdgeInsets.symmetric(
+                                    vertical: 14,
+                                  ),
                                   shape: RoundedRectangleBorder(
                                     borderRadius: BorderRadius.circular(12),
                                   ),
                                 ),
-                                child: (_isChecking ||
+                                child:
+                                    (_isChecking ||
                                         authProvider.isCheckingVerification)
                                     ? const SizedBox(
                                         height: 20,
@@ -365,23 +352,6 @@ class _EmailVerificationScreenState extends State<EmailVerificationScreen> {
                               ),
                             ),
                             const SizedBox(height: 8),
-
-                            // Logout Button
-                            SizedBox(
-                              width: double.infinity,
-                              child: TextButton(
-                                onPressed: () =>
-                                    authProvider.signOut(),
-                                child: const Text(
-                                  'Use Different Email',
-                                  style: TextStyle(
-                                    fontSize: 14,
-                                    color: Colors.red,
-                                    fontWeight: FontWeight.w500,
-                                  ),
-                                ),
-                              ),
-                            ),
                           ],
                         ),
                       ),

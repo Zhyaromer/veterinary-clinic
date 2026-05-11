@@ -4,8 +4,6 @@ import 'package:provider/provider.dart';
 import 'package:vet_clinic/firebase_options.dart';
 import 'package:vet_clinic/providers/auth_provider.dart';
 import 'package:vet_clinic/screens/Manage_Pet_Essentials.dart';
-import 'package:vet_clinic/screens/adoption/Putting_pets_for_adoption.dart';
-import 'package:vet_clinic/screens/adoption/shelter_pets_screen.dart';
 import 'package:vet_clinic/screens/appointments/appointments_screen.dart';
 import 'package:vet_clinic/screens/breed/animal_types_page.dart';
 import 'package:vet_clinic/screens/contact_us.dart';
@@ -39,9 +37,7 @@ class VeterinaryClinicApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MultiProvider(
-      providers: [
-        ChangeNotifierProvider(create: (_) => AuthProvider()),
-      ],
+      providers: [ChangeNotifierProvider(create: (_) => AuthProvider())],
       child: MaterialApp(
         debugShowCheckedModeBanner: false,
         title: 'VetCare Center',
@@ -145,13 +141,6 @@ class _HomeScreenState extends State<HomeScreen> {
       const Color(0xFF2196F3),
     ),
     ServiceItem(
-      Icons.pets,
-      'Adoption',
-      const Color(0xFFE8F5E9),
-      const Color(0xFF388E3C),
-      const Color(0xFF4CAF50),
-    ),
-    ServiceItem(
       Icons.library_books,
       'Pet Resources',
       const Color(0xFFFFF3E0),
@@ -171,13 +160,6 @@ class _HomeScreenState extends State<HomeScreen> {
       const Color(0xFFFFEBEE),
       const Color(0xFFD32F2F),
       const Color(0xFFF44336),
-    ),
-    ServiceItem(
-      Icons.favorite_border,
-      'Put for Adoption',
-      const Color(0xFFFCE4EC),
-      const Color(0xFFC2185B),
-      const Color(0xFFE91E63),
     ),
     ServiceItem(
       Icons.analytics,
@@ -319,7 +301,11 @@ class _HomeScreenState extends State<HomeScreen> {
                 ],
                 child: const Padding(
                   padding: EdgeInsets.symmetric(horizontal: 16),
-                  child: Icon(Icons.account_circle, size: 28),
+                  child: Icon(
+                    Icons.account_circle,
+                    size: 28,
+                    color: Colors.white,
+                  ),
                 ),
               );
             },
@@ -563,16 +549,12 @@ class _HomeScreenState extends State<HomeScreen> {
     switch (title) {
       case 'Medicines':
         return MedicinesPage();
-      case 'Adoption':
-        return ShelterPetsScreen();
       case 'Pet Resources':
         return PetResourcesPage();
       case 'Raising a Pet':
         return PetGuidePage();
       case 'Animal Breeds':
         return AnimalTypesPage();
-      case 'Put for Adoption':
-        return PutForAdoptionPage();
       case 'Sales Report':
         return SalesReportScreen();
       case 'Manage Medicines':
