@@ -2,6 +2,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:vet_clinic/firebase_options.dart';
+import 'package:vet_clinic/models/cart.dart';
 import 'package:vet_clinic/providers/auth_provider.dart';
 import 'package:vet_clinic/screens/Manage_Pet_Essentials.dart';
 import 'package:vet_clinic/screens/appointments/appointments_screen.dart';
@@ -14,6 +15,10 @@ import 'package:vet_clinic/screens/medicine/medicines_page.dart';
 import 'package:vet_clinic/screens/pet%20essential.dart';
 import 'package:vet_clinic/screens/pet%20guide/pet_guide_page.dart';
 import 'package:vet_clinic/screens/sales_report_screen.dart';
+import 'package:vet_clinic/screens/settings_page.dart';
+import 'package:vet_clinic/screens/shopping/shopping_cart_page.dart';
+
+final globalCart = Cart();
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -25,7 +30,6 @@ void main() async {
     print('Firebase initialized successfully');
   } catch (e) {
     print('Firebase initialization error: $e');
-    // App will still run, but authentication may not work
   }
 
   runApp(const VeterinaryClinicApp());
@@ -176,13 +180,6 @@ class _HomeScreenState extends State<HomeScreen> {
       const Color(0xFF673AB7),
     ),
     ServiceItem(
-      Icons.pets,
-      'Manage Animals',
-      const Color(0xFFEFEBE9),
-      const Color(0xFF5D4037),
-      const Color(0xFF795548),
-    ),
-    ServiceItem(
       Icons.inventory,
       'Manage Resources',
       const Color(0xFFE0F7FA),
@@ -312,7 +309,13 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
         ],
       ),
-      body: _selectedIndex == 0 ? _buildHomeContent() : AppointmentsScreen(),
+      body: _selectedIndex == 0
+          ? _buildHomeContent()
+          : _selectedIndex == 1
+          ? const AppointmentsScreen()
+          : _selectedIndex == 2
+          ? const ShoppingCartPage()
+          : const SettingsPage(),
       bottomNavigationBar: Container(
         decoration: BoxDecoration(
           borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
@@ -375,20 +378,49 @@ class _HomeScreenState extends State<HomeScreen> {
                 label: 'Appointments',
               ),
               BottomNavigationBarItem(
-                icon: Container(
-                  padding: const EdgeInsets.all(6),
-                  decoration: BoxDecoration(
-                    color: _selectedIndex == 1
-                        ? const Color(0xFF4A6FA5).withOpacity(0.1)
-                        : Colors.transparent,
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                  child: Icon(
-                    _selectedIndex == 1
-                        ? Icons.shopping_cart
-                        : Icons.shopping_cart,
-                    size: 24,
-                  ),
+                icon: Stack(
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(6),
+                      decoration: BoxDecoration(
+                        color: _selectedIndex == 2
+                            ? const Color(0xFF4A6FA5).withOpacity(0.1)
+                            : Colors.transparent,
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      child: Icon(
+                        _selectedIndex == 2
+                            ? Icons.shopping_cart
+                            : Icons.shopping_cart,
+                        size: 24,
+                      ),
+                    ),
+                    if (globalCart.itemCount > 0)
+                      Positioned(
+                        right: 0,
+                        top: 0,
+                        child: Container(
+                          padding: const EdgeInsets.all(2),
+                          decoration: BoxDecoration(
+                            color: Colors.red,
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                          constraints: const BoxConstraints(
+                            minWidth: 18,
+                            minHeight: 18,
+                          ),
+                          child: Text(
+                            '${globalCart.itemCount}',
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 12,
+                              fontWeight: FontWeight.bold,
+                            ),
+                            textAlign: TextAlign.center,
+                          ),
+                        ),
+                      ),
+                  ],
                 ),
                 label: 'Cart',
               ),
@@ -396,13 +428,13 @@ class _HomeScreenState extends State<HomeScreen> {
                 icon: Container(
                   padding: const EdgeInsets.all(6),
                   decoration: BoxDecoration(
-                    color: _selectedIndex == 2
+                    color: _selectedIndex == 3
                         ? const Color(0xFF4A6FA5).withOpacity(0.1)
                         : Colors.transparent,
                     borderRadius: BorderRadius.circular(10),
                   ),
                   child: Icon(
-                    _selectedIndex == 2
+                    _selectedIndex == 3
                         ? Icons.settings
                         : Icons.settings_outlined,
                     size: 24,
@@ -559,8 +591,6 @@ class _HomeScreenState extends State<HomeScreen> {
         return SalesReportScreen();
       case 'Manage Medicines':
         return MedicineManagementPage();
-      case 'Manage Animals':
-        return MedicinesPage();
       case 'Manage Resources':
         return ResourcesManagementPage();
       case 'Contact Us':

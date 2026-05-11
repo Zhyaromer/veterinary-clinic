@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:vet_clinic/screens/homescreen.dart';
+import 'package:vet_clinic/main.dart';
 import '../../models/cart_item.dart';
 import 'checkout_page.dart';
 
@@ -32,12 +32,6 @@ class _ShoppingCartPageState extends State<ShoppingCartPage>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Shopping Cart'),
-        elevation: 0,
-        backgroundColor: const Color(0xFF4A6FA5),
-        foregroundColor: Colors.white,
-      ),
       body: globalCart.items.isEmpty ? _buildEmptyCart() : _buildCartContent(),
       bottomNavigationBar: globalCart.items.isEmpty
           ? null
@@ -72,7 +66,14 @@ class _ShoppingCartPageState extends State<ShoppingCartPage>
           ),
           const SizedBox(height: 32),
           ElevatedButton.icon(
-            onPressed: () => Navigator.of(context).pop(),
+            onPressed: () => Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(
+                builder: (context) {
+                  return const VeterinaryClinicApp();
+                },
+              ),
+            ),
             icon: const Icon(Icons.arrow_back),
             label: const Text('Continue Shopping'),
             style: ElevatedButton.styleFrom(

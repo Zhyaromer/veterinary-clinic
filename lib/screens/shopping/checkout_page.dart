@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:vet_clinic/screens/homescreen.dart';
+import 'package:vet_clinic/main.dart';
+import 'package:vet_clinic/services/medicine_firestore_service.dart';
+import 'package:vet_clinic/models/cart_item.dart';
 import 'order_success_page.dart';
 
 class CheckoutPage extends StatefulWidget {
@@ -31,6 +33,8 @@ class _CheckoutPageState extends State<CheckoutPage>
 
   bool _isProcessing = false;
 
+  final MedicineFirestoreService _medicineService = MedicineFirestoreService();
+
   @override
   void initState() {
     super.initState();
@@ -50,7 +54,7 @@ class _CheckoutPageState extends State<CheckoutPage>
     super.dispose();
   }
 
-  void _processPayment() {
+  void _processPayment() async {
     if (!_formKey.currentState!.validate()) {
       return;
     }
@@ -59,17 +63,55 @@ class _CheckoutPageState extends State<CheckoutPage>
       _isProcessing = true;
     });
 
-    Future.delayed(const Duration(seconds: 2), () {
+    Future.delayed(const Duration(seconds: 2), () async {
       if (mounted) {
+        // Update stock for all medicines in cart before clearing
+        await _updateMedicineStock();
+
         globalCart.clearCart();
 
-        Navigator.of(context).pushReplacement(
-          MaterialPageRoute(
-            builder: (context) => OrderSuccessPage(total: widget.total),
-          ),
-        );
+        if (mounted) {
+          Navigator.of(context).pushReplacement(
+            MaterialPageRoute(
+              builder: (context) => OrderSuccessPage(total: widget.total),
+            ),
+          );
+        }
       }
     });
+  }
+
+  Future<void> _updateMedicineStock() async {
+    try {
+      for (final item in globalCart.items) {
+        // Only update stock for medicine items
+        if (item.type == CartItemType.medicine) {
+          // Extract medicine ID from cart item ID (format: medicine_${medicineId})
+          final medicineId = item.id.replaceFirst('medicine_', '');
+
+          try {
+            // Fetch the current medicine to get its stock
+            final medicine = await _medicineService.getMedicineById(medicineId);
+            if (medicine != null) {
+              // Calculate new stock by subtracting purchased quantity
+              final newStock = (medicine.stock - item.quantity).clamp(
+                0,
+                medicine.stock,
+              );
+              // Update the stock in Firestore
+              await _medicineService.updateStock(medicineId, newStock);
+              print(
+                'Updated stock for ${medicine.name}: ${medicine.stock} -> $newStock',
+              );
+            }
+          } catch (e) {
+            print('Error updating stock for medicine $medicineId: $e');
+          }
+        }
+      }
+    } catch (e) {
+      print('Error in _updateMedicineStock: $e');
+    }
   }
 
   @override
