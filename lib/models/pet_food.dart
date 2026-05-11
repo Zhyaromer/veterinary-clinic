@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 class PetFood {
-  final int id;
+  final String id;
   final String name;
   final String description;
   final String category;
@@ -100,7 +100,7 @@ class PetFood {
 
 List<PetFood> petFoods = [
   PetFood(
-    id: 1,
+    id: "1",
     name: "Premium Salmon & Sweet Potato",
     description:
         "High-protein grain-free dog food made with real salmon as the first ingredient. Supports healthy skin, coat, and digestion.",
@@ -143,7 +143,7 @@ List<PetFood> petFoods = [
     nutritionalGuarantee: "AAFCO certified complete nutrition",
   ),
   PetFood(
-    id: 2,
+    id: "2",
     name: "Indoor Cat Chicken Formula",
     description:
         "Specially formulated for indoor cats with controlled calories and hairball control. Supports urinary tract health.",
@@ -186,7 +186,7 @@ List<PetFood> petFoods = [
     nutritionalGuarantee: "Complete & balanced nutrition",
   ),
   PetFood(
-    id: 3,
+    id: "3",
     name: "Grain-Free Chicken Wet Food",
     description:
         "High-moisture wet food with real chicken. Perfect for picky eaters or cats needing extra hydration.",
@@ -228,7 +228,7 @@ List<PetFood> petFoods = [
     nutritionalGuarantee: "100% complete nutrition",
   ),
   PetFood(
-    id: 4,
+    id: "4",
     name: "Freeze-Dried Chicken Treats",
     description:
         "Single-ingredient freeze-dried chicken treats. High in protein with no additives or preservatives.",
@@ -257,7 +257,7 @@ List<PetFood> petFoods = [
     nutritionalGuarantee: "Natural & minimally processed",
   ),
   PetFood(
-    id: 5,
+    id: "5",
     name: "Senior Joint Care Formula",
     description:
         "Specially formulated for senior dogs with glucosamine and chondroitin for joint support. Easy to digest.",
@@ -301,7 +301,7 @@ List<PetFood> petFoods = [
     nutritionalGuarantee: "Veterinarian recommended",
   ),
   PetFood(
-    id: 6,
+    id: "6",
     name: "Bird Seed Mix with Fruits",
     description:
         "Premium blend of seeds, nuts, and dried fruits for small to medium birds. Fortified with vitamins.",
@@ -344,7 +344,7 @@ List<PetFood> petFoods = [
     nutritionalGuarantee: "Balanced avian nutrition",
   ),
   PetFood(
-    id: 7,
+    id: "7",
     name: "Dental Care Chew Sticks",
     description:
         "Veterinary dental chews that reduce tartar and plaque by up to 80%. Helps maintain fresh breath.",
@@ -380,7 +380,7 @@ List<PetFood> petFoods = [
     nutritionalGuarantee: "VOHC accepted for tartar control",
   ),
   PetFood(
-    id: 8,
+    id: "8",
     name: "Rabbit Hay & Herb Mix",
     description:
         "Premium timothy hay with added herbs for small herbivores. Supports dental health and digestion.",

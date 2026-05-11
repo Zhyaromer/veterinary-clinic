@@ -6,6 +6,7 @@ import 'package:vet_clinic/models/pet_toy.dart';
 import 'package:vet_clinic/screens/cage/cages_page.dart';
 import 'package:vet_clinic/screens/food/pet_food_page.dart';
 import 'package:vet_clinic/services/cage_firestore_service.dart';
+import 'package:vet_clinic/services/food_firestore_service.dart';
 import 'toy/pet_toys_page.dart';
 
 class PetResourcesPage extends StatefulWidget {
@@ -18,11 +19,13 @@ class PetResourcesPage extends StatefulWidget {
 class _PetResourcesPageState extends State<PetResourcesPage> {
   final CageFirestoreService _cageService = CageFirestoreService();
   int _cageCount = 0;
+  int _foodCount = 0;
 
   @override
   void initState() {
     super.initState();
     _loadCageCount();
+    _loadFoodCount();
   }
 
   Future<void> _loadCageCount() async {
@@ -33,6 +36,17 @@ class _PetResourcesPageState extends State<PetResourcesPage> {
       });
     } catch (e) {
       print('Error loading cage count: $e');
+    }
+  }
+
+  Future<void> _loadFoodCount() async {
+    try {
+      final foods = await FoodFirestoreService().getAllFoods();
+      setState(() {
+        _foodCount = foods.length;
+      });
+    } catch (e) {
+      print('Error loading food count: $e');
     }
   }
 
@@ -64,7 +78,7 @@ class _PetResourcesPageState extends State<PetResourcesPage> {
         'subtitle': 'Nutrition and healthy snacks',
         'icon': Icons.restaurant_outlined,
         'color': const Color(0xFF4CAF50),
-        'count': petFoods.length,
+        'count': _foodCount,
         'image':
             'https://images.unsplash.com/photo-1541364983171-a8ba01e95cfc?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
         'page': const PetFoodPage(),

@@ -1,5 +1,7 @@
+// screens/food/pet_food_page.dart
 import 'package:flutter/material.dart';
 import '../../models/pet_food.dart';
+import '../../services/food_firestore_service.dart';
 import '../../widgets/pet_food_card.dart';
 import 'pet_food_detail_page.dart';
 
@@ -12,14 +14,14 @@ class PetFoodPage extends StatefulWidget {
 
 class _PetFoodPageState extends State<PetFoodPage> {
   final TextEditingController _searchController = TextEditingController();
-  List<PetFood> filteredFoods = List.from(petFoods);
+  final FoodFirestoreService _foodService = FoodFirestoreService();
 
   // Filter states
   String _selectedPetType = 'All';
   String _selectedCategory = 'All';
   String _selectedLifeStage = 'All';
   double _minPrice = 0;
-  double _maxPrice = 100;
+  double _maxPrice = 500;
   bool _isPriceFiltered = false;
   bool _showGrainFreeOnly = false;
   bool _showOrganicOnly = false;
@@ -49,30 +51,11 @@ class _PetFoodPageState extends State<PetFoodPage> {
     'Senior',
     'All Life Stages',
   ];
-  final List<String> brands = [
-    'All',
-    'Wellness Core',
-    'Royal Canin',
-    'Purina',
-    'Hill\'s Science Diet',
-    'Stella & Chewy\'s',
-    'Kaytee',
-    'Greenies',
-    'Oxbow',
-  ];
 
   @override
   void initState() {
     super.initState();
-    _searchController.addListener(_filterFoods);
-
-    // Calculate max price
-    if (petFoods.isNotEmpty) {
-      final maxPriceInList = petFoods
-          .map((t) => t.price)
-          .reduce((a, b) => a > b ? a : b);
-      _maxPrice = (maxPriceInList + 20).ceilToDouble();
-    }
+    _searchController.addListener(_updateFilters);
   }
 
   @override
@@ -81,45 +64,40 @@ class _PetFoodPageState extends State<PetFoodPage> {
     super.dispose();
   }
 
-  void _filterFoods() {
-    setState(() {
-      filteredFoods = petFoods.where((food) {
-        final matchesSearch =
-            _searchController.text.isEmpty ||
-            food.name.toLowerCase().contains(
-              _searchController.text.toLowerCase(),
-            ) ||
-            food.description.toLowerCase().contains(
-              _searchController.text.toLowerCase(),
-            ) ||
-            food.flavor.toLowerCase().contains(
-              _searchController.text.toLowerCase(),
-            );
+  void _updateFilters() {
+    setState(() {});
+  }
 
-        final matchesPetType =
-            _selectedPetType == 'All' || food.petType == _selectedPetType;
+  List<PetFood> _getFilteredFoods(List<PetFood> allFoods) {
+    if (allFoods.isEmpty) return [];
 
-        final matchesCategory =
-            _selectedCategory == 'All' || food.category == _selectedCategory;
+    final searchTerm = _searchController.text.toLowerCase();
 
-        final matchesLifeStage =
-            _selectedLifeStage == 'All' || food.lifeStage == _selectedLifeStage;
+    return allFoods.where((food) {
+      final matchesSearch =
+          searchTerm.isEmpty ||
+          food.name.toLowerCase().contains(searchTerm) ||
+          food.description.toLowerCase().contains(searchTerm) ||
+          food.flavor.toLowerCase().contains(searchTerm);
 
-        final matchesPrice = food.price >= _minPrice && food.price <= _maxPrice;
+      final matchesPetType =
+          _selectedPetType == 'All' || food.petType == _selectedPetType;
+      final matchesCategory =
+          _selectedCategory == 'All' || food.category == _selectedCategory;
+      final matchesLifeStage =
+          _selectedLifeStage == 'All' || food.lifeStage == _selectedLifeStage;
+      final matchesPrice = food.price >= _minPrice && food.price <= _maxPrice;
+      final matchesGrainFree = !_showGrainFreeOnly || food.isGrainFree;
+      final matchesOrganic = !_showOrganicOnly || food.isOrganic;
 
-        final matchesGrainFree = !_showGrainFreeOnly || food.isGrainFree;
-
-        final matchesOrganic = !_showOrganicOnly || food.isOrganic;
-
-        return matchesSearch &&
-            matchesPetType &&
-            matchesCategory &&
-            matchesLifeStage &&
-            matchesPrice &&
-            matchesGrainFree &&
-            matchesOrganic;
-      }).toList();
-    });
+      return matchesSearch &&
+          matchesPetType &&
+          matchesCategory &&
+          matchesLifeStage &&
+          matchesPrice &&
+          matchesGrainFree &&
+          matchesOrganic;
+    }).toList();
   }
 
   void _resetFilters() {
@@ -129,32 +107,19 @@ class _PetFoodPageState extends State<PetFoodPage> {
       _selectedCategory = 'All';
       _selectedLifeStage = 'All';
       _minPrice = 0;
-      final maxPriceInList = petFoods
-          .map((t) => t.price)
-          .reduce((a, b) => a > b ? a : b);
-      _maxPrice = (maxPriceInList + 20).ceilToDouble();
+      _maxPrice = 500;
       _isPriceFiltered = false;
       _showGrainFreeOnly = false;
       _showOrganicOnly = false;
-      _filterFoods();
     });
   }
 
   void _showFilterDialog() {
-    final maxPriceInList = petFoods
-        .map((t) => t.price)
-        .reduce((a, b) => a > b ? a : b);
-    final sliderMaxPrice = (maxPriceInList + 20).ceilToDouble();
-
-    // Local dialog variables
     String dialogPetType = _selectedPetType;
     String dialogCategory = _selectedCategory;
     String dialogLifeStage = _selectedLifeStage;
     double dialogMinPrice = _minPrice;
-    double dialogMaxPrice = _maxPrice > sliderMaxPrice
-        ? sliderMaxPrice
-        : _maxPrice;
-    bool isPriceFiltered = _isPriceFiltered;
+    double dialogMaxPrice = _maxPrice;
     bool showGrainFreeOnly = _showGrainFreeOnly;
     bool showOrganicOnly = _showOrganicOnly;
 
@@ -165,7 +130,7 @@ class _PetFoodPageState extends State<PetFoodPage> {
         return Dialog(
           insetPadding: const EdgeInsets.all(20),
           child: StatefulBuilder(
-            builder: (context, setState) {
+            builder: (context, setDialogState) {
               return ConstrainedBox(
                 constraints: const BoxConstraints(
                   maxWidth: 600,
@@ -178,7 +143,6 @@ class _PetFoodPageState extends State<PetFoodPage> {
                       mainAxisSize: MainAxisSize.min,
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        // Header
                         Row(
                           children: [
                             const Icon(
@@ -222,7 +186,7 @@ class _PetFoodPageState extends State<PetFoodPage> {
                                   label: Text(type),
                                   selected: dialogPetType == type,
                                   onSelected: (selected) {
-                                    setState(() {
+                                    setDialogState(() {
                                       dialogPetType = selected ? type : 'All';
                                     });
                                   },
@@ -230,14 +194,6 @@ class _PetFoodPageState extends State<PetFoodPage> {
                                   selectedColor: const Color(
                                     0xFF4A6FA5,
                                   ).withOpacity(0.2),
-                                  labelStyle: TextStyle(
-                                    color: dialogPetType == type
-                                        ? const Color(0xFF4A6FA5)
-                                        : Colors.grey[700],
-                                    fontWeight: dialogPetType == type
-                                        ? FontWeight.w700
-                                        : FontWeight.w500,
-                                  ),
                                 ),
                               );
                             },
@@ -263,7 +219,7 @@ class _PetFoodPageState extends State<PetFoodPage> {
                               label: Text(category),
                               selected: dialogCategory == category,
                               onSelected: (selected) {
-                                setState(() {
+                                setDialogState(() {
                                   dialogCategory = selected ? category : 'All';
                                 });
                               },
@@ -271,11 +227,6 @@ class _PetFoodPageState extends State<PetFoodPage> {
                               selectedColor: const Color(
                                 0xFF4CAF50,
                               ).withOpacity(0.2),
-                              labelStyle: TextStyle(
-                                color: dialogCategory == category
-                                    ? const Color(0xFF4CAF50)
-                                    : Colors.grey[700],
-                              ),
                             );
                           }).toList(),
                         ),
@@ -304,7 +255,7 @@ class _PetFoodPageState extends State<PetFoodPage> {
                                   label: Text(stage),
                                   selected: dialogLifeStage == stage,
                                   onSelected: (selected) {
-                                    setState(() {
+                                    setDialogState(() {
                                       dialogLifeStage = selected
                                           ? stage
                                           : 'All';
@@ -333,7 +284,7 @@ class _PetFoodPageState extends State<PetFoodPage> {
                               title: const Text('Grain-Free Only'),
                               value: showGrainFreeOnly,
                               onChanged: (value) {
-                                setState(() {
+                                setDialogState(() {
                                   showGrainFreeOnly = value ?? false;
                                 });
                               },
@@ -343,7 +294,7 @@ class _PetFoodPageState extends State<PetFoodPage> {
                               title: const Text('Organic Only'),
                               value: showOrganicOnly,
                               onChanged: (value) {
-                                setState(() {
+                                setDialogState(() {
                                   showOrganicOnly = value ?? false;
                                 });
                               },
@@ -367,17 +318,16 @@ class _PetFoodPageState extends State<PetFoodPage> {
                         RangeSlider(
                           values: RangeValues(dialogMinPrice, dialogMaxPrice),
                           min: 0,
-                          max: sliderMaxPrice,
-                          divisions: (sliderMaxPrice ~/ 10).toInt(),
+                          max: 500,
+                          divisions: 50,
                           labels: RangeLabels(
                             '\$${dialogMinPrice.toStringAsFixed(0)}',
                             '\$${dialogMaxPrice.toStringAsFixed(0)}',
                           ),
                           onChanged: (values) {
-                            setState(() {
+                            setDialogState(() {
                               dialogMinPrice = values.start;
                               dialogMaxPrice = values.end;
-                              isPriceFiltered = true;
                             });
                           },
                           activeColor: const Color(0xFF4A6FA5),
@@ -404,7 +354,6 @@ class _PetFoodPageState extends State<PetFoodPage> {
 
                         const SizedBox(height: 30),
 
-                        // Actions
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
@@ -413,15 +362,6 @@ class _PetFoodPageState extends State<PetFoodPage> {
                                 Navigator.pop(context);
                                 _resetFilters();
                               },
-                              style: OutlinedButton.styleFrom(
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 24,
-                                  vertical: 12,
-                                ),
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(10),
-                                ),
-                              ),
                               child: const Row(
                                 children: [
                                   Icon(Icons.refresh, size: 18),
@@ -434,12 +374,6 @@ class _PetFoodPageState extends State<PetFoodPage> {
                               children: [
                                 TextButton(
                                   onPressed: () => Navigator.pop(context),
-                                  style: TextButton.styleFrom(
-                                    padding: const EdgeInsets.symmetric(
-                                      horizontal: 24,
-                                      vertical: 12,
-                                    ),
-                                  ),
                                   child: const Text('Cancel'),
                                 ),
                                 const SizedBox(width: 12),
@@ -451,25 +385,17 @@ class _PetFoodPageState extends State<PetFoodPage> {
                                       _selectedLifeStage = dialogLifeStage;
                                       _minPrice = dialogMinPrice;
                                       _maxPrice = dialogMaxPrice;
-                                      _isPriceFiltered =
-                                          isPriceFiltered &&
-                                          (dialogMinPrice > 0 ||
-                                              dialogMaxPrice < sliderMaxPrice);
                                       _showGrainFreeOnly = showGrainFreeOnly;
                                       _showOrganicOnly = showOrganicOnly;
+                                      _isPriceFiltered =
+                                          dialogMinPrice > 0 ||
+                                          dialogMaxPrice < 500;
                                     });
                                     Navigator.pop(context);
-                                    _filterFoods();
+                                    _updateFilters();
                                   },
                                   style: ElevatedButton.styleFrom(
                                     backgroundColor: const Color(0xFF4A6FA5),
-                                    padding: const EdgeInsets.symmetric(
-                                      horizontal: 32,
-                                      vertical: 12,
-                                    ),
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(10),
-                                    ),
                                   ),
                                   child: const Text(
                                     'Apply Filters',
@@ -520,270 +446,360 @@ class _PetFoodPageState extends State<PetFoodPage> {
           ),
         ],
       ),
-      body: Column(
-        children: [
-          // Search Bar
-          Padding(
-            padding: const EdgeInsets.fromLTRB(16, 20, 16, 16),
-            child: TextField(
-              controller: _searchController,
-              decoration: InputDecoration(
-                hintText: 'Search food by name, flavor, or ingredients...',
-                prefixIcon: const Icon(Icons.search, color: Color(0xFF4A6FA5)),
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(15),
-                ),
-                filled: true,
-                fillColor: Colors.grey[50],
-                contentPadding: const EdgeInsets.symmetric(
-                  horizontal: 20,
-                  vertical: 16,
-                ),
-                suffixIcon: _searchController.text.isNotEmpty
-                    ? IconButton(
-                        icon: const Icon(Icons.clear, color: Colors.grey),
-                        onPressed: () {
-                          _searchController.clear();
-                          _filterFoods();
-                        },
-                      )
-                    : null,
-              ),
-              onChanged: (value) => _filterFoods(),
-            ),
-          ),
-
-          // Active Filters
-          if (hasActiveFilters)
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-              color: Colors.grey[50],
+      body: StreamBuilder<List<PetFood>>(
+        stream: _foodService.getFoodsStream(),
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const Center(
               child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      const Text(
-                        'Active Filters:',
-                        style: TextStyle(
-                          fontSize: 14,
-                          fontWeight: FontWeight.w600,
-                          color: Colors.grey,
-                        ),
-                      ),
-                      TextButton(
-                        onPressed: _resetFilters,
-                        style: TextButton.styleFrom(
-                          padding: EdgeInsets.zero,
-                          minimumSize: Size.zero,
-                          tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                        ),
-                        child: const Text(
-                          'Clear All',
-                          style: TextStyle(
-                            fontSize: 14,
-                            color: Color(0xFF4A6FA5),
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
+                  CircularProgressIndicator(),
+                  SizedBox(height: 16),
+                  Text('Loading foods from Firestore...'),
+                ],
+              ),
+            );
+          }
+
+          if (snapshot.hasError) {
+            return Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const Icon(Icons.error, size: 80, color: Colors.red),
+                  const SizedBox(height: 16),
+                  const Text('Error loading foods'),
                   const SizedBox(height: 8),
-                  Wrap(
-                    spacing: 8,
-                    runSpacing: 8,
-                    children: [
-                      if (_selectedPetType != 'All')
-                        _buildFilterChip(
-                          '${Icons.pets} ${_selectedPetType}',
-                          () {
-                            setState(() {
-                              _selectedPetType = 'All';
-                              _filterFoods();
-                            });
-                          },
-                        ),
-                      if (_selectedCategory != 'All')
-                        _buildFilterChip(
-                          '${Icons.category} ${_selectedCategory}',
-                          () {
-                            setState(() {
-                              _selectedCategory = 'All';
-                              _filterFoods();
-                            });
-                          },
-                        ),
-                      if (_selectedLifeStage != 'All')
-                        _buildFilterChip(
-                          '${Icons.timeline} ${_selectedLifeStage}',
-                          () {
-                            setState(() {
-                              _selectedLifeStage = 'All';
-                              _filterFoods();
-                            });
-                          },
-                        ),
-                      if (_showGrainFreeOnly)
-                        _buildFilterChip('${Icons.grain} Grain-Free', () {
-                          setState(() {
-                            _showGrainFreeOnly = false;
-                            _filterFoods();
-                          });
-                        }),
-                      if (_showOrganicOnly)
-                        _buildFilterChip('${Icons.spa} Organic', () {
-                          setState(() {
-                            _showOrganicOnly = false;
-                            _filterFoods();
-                          });
-                        }),
-                      if (_isPriceFiltered)
-                        _buildFilterChip(
-                          '${Icons.attach_money} \$${_minPrice.toStringAsFixed(0)}-\$${_maxPrice.toStringAsFixed(0)}',
-                          () {
-                            setState(() {
-                              _minPrice = 0;
-                              final maxPriceInList = petFoods
-                                  .map((t) => t.price)
-                                  .reduce((a, b) => a > b ? a : b);
-                              _maxPrice = (maxPriceInList + 20).ceilToDouble();
-                              _isPriceFiltered = false;
-                              _filterFoods();
-                            });
-                          },
-                        ),
-                    ],
+                  Text(snapshot.error.toString()),
+                  const SizedBox(height: 16),
+                  ElevatedButton(
+                    onPressed: () {
+                      setState(() {});
+                    },
+                    child: const Text('Retry'),
                   ),
                 ],
               ),
-            ),
+            );
+          }
 
-          // Results Count
-          Padding(
-            padding: const EdgeInsets.all(16),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                RichText(
-                  text: TextSpan(
+          final allFoods = snapshot.data ?? [];
+
+          // Show message if no data in Firestore
+          if (allFoods.isEmpty) {
+            return Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(
+                    Icons.fastfood,
+                    size: 80,
+                    color: Colors.grey.withOpacity(0.5),
+                  ),
+                  const SizedBox(height: 20),
+                  const Text(
+                    'No Food Items Found',
+                    style: TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.grey,
+                    ),
+                  ),
+                  const SizedBox(height: 10),
+                  const Text(
+                    'Please add food items using the\nFood Management page.',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(color: Colors.grey),
+                  ),
+                  const SizedBox(height: 30),
+                  ElevatedButton.icon(
+                    onPressed: () {
+                      // Navigate to food management - adjust route as needed
+                      Navigator.pushNamed(context, '/food-management');
+                    },
+                    icon: const Icon(Icons.add),
+                    label: const Text('Add Food Items'),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xFF4A6FA5),
+                    ),
+                  ),
+                ],
+              ),
+            );
+          }
+
+          final filteredFoods = _getFilteredFoods(allFoods);
+
+          return Column(
+            children: [
+              // Search Bar
+              Padding(
+                padding: const EdgeInsets.fromLTRB(16, 20, 16, 16),
+                child: TextField(
+                  controller: _searchController,
+                  decoration: InputDecoration(
+                    hintText: 'Search food by name, flavor, or ingredients...',
+                    prefixIcon: const Icon(
+                      Icons.search,
+                      color: Color(0xFF4A6FA5),
+                    ),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(15),
+                    ),
+                    filled: true,
+                    fillColor: Colors.grey[50],
+                    contentPadding: const EdgeInsets.symmetric(
+                      horizontal: 20,
+                      vertical: 16,
+                    ),
+                    suffixIcon: _searchController.text.isNotEmpty
+                        ? IconButton(
+                            icon: const Icon(Icons.clear, color: Colors.grey),
+                            onPressed: () {
+                              _searchController.clear();
+                              _updateFilters();
+                            },
+                          )
+                        : null,
+                  ),
+                  onChanged: (value) => _updateFilters(),
+                ),
+              ),
+
+              // Active Filters
+              if (hasActiveFilters)
+                Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 12,
+                  ),
+                  color: Colors.grey[50],
+                  child: Column(
                     children: [
-                      TextSpan(
-                        text: '${filteredFoods.length} ',
-                        style: const TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.w700,
-                          color: Colors.grey,
-                        ),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          const Text(
+                            'Active Filters:',
+                            style: TextStyle(
+                              fontSize: 14,
+                              fontWeight: FontWeight.w600,
+                              color: Colors.grey,
+                            ),
+                          ),
+                          TextButton(
+                            onPressed: _resetFilters,
+                            style: TextButton.styleFrom(
+                              padding: EdgeInsets.zero,
+                              minimumSize: Size.zero,
+                              tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                            ),
+                            child: const Text(
+                              'Clear All',
+                              style: TextStyle(
+                                fontSize: 14,
+                                color: Color(0xFF4A6FA5),
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                          ),
+                        ],
                       ),
-                      const TextSpan(
-                        text: 'Products Found',
-                        style: TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.w600,
-                          color: Colors.grey,
-                        ),
+                      const SizedBox(height: 8),
+                      Wrap(
+                        spacing: 8,
+                        runSpacing: 8,
+                        children: [
+                          if (_selectedPetType != 'All')
+                            Chip(
+                              label: Text('Pet: $_selectedPetType'),
+                              deleteIcon: const Icon(Icons.close, size: 16),
+                              onDeleted: () {
+                                setState(() {
+                                  _selectedPetType = 'All';
+                                });
+                                _updateFilters();
+                              },
+                            ),
+                          if (_selectedCategory != 'All')
+                            Chip(
+                              label: Text('Category: $_selectedCategory'),
+                              deleteIcon: const Icon(Icons.close, size: 16),
+                              onDeleted: () {
+                                setState(() {
+                                  _selectedCategory = 'All';
+                                });
+                                _updateFilters();
+                              },
+                            ),
+                          if (_selectedLifeStage != 'All')
+                            Chip(
+                              label: Text('Life Stage: $_selectedLifeStage'),
+                              deleteIcon: const Icon(Icons.close, size: 16),
+                              onDeleted: () {
+                                setState(() {
+                                  _selectedLifeStage = 'All';
+                                });
+                                _updateFilters();
+                              },
+                            ),
+                          if (_showGrainFreeOnly)
+                            Chip(
+                              label: const Text('Grain-Free'),
+                              deleteIcon: const Icon(Icons.close, size: 16),
+                              onDeleted: () {
+                                setState(() {
+                                  _showGrainFreeOnly = false;
+                                });
+                                _updateFilters();
+                              },
+                            ),
+                          if (_showOrganicOnly)
+                            Chip(
+                              label: const Text('Organic'),
+                              deleteIcon: const Icon(Icons.close, size: 16),
+                              onDeleted: () {
+                                setState(() {
+                                  _showOrganicOnly = false;
+                                });
+                                _updateFilters();
+                              },
+                            ),
+                          if (_isPriceFiltered)
+                            Chip(
+                              label: Text(
+                                'Price: \$${_minPrice.toStringAsFixed(0)}-\$${_maxPrice.toStringAsFixed(0)}',
+                              ),
+                              deleteIcon: const Icon(Icons.close, size: 16),
+                              onDeleted: () {
+                                setState(() {
+                                  _minPrice = 0;
+                                  _maxPrice = 500;
+                                  _isPriceFiltered = false;
+                                });
+                                _updateFilters();
+                              },
+                            ),
+                        ],
                       ),
                     ],
                   ),
                 ),
-                if (hasActiveFilters || _searchController.text.isNotEmpty)
-                  OutlinedButton.icon(
-                    onPressed: _resetFilters,
-                    icon: const Icon(Icons.refresh, size: 16),
-                    label: const Text('Clear Filters'),
-                    style: OutlinedButton.styleFrom(
-                      side: const BorderSide(color: Color(0xFF4A6FA5)),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(8),
+
+              // Results Count
+              Padding(
+                padding: const EdgeInsets.all(16),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    RichText(
+                      text: TextSpan(
+                        children: [
+                          TextSpan(
+                            text: '${filteredFoods.length} ',
+                            style: const TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.w700,
+                              color: Colors.grey,
+                            ),
+                          ),
+                          const TextSpan(
+                            text: 'Products Found',
+                            style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.w600,
+                              color: Colors.grey,
+                            ),
+                          ),
+                        ],
                       ),
                     ),
-                  ),
-              ],
-            ),
-          ),
+                    if (hasActiveFilters || _searchController.text.isNotEmpty)
+                      OutlinedButton.icon(
+                        onPressed: _resetFilters,
+                        icon: const Icon(Icons.refresh, size: 16),
+                        label: const Text('Clear Filters'),
+                        style: OutlinedButton.styleFrom(
+                          side: const BorderSide(color: Color(0xFF4A6FA5)),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                        ),
+                      ),
+                  ],
+                ),
+              ),
 
-          // Foods Grid
-          Expanded(
-            child: filteredFoods.isEmpty
-                ? Center(
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Icon(
-                          Icons.fastfood,
-                          size: 80,
-                          color: Colors.grey.withOpacity(0.3),
-                        ),
-                        const SizedBox(height: 20),
-                        const Text(
-                          'No food items found',
-                          style: TextStyle(
-                            fontSize: 18,
-                            fontWeight: FontWeight.w600,
-                            color: Colors.grey,
-                          ),
-                        ),
-                        const SizedBox(height: 8),
-                        const Text(
-                          'Try adjusting your search or filters',
-                          style: TextStyle(color: Colors.grey),
-                        ),
-                        const SizedBox(height: 20),
-                        if (hasActiveFilters)
-                          ElevatedButton(
-                            onPressed: _resetFilters,
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: const Color(0xFF4A6FA5),
+              // Foods Grid
+              Expanded(
+                child: filteredFoods.isEmpty
+                    ? Center(
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(
+                              Icons.filter_alt_off,
+                              size: 80,
+                              color: Colors.grey.withOpacity(0.5),
                             ),
-                            child: const Text('Clear All Filters'),
-                          ),
-                      ],
-                    ),
-                  )
-                : Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 16),
-                    child: GridView.builder(
-                      gridDelegate:
-                          const SliverGridDelegateWithFixedCrossAxisCount(
-                            crossAxisCount: 2,
-                            crossAxisSpacing: 16,
-                            mainAxisSpacing: 16,
-                            childAspectRatio: 0.67,
-                          ),
-                      itemCount: filteredFoods.length,
-                      itemBuilder: (context, index) {
-                        final food = filteredFoods[index];
-                        return PetFoodCard(
-                          petFood: food,
-                          onTap: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) =>
-                                    PetFoodDetailPage(petFood: food),
+                            const SizedBox(height: 20),
+                            const Text(
+                              'No matching food items',
+                              style: TextStyle(
+                                fontSize: 18,
+                                fontWeight: FontWeight.w600,
+                                color: Colors.grey,
                               ),
+                            ),
+                            const SizedBox(height: 8),
+                            const Text(
+                              'Try adjusting your search or filters',
+                              style: TextStyle(color: Colors.grey),
+                            ),
+                            const SizedBox(height: 20),
+                            ElevatedButton(
+                              onPressed: _resetFilters,
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: const Color(0xFF4A6FA5),
+                              ),
+                              child: const Text('Clear All Filters'),
+                            ),
+                          ],
+                        ),
+                      )
+                    : Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 16),
+                        child: GridView.builder(
+                          gridDelegate:
+                              const SliverGridDelegateWithFixedCrossAxisCount(
+                                crossAxisCount: 2,
+                                crossAxisSpacing: 16,
+                                mainAxisSpacing: 16,
+                                childAspectRatio: 0.67,
+                              ),
+                          itemCount: filteredFoods.length,
+                          itemBuilder: (context, index) {
+                            final food = filteredFoods[index];
+                            return PetFoodCard(
+                              petFood: food,
+                              onTap: () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) =>
+                                        PetFoodDetailPage(petFood: food),
+                                  ),
+                                );
+                              },
                             );
                           },
-                        );
-                      },
-                    ),
-                  ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildFilterChip(String label, VoidCallback onDeleted) {
-    return Chip(
-      label: Text(label, style: const TextStyle(fontSize: 13)),
-      deleteIcon: const Icon(Icons.close, size: 16),
-      onDeleted: onDeleted,
-      backgroundColor: Colors.white,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(20),
-        side: BorderSide(color: Colors.grey[300]!),
+                        ),
+                      ),
+              ),
+            ],
+          );
+        },
       ),
     );
   }

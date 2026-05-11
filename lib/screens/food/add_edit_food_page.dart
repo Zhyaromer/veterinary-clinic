@@ -133,7 +133,6 @@ class _AddEditFoodPageState extends State<AddEditFoodPage> {
           .toList();
 
       final food = PetFood(
-        id: widget.food?.id ?? DateTime.now().millisecondsSinceEpoch,
         name: _nameController.text,
         description: _descriptionController.text,
         category: _categoryController.text,
@@ -157,6 +156,7 @@ class _AddEditFoodPageState extends State<AddEditFoodPage> {
         isOrganic: _isOrganic,
         isPrescriptionRequired: _isPrescriptionRequired,
         nutritionalGuarantee: _nutritionalGuaranteeController.text,
+        id: '',
       );
 
       Navigator.pop(context, food);
