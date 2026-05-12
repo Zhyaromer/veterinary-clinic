@@ -96,7 +96,7 @@ class AppointmentCard extends StatelessWidget {
                             ),
                           ),
                           Text(
-                            '${appointment.petType} • ${appointment.petBreed} • ${appointment.petAge}',
+                            '${appointment.petType} • ${appointment.petAge}',
                             style: TextStyle(
                               fontSize: 14,
                               color: Colors.grey.shade600,

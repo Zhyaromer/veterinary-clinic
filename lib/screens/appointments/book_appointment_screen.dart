@@ -2,19 +2,8 @@ import 'package:flutter/material.dart';
 import '../../models/appointment.dart';
 import 'package:intl/intl.dart';
 
-class _PredefinedPet {
-  const _PredefinedPet({
-    required this.name,
-    required this.type,
-    required this.breed,
-    required this.age,
-  });
-
-  final String name;
-  final String type;
-  final String breed;
-  final String age;
-}
+import '../../models/my_pet.dart';
+import '../../services/mypets_firestore_service.dart';
 
 class BookAppointmentScreen extends StatefulWidget {
   const BookAppointmentScreen({Key? key}) : super(key: key);
@@ -24,6 +13,8 @@ class BookAppointmentScreen extends StatefulWidget {
 }
 
 class _BookAppointmentScreenState extends State<BookAppointmentScreen> {
+  final MyPetsFirestoreService _myPetsService = MyPetsFirestoreService();
+
   final _formKey = GlobalKey<FormState>();
   final TextEditingController _ownerNameController = TextEditingController();
   final TextEditingController _phoneController = TextEditingController();
@@ -40,7 +31,7 @@ class _BookAppointmentScreenState extends State<BookAppointmentScreen> {
   String _phoneNumber = '';
   String _email = '';
   String _petType = 'Dog';
-  String _petBreed = 'Golden Retriever';
+  String _petBreed = 'N/A';
   String _petAge = '';
   DateTime? _selectedDate;
   TimeOfDay? _selectedTime;
@@ -50,22 +41,7 @@ class _BookAppointmentScreenState extends State<BookAppointmentScreen> {
   String _vetPreference = 'Any Available Veterinarian';
   bool _termsAccepted = false;
 
-  late _PredefinedPet _selectedPet;
-  final List<_PredefinedPet> _predefinedPets = const [
-    _PredefinedPet(
-      name: 'Buddy',
-      type: 'Dog',
-      breed: 'Golden Retriever',
-      age: '3 years',
-    ),
-    _PredefinedPet(name: 'Luna', type: 'Cat', breed: 'Siamese', age: '2 years'),
-    _PredefinedPet(
-      name: 'Kiwi',
-      type: 'Bird',
-      breed: 'Parrot',
-      age: '11 months',
-    ),
-  ];
+  String? _selectedSavedPetId;
 
   final List<String> _reasons = [
     'Annual Checkup',
@@ -90,8 +66,6 @@ class _BookAppointmentScreenState extends State<BookAppointmentScreen> {
   @override
   void initState() {
     super.initState();
-    _selectedPet = _predefinedPets.first;
-    _applyPetProfile(_selectedPet, updateState: false);
 
     _ownerNameController.text = 'Jordan Smith';
     _phoneController.text = '+1 555 123 4567';
@@ -112,13 +86,13 @@ class _BookAppointmentScreenState extends State<BookAppointmentScreen> {
     super.dispose();
   }
 
-  void _applyPetProfile(_PredefinedPet pet, {bool updateState = true}) {
+  void _applyMyPet(MyPet pet, {bool updateState = true}) {
     void assignValues() {
-      _selectedPet = pet;
+      _selectedSavedPetId = pet.id;
       _petName = pet.name;
       _petType = pet.type;
-      _petBreed = pet.breed;
-      _petAge = pet.age;
+      _petBreed = 'N/A';
+      _petAge = '${pet.age} years';
     }
 
     if (updateState) {
@@ -219,7 +193,7 @@ class _BookAppointmentScreenState extends State<BookAppointmentScreen> {
     }
 
     final appointment = Appointment(
-      id: DateTime.now().millisecondsSinceEpoch.toString(),
+      id: '',
       petName: _petName,
       ownerName: _ownerName,
       phoneNumber: _phoneNumber,
@@ -496,17 +470,64 @@ class _BookAppointmentScreenState extends State<BookAppointmentScreen> {
 
                   // Pet Information Section
                   _buildSectionHeader('Pet Information'),
-                  _buildDropdown(
-                    label: 'Select Saved Pet',
-                    value: _selectedPet.name,
-                    items: _predefinedPets.map((pet) => pet.name).toList(),
-                    icon: Icons.pets_outlined,
-                    onChanged: (value) {
-                      if (value == null) return;
-                      final pet = _predefinedPets.firstWhere(
-                        (p) => p.name == value,
+                  StreamBuilder<List<MyPet>>(
+                    stream: _myPetsService.getPetsStream(),
+                    builder: (context, snapshot) {
+                      if (snapshot.connectionState == ConnectionState.waiting) {
+                        return const Padding(
+                          padding: EdgeInsets.symmetric(vertical: 8),
+                          child: Center(child: CircularProgressIndicator()),
+                        );
+                      }
+
+                      final pets = snapshot.data ?? [];
+                      if (pets.isEmpty) {
+                        return Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            _buildDropdown(
+                              label: 'Select Saved Pet',
+                              value: 'No saved pets',
+                              items: const ['No saved pets'],
+                              icon: Icons.pets_outlined,
+                              onChanged: null,
+                            ),
+                            const SizedBox(height: 8),
+                            Text(
+                              'No saved pets found. Add one from My Pets first.',
+                              style: TextStyle(
+                                fontSize: 12,
+                                color: Colors.grey.shade600,
+                              ),
+                            ),
+                          ],
+                        );
+                      }
+
+                      final selected = pets.firstWhere(
+                        (p) => p.id == _selectedSavedPetId,
+                        orElse: () => pets.first,
                       );
-                      _applyPetProfile(pet);
+
+                      if (_selectedSavedPetId == null ||
+                          !pets.any((p) => p.id == _selectedSavedPetId)) {
+                        WidgetsBinding.instance.addPostFrameCallback((_) {
+                          if (!mounted) return;
+                          _applyMyPet(selected);
+                        });
+                      }
+
+                      return _buildDropdown(
+                        label: 'Select Saved Pet',
+                        value: selected.name,
+                        items: pets.map((p) => p.name).toList(),
+                        icon: Icons.pets_outlined,
+                        onChanged: (value) {
+                          if (value == null) return;
+                          final pet = pets.firstWhere((p) => p.name == value);
+                          _applyMyPet(pet);
+                        },
+                      );
                     },
                   ),
 
@@ -1083,7 +1104,7 @@ class _BookAppointmentScreenState extends State<BookAppointmentScreen> {
     required String value,
     required List<String> items,
     required IconData icon,
-    required ValueChanged<String?> onChanged,
+    required ValueChanged<String?>? onChanged,
   }) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,

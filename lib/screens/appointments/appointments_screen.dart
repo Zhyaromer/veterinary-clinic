@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../widgets/appointment_widgets.dart';
 import '../../models/appointment.dart';
+import '../../services/appointments_firestore_service.dart';
 import 'book_appointment_screen.dart';
 
 class AppointmentsScreen extends StatefulWidget {
@@ -11,104 +12,11 @@ class AppointmentsScreen extends StatefulWidget {
 }
 
 class _AppointmentsScreenState extends State<AppointmentsScreen> {
-  List<Appointment> appointments = [];
+  final AppointmentsFirestoreService _appointmentsService =
+      AppointmentsFirestoreService();
 
-  @override
-  void initState() {
-    super.initState();
-    _loadAppointments();
-  }
-
-  void _sortAppointments() {
-    appointments.sort((a, b) => b.createdAt.compareTo(a.createdAt));
-  }
-
-  void _loadAppointments() {
-    setState(() {
-      appointments = [
-        Appointment(
-          id: '1',
-          petName: 'Max',
-          ownerName: 'John Doe',
-          phoneNumber: '+1234567890',
-          email: 'john@email.com',
-          petType: 'Dog',
-          petBreed: 'Golden Retriever',
-          petAge: '3 years',
-          appointmentDate: DateTime.now().add(const Duration(days: 2)),
-          appointmentTime: const TimeOfDay(hour: 10, minute: 30),
-          reason: 'Annual Checkup',
-          symptoms: 'None',
-          emergency: false,
-          vetPreference: 'Dr. Smith',
-          createdAt: DateTime.now().subtract(const Duration(days: 1)),
-        ),
-        Appointment(
-          id: '2',
-          petName: 'Whiskers',
-          ownerName: 'Jane Smith',
-          phoneNumber: '+0987654321',
-          email: 'jane@email.com',
-          petType: 'Cat',
-          petBreed: 'Siamese',
-          petAge: '5 years',
-          appointmentDate: DateTime.now().add(const Duration(days: 5)),
-          appointmentTime: const TimeOfDay(hour: 14, minute: 0),
-          reason: 'Vaccination',
-          symptoms: 'Slight lethargy',
-          emergency: true,
-          vetPreference: 'Any',
-          createdAt: DateTime.now().subtract(const Duration(days: 3)),
-        ),
-        Appointment(
-          id: '3',
-          petName: 'Jack',
-          ownerName: 'Jane Smith',
-          phoneNumber: '+0987654321',
-          email: 'jane@email.com',
-          petType: 'Cat',
-          petBreed: 'Siamese',
-          petAge: '5 years',
-          appointmentDate: DateTime.now().add(const Duration(days: -225)),
-          appointmentTime: const TimeOfDay(hour: 14, minute: 0),
-          reason: 'Vaccination',
-          symptoms: 'Slight lethargy',
-          emergency: true,
-          vetPreference: 'Any',
-          createdAt: DateTime.now().subtract(const Duration(days: 7)),
-        ),
-        Appointment(
-          id: '4',
-          petName: 'Angela',
-          ownerName: 'Jane Smith',
-          phoneNumber: '+0987654321',
-          email: 'jane@email.com',
-          petType: 'Cat',
-          petBreed: 'Siamese',
-          petAge: '5 years',
-          appointmentDate: DateTime.now().add(const Duration(days: -115)),
-          appointmentTime: const TimeOfDay(hour: 14, minute: 0),
-          reason: 'Vaccination',
-          symptoms: 'Slight lethargy',
-          emergency: true,
-          vetPreference: 'Any',
-          createdAt: DateTime.now().subtract(const Duration(days: 5)),
-        ),
-      ];
-
-      _sortAppointments();
-    });
-  }
-
-  void _addAppointment(Appointment newAppointment) {
-    setState(() {
-      appointments.add(newAppointment);
-      _sortAppointments();
-    });
-  }
-
-  void _deleteAppointment(String id) {
-    showDialog(
+  Future<void> _deleteAppointment(Appointment appointment) async {
+    final confirm = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
         title: const Text('Cancel Appointment'),
@@ -117,27 +25,37 @@ class _AppointmentsScreenState extends State<AppointmentsScreen> {
         ),
         actions: [
           TextButton(
-            onPressed: () => Navigator.pop(context),
+            onPressed: () => Navigator.pop(context, false),
             child: const Text('No'),
           ),
           TextButton(
-            onPressed: () {
-              setState(() {
-                appointments.removeWhere((a) => a.id == id);
-              });
-              Navigator.pop(context);
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(
-                  content: Text('Appointment cancelled successfully'),
-                  backgroundColor: Colors.red,
-                ),
-              );
-            },
+            onPressed: () => Navigator.pop(context, true),
             child: const Text('Yes'),
           ),
         ],
       ),
     );
+
+    if (confirm != true) return;
+
+    try {
+      await _appointmentsService.deleteAppointment(appointment.id);
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Appointment cancelled successfully'),
+          backgroundColor: Colors.red,
+        ),
+      );
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Failed to cancel appointment: $e'),
+          backgroundColor: Colors.red,
+        ),
+      );
+    }
   }
 
   void _navigateToBookAppointment() async {
@@ -147,13 +65,24 @@ class _AppointmentsScreenState extends State<AppointmentsScreen> {
     );
 
     if (result is Appointment) {
-      _addAppointment(result);
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Appointment booked successfully!'),
-          backgroundColor: Colors.green,
-        ),
-      );
+      try {
+        await _appointmentsService.addAppointment(result);
+        if (!mounted) return;
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Appointment booked successfully!'),
+            backgroundColor: Colors.green,
+          ),
+        );
+      } catch (e) {
+        if (!mounted) return;
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Failed to book appointment: $e'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
     }
   }
 
@@ -163,40 +92,56 @@ class _AppointmentsScreenState extends State<AppointmentsScreen> {
       backgroundColor: Colors.grey.shade50,
       body: Padding(
         padding: const EdgeInsets.all(16),
-        child: appointments.isEmpty
-            ? EmptyAppointmentsWidget(
+        child: StreamBuilder<List<Appointment>>(
+          stream: _appointmentsService.getAppointmentsStream(),
+          builder: (context, snapshot) {
+            if (snapshot.connectionState == ConnectionState.waiting) {
+              return const Center(child: CircularProgressIndicator());
+            }
+
+            if (snapshot.hasError) {
+              return Center(child: Text('Error: ${snapshot.error}'));
+            }
+
+            final appointments = snapshot.data ?? [];
+            if (appointments.isEmpty) {
+              return EmptyAppointmentsWidget(
                 onBookAppointment: _navigateToBookAppointment,
-              )
-            : Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    'Upcoming Appointments (${appointments.length})',
-                    style: const TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.w600,
-                      color: Colors.black87,
-                    ),
+              );
+            }
+
+            return Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Upcoming Appointments (${appointments.length})',
+                  style: const TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.w600,
+                    color: Colors.black87,
                   ),
-                  const SizedBox(height: 16),
-                  Expanded(
-                    child: ListView.builder(
-                      itemCount: appointments.length,
-                      itemBuilder: (context, index) {
-                        final appointment = appointments[index];
-                        return AppointmentCard(
-                          appointment: appointment,
-                          onDelete: () => _deleteAppointment(appointment.id),
-                        );
-                      },
-                    ),
+                ),
+                const SizedBox(height: 16),
+                Expanded(
+                  child: ListView.builder(
+                    itemCount: appointments.length,
+                    itemBuilder: (context, index) {
+                      final appointment = appointments[index];
+                      return AppointmentCard(
+                        appointment: appointment,
+                        onDelete: () => _deleteAppointment(appointment),
+                      );
+                    },
                   ),
-                ],
-              ),
+                ),
+              ],
+            );
+          },
+        ),
       ),
-      floatingActionButton: appointments.isNotEmpty
-          ? BookAppointmentButton(onPressed: _navigateToBookAppointment)
-          : null,
+      floatingActionButton: BookAppointmentButton(
+        onPressed: _navigateToBookAppointment,
+      ),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
     );
   }

@@ -12,6 +12,7 @@ import 'package:vet_clinic/screens/email_verification_screen.dart';
 import 'package:vet_clinic/screens/login_screen.dart';
 import 'package:vet_clinic/screens/medicine/medicine_management_page.dart';
 import 'package:vet_clinic/screens/medicine/medicines_page.dart';
+import 'package:vet_clinic/screens/mypets/my_pets_page.dart';
 import 'package:vet_clinic/screens/pet%20essential.dart';
 import 'package:vet_clinic/screens/pet%20guide/pet_guide_page.dart';
 import 'package:vet_clinic/screens/sales_report_screen.dart';
@@ -143,6 +144,13 @@ class _HomeScreenState extends State<HomeScreen> {
       const Color(0xFFE3F2FD),
       const Color(0xFF1976D2),
       const Color(0xFF2196F3),
+    ),
+    ServiceItem(
+      Icons.pets,
+      'My Pets',
+      const Color(0xFFE8F5E9),
+      const Color(0xFF2E7D32),
+      const Color(0xFF4CAF50),
     ),
     ServiceItem(
       Icons.library_books,
@@ -581,6 +589,8 @@ class _HomeScreenState extends State<HomeScreen> {
     switch (title) {
       case 'Medicines':
         return MedicinesPage();
+      case 'My Pets':
+        return const MyPetsPage();
       case 'Pet Resources':
         return PetResourcesPage();
       case 'Raising a Pet':
