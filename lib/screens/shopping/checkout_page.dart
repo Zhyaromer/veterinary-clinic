@@ -3,7 +3,11 @@ import 'package:flutter/services.dart';
 import 'package:vet_clinic/main.dart';
 import 'package:vet_clinic/services/medicine_firestore_service.dart';
 import 'package:vet_clinic/models/cart_item.dart';
+import 'package:provider/provider.dart';
 import 'order_success_page.dart';
+
+import '../../providers/auth_provider.dart';
+import '../../services/purchases_firestore_service.dart';
 
 class CheckoutPage extends StatefulWidget {
   final double subtotal;
@@ -34,6 +38,8 @@ class _CheckoutPageState extends State<CheckoutPage>
   bool _isProcessing = false;
 
   final MedicineFirestoreService _medicineService = MedicineFirestoreService();
+  final PurchasesFirestoreService _purchasesService =
+      PurchasesFirestoreService();
 
   @override
   void initState() {
@@ -65,6 +71,24 @@ class _CheckoutPageState extends State<CheckoutPage>
 
     Future.delayed(const Duration(seconds: 2), () async {
       if (mounted) {
+        final user = context.read<AuthProvider>().user;
+
+        // Persist purchase history before we mutate/clear the cart.
+        if (user != null && globalCart.items.isNotEmpty) {
+          try {
+            await _purchasesService.addPurchasesForUser(
+              ownerId: user.uid,
+              items: List<CartItem>.from(globalCart.items),
+              subtotal: widget.subtotal,
+              tax: widget.tax,
+              total: widget.total,
+            );
+          } catch (e) {
+            // ignore: avoid_print
+            print('Error saving purchases: $e');
+          }
+        }
+
         // Update stock for all medicines in cart before clearing
         await _updateMedicineStock();
 

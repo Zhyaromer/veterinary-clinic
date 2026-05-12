@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:vet_clinic/main.dart';
 import '../../models/cart_item.dart';
 import 'checkout_page.dart';
+import 'purchase_history_screen.dart';
 
 class ShoppingCartPage extends StatefulWidget {
   const ShoppingCartPage({super.key});
@@ -32,6 +33,22 @@ class _ShoppingCartPageState extends State<ShoppingCartPage>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: AppBar(
+        backgroundColor: Colors.transparent,
+        actions: [
+          IconButton(
+            tooltip: 'Purchase History',
+            icon: const Icon(Icons.history, color: Colors.black),
+            onPressed: () {
+              Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (_) => const PurchaseHistoryScreen(),
+                ),
+              );
+            },
+          ),
+        ],
+      ),
       body: globalCart.items.isEmpty ? _buildEmptyCart() : _buildCartContent(),
       bottomNavigationBar: globalCart.items.isEmpty
           ? null
