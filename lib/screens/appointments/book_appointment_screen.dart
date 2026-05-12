@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import '../../models/appointment.dart';
 import 'package:intl/intl.dart';
+import 'package:provider/provider.dart';
 
 import '../../models/my_pet.dart';
+import '../../providers/auth_provider.dart';
 import '../../services/mypets_firestore_service.dart';
 
 class BookAppointmentScreen extends StatefulWidget {
@@ -14,6 +16,8 @@ class BookAppointmentScreen extends StatefulWidget {
 
 class _BookAppointmentScreenState extends State<BookAppointmentScreen> {
   final MyPetsFirestoreService _myPetsService = MyPetsFirestoreService();
+
+  bool _prefilledFromAccount = false;
 
   final _formKey = GlobalKey<FormState>();
   final TextEditingController _ownerNameController = TextEditingController();
@@ -67,12 +71,26 @@ class _BookAppointmentScreenState extends State<BookAppointmentScreen> {
   void initState() {
     super.initState();
 
-    _ownerNameController.text = 'Jordan Smith';
-    _phoneController.text = '+1 555 123 4567';
-    _emailController.text = 'jordan.smith@example.com';
+    _phoneController.text = '';
+    _phoneNumber = '';
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+
+    if (_prefilledFromAccount) return;
+    final user = context.read<AuthProvider>().user;
+    if (user == null) return;
+
+    final name = (user.displayName ?? '').trim();
+    final email = (user.email ?? '').trim();
+
+    _ownerNameController.text = name.isNotEmpty ? name : 'My Account';
+    _emailController.text = email;
     _ownerName = _ownerNameController.text;
-    _phoneNumber = _phoneController.text;
     _email = _emailController.text;
+    _prefilledFromAccount = true;
   }
 
   @override
@@ -541,6 +559,7 @@ class _BookAppointmentScreenState extends State<BookAppointmentScreen> {
                     hint: 'Enter your full name',
                     icon: Icons.person_outline,
                     controller: _ownerNameController,
+                    readOnly: true,
                     onChanged: (value) {
                       setState(() {
                         _ownerName = value;
@@ -582,6 +601,7 @@ class _BookAppointmentScreenState extends State<BookAppointmentScreen> {
                     icon: Icons.email_outlined,
                     controller: _emailController,
                     keyboardType: TextInputType.emailAddress,
+                    readOnly: true,
                     onChanged: (value) {
                       setState(() {
                         _email = value;
@@ -1028,6 +1048,7 @@ class _BookAppointmentScreenState extends State<BookAppointmentScreen> {
     String? initialValue,
     FormFieldValidator<String>? validator,
     TextInputType keyboardType = TextInputType.text,
+    bool readOnly = false,
   }) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -1056,6 +1077,7 @@ class _BookAppointmentScreenState extends State<BookAppointmentScreen> {
             focusNode: focusNode,
             controller: controller,
             initialValue: controller == null ? initialValue : null,
+            readOnly: readOnly,
             decoration: InputDecoration(
               hintText: hint,
               filled: true,

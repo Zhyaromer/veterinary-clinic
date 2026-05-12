@@ -36,6 +36,21 @@ class AppointmentsFirestoreService {
 
   final String _collectionName = 'appointments';
 
+  Stream<List<Appointment>> getAppointmentsStreamForUser(
+    String ownerId,
+  ) async* {
+    await _ensureInitialized();
+    yield* _firestore
+        .collection(_collectionName)
+        .where('ownerId', isEqualTo: ownerId)
+        .snapshots()
+        .map((snapshot) {
+          final items = snapshot.docs.map((doc) => _fromDoc(doc)).toList();
+          items.sort((a, b) => b.createdAt.compareTo(a.createdAt));
+          return items;
+        });
+  }
+
   Stream<List<Appointment>> getAppointmentsStream() async* {
     await _ensureInitialized();
     yield* _firestore
@@ -61,6 +76,17 @@ class AppointmentsFirestoreService {
     final docRef = await _firestore
         .collection(_collectionName)
         .add(_toMap(appointment, isUpdate: false));
+    return docRef.id;
+  }
+
+  Future<String> addAppointmentForUser({
+    required String ownerId,
+    required Appointment appointment,
+  }) async {
+    await _ensureInitialized();
+    final docRef = await _firestore
+        .collection(_collectionName)
+        .add(_toMap(appointment, isUpdate: false, ownerId: ownerId));
     return docRef.id;
   }
 
@@ -118,8 +144,10 @@ class AppointmentsFirestoreService {
   Map<String, dynamic> _toMap(
     Appointment appointment, {
     required bool isUpdate,
+    String? ownerId,
   }) {
     final map = <String, dynamic>{
+      if (ownerId != null) 'ownerId': ownerId,
       'petName': appointment.petName,
       'ownerName': appointment.ownerName,
       'phoneNumber': appointment.phoneNumber,

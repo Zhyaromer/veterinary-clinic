@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import '../../widgets/appointment_widgets.dart';
 import '../../models/appointment.dart';
+import '../../providers/auth_provider.dart';
 import '../../services/appointments_firestore_service.dart';
+import 'appointment_history_screen.dart';
 import 'book_appointment_screen.dart';
 
 class AppointmentsScreen extends StatefulWidget {
@@ -65,8 +68,14 @@ class _AppointmentsScreenState extends State<AppointmentsScreen> {
     );
 
     if (result is Appointment) {
+      final user = context.read<AuthProvider>().user;
+      if (user == null) return;
+
       try {
-        await _appointmentsService.addAppointment(result);
+        await _appointmentsService.addAppointmentForUser(
+          ownerId: user.uid,
+          appointment: result,
+        );
         if (!mounted) return;
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
@@ -88,12 +97,16 @@ class _AppointmentsScreenState extends State<AppointmentsScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final user = context.watch<AuthProvider>().user;
+
     return Scaffold(
       backgroundColor: Colors.grey.shade50,
       body: Padding(
         padding: const EdgeInsets.all(16),
         child: StreamBuilder<List<Appointment>>(
-          stream: _appointmentsService.getAppointmentsStream(),
+          stream: user == null
+              ? const Stream<List<Appointment>>.empty()
+              : _appointmentsService.getAppointmentsStreamForUser(user.uid),
           builder: (context, snapshot) {
             if (snapshot.connectionState == ConnectionState.waiting) {
               return const Center(child: CircularProgressIndicator());
@@ -103,30 +116,100 @@ class _AppointmentsScreenState extends State<AppointmentsScreen> {
               return Center(child: Text('Error: ${snapshot.error}'));
             }
 
-            final appointments = snapshot.data ?? [];
-            if (appointments.isEmpty) {
-              return EmptyAppointmentsWidget(
-                onBookAppointment: _navigateToBookAppointment,
+            final allAppointments = snapshot.data ?? [];
+            final todayStart = DateTime(
+              DateTime.now().year,
+              DateTime.now().month,
+              DateTime.now().day,
+            );
+
+            final upcomingAppointments =
+                allAppointments
+                    .where((a) => !a.appointmentDate.isBefore(todayStart))
+                    .toList()
+                  ..sort((a, b) {
+                    final cmp = a.appointmentDate.compareTo(b.appointmentDate);
+                    if (cmp != 0) return cmp;
+                    final aMins =
+                        a.appointmentTime.hour * 60 + a.appointmentTime.minute;
+                    final bMins =
+                        b.appointmentTime.hour * 60 + b.appointmentTime.minute;
+                    return aMins.compareTo(bMins);
+                  });
+
+            if (upcomingAppointments.isEmpty) {
+              return Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      const Text(
+                        'Upcoming Appointments (0)',
+                        style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.w600,
+                          color: Colors.black87,
+                        ),
+                      ),
+                      TextButton.icon(
+                        onPressed: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (_) => const AppointmentHistoryScreen(),
+                            ),
+                          );
+                        },
+                        icon: const Icon(Icons.history),
+                        label: const Text('History'),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 16),
+                  Expanded(
+                    child: EmptyAppointmentsWidget(
+                      onBookAppointment: _navigateToBookAppointment,
+                    ),
+                  ),
+                ],
               );
             }
 
             return Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
-                  'Upcoming Appointments (${appointments.length})',
-                  style: const TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.w600,
-                    color: Colors.black87,
-                  ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      'Upcoming Appointments (${upcomingAppointments.length})',
+                      style: const TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.w600,
+                        color: Colors.black87,
+                      ),
+                    ),
+                    TextButton.icon(
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) => const AppointmentHistoryScreen(),
+                          ),
+                        );
+                      },
+                      icon: const Icon(Icons.history),
+                      label: const Text('History'),
+                    ),
+                  ],
                 ),
                 const SizedBox(height: 16),
                 Expanded(
                   child: ListView.builder(
-                    itemCount: appointments.length,
+                    itemCount: upcomingAppointments.length,
                     itemBuilder: (context, index) {
-                      final appointment = appointments[index];
+                      final appointment = upcomingAppointments[index];
                       return AppointmentCard(
                         appointment: appointment,
                         onDelete: () => _deleteAppointment(appointment),
