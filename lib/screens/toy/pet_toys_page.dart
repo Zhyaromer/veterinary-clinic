@@ -1,6 +1,7 @@
 // screens/pet_toys_page.dart
 import 'package:flutter/material.dart';
 import '../../models/pet_toy.dart';
+import '../../services/toy_firestore_service.dart';
 import '../../widgets/pet_toy_card.dart';
 import 'pet_toy_detail_page.dart';
 
@@ -13,7 +14,7 @@ class PetToysPage extends StatefulWidget {
 
 class _PetToysPageState extends State<PetToysPage> {
   final TextEditingController _searchController = TextEditingController();
-  List<PetToy> filteredToys = List.from(petToys);
+  final ToyFirestoreService _toyService = ToyFirestoreService();
 
   // Filter states
   String _selectedPetType = 'All';
@@ -50,15 +51,7 @@ class _PetToysPageState extends State<PetToysPage> {
   @override
   void initState() {
     super.initState();
-    _searchController.addListener(_filterToys);
-
-    // Calculate max price
-    if (petToys.isNotEmpty) {
-      final maxPriceInList = petToys
-          .map((t) => t.price)
-          .reduce((a, b) => a > b ? a : b);
-      _maxPrice = (maxPriceInList + 20).ceilToDouble();
-    }
+    _searchController.addListener(_updateFilters);
   }
 
   @override
@@ -67,62 +60,65 @@ class _PetToysPageState extends State<PetToysPage> {
     super.dispose();
   }
 
-  void _filterToys() {
-    setState(() {
-      filteredToys = petToys.where((toy) {
-        final matchesSearch =
-            _searchController.text.isEmpty ||
-            toy.name.toLowerCase().contains(
-              _searchController.text.toLowerCase(),
-            ) ||
-            toy.description.toLowerCase().contains(
-              _searchController.text.toLowerCase(),
-            ) ||
-            toy.category.toLowerCase().contains(
-              _searchController.text.toLowerCase(),
-            );
-
-        final matchesPetType =
-            _selectedPetType == 'All' || toy.petType == _selectedPetType;
-
-        final matchesCategory =
-            _selectedCategory == 'All' || toy.category == _selectedCategory;
-
-        final matchesBrand =
-            _selectedBrand == 'All' || toy.brand == _selectedBrand;
-
-        final matchesPrice = toy.price >= _minPrice && toy.price <= _maxPrice;
-
-        return matchesSearch &&
-            matchesPetType &&
-            matchesCategory &&
-            matchesBrand &&
-            matchesPrice;
-      }).toList();
-    });
+  void _updateFilters() {
+    setState(() {});
   }
 
-  void _resetFilters() {
+  double _computeSliderMaxPrice(List<PetToy> toys) {
+    if (toys.isEmpty) return 100;
+    final maxPriceInList = toys
+        .map((t) => t.price)
+        .reduce((a, b) => a > b ? a : b);
+    return (maxPriceInList + 20).ceilToDouble();
+  }
+
+  List<PetToy> _getFilteredToys(List<PetToy> allToys) {
+    if (allToys.isEmpty) return [];
+
+    final searchLower = _searchController.text.toLowerCase();
+
+    return allToys.where((toy) {
+      final matchesSearch =
+          searchLower.isEmpty ||
+          toy.name.toLowerCase().contains(searchLower) ||
+          toy.description.toLowerCase().contains(searchLower) ||
+          toy.category.toLowerCase().contains(searchLower);
+
+      final matchesPetType =
+          _selectedPetType == 'All' || toy.petType == _selectedPetType;
+
+      final matchesCategory =
+          _selectedCategory == 'All' || toy.category == _selectedCategory;
+
+      final matchesBrand =
+          _selectedBrand == 'All' || toy.brand == _selectedBrand;
+
+      final matchesPrice =
+          !_isPriceFiltered ||
+          (toy.price >= _minPrice && toy.price <= _maxPrice);
+
+      return matchesSearch &&
+          matchesPetType &&
+          matchesCategory &&
+          matchesBrand &&
+          matchesPrice;
+    }).toList();
+  }
+
+  void _resetFilters(double sliderMaxPrice) {
     setState(() {
       _searchController.clear();
       _selectedPetType = 'All';
       _selectedCategory = 'All';
       _selectedBrand = 'All';
       _minPrice = 0;
-      final maxPriceInList = petToys
-          .map((t) => t.price)
-          .reduce((a, b) => a > b ? a : b);
-      _maxPrice = (maxPriceInList + 20).ceilToDouble();
+      _maxPrice = sliderMaxPrice;
       _isPriceFiltered = false;
-      _filterToys();
     });
   }
 
-  void _showFilterDialog() {
-    final maxPriceInList = petToys
-        .map((t) => t.price)
-        .reduce((a, b) => a > b ? a : b);
-    final sliderMaxPrice = (maxPriceInList + 20).ceilToDouble();
+  void _showFilterDialog(List<PetToy> allToys) {
+    final sliderMaxPrice = _computeSliderMaxPrice(allToys);
 
     // Local dialog variables
     String dialogPetType = _selectedPetType;
@@ -141,7 +137,7 @@ class _PetToysPageState extends State<PetToysPage> {
         return Dialog(
           insetPadding: const EdgeInsets.all(24),
           child: StatefulBuilder(
-            builder: (context, setState) {
+            builder: (context, setDialogState) {
               return ConstrainedBox(
                 constraints: const BoxConstraints(
                   maxWidth: 600,
@@ -186,7 +182,7 @@ class _PetToysPageState extends State<PetToysPage> {
                                     label: Text(type),
                                     selected: dialogPetType == type,
                                     onSelected: (selected) {
-                                      setState(() {
+                                      setDialogState(() {
                                         dialogPetType = selected ? type : 'All';
                                       });
                                     },
@@ -209,7 +205,7 @@ class _PetToysPageState extends State<PetToysPage> {
                                     label: Text(category),
                                     selected: dialogCategory == category,
                                     onSelected: (selected) {
-                                      setState(() {
+                                      setDialogState(() {
                                         dialogCategory = selected
                                             ? category
                                             : 'All';
@@ -236,7 +232,7 @@ class _PetToysPageState extends State<PetToysPage> {
                                       value: brands[index],
                                       groupValue: dialogBrand,
                                       onChanged: (value) {
-                                        setState(() {
+                                        setDialogState(() {
                                           dialogBrand = value.toString();
                                         });
                                       },
@@ -265,7 +261,7 @@ class _PetToysPageState extends State<PetToysPage> {
                                   '\$${dialogMaxPrice.toStringAsFixed(2)}',
                                 ),
                                 onChanged: (values) {
-                                  setState(() {
+                                  setDialogState(() {
                                     dialogMinPrice = values.start;
                                     dialogMaxPrice = values.end;
                                     isPriceFiltered = true;
@@ -305,7 +301,7 @@ class _PetToysPageState extends State<PetToysPage> {
                           TextButton(
                             onPressed: () {
                               Navigator.pop(context);
-                              _resetFilters();
+                              _resetFilters(sliderMaxPrice);
                             },
                             child: const Text('Reset All'),
                           ),
@@ -317,7 +313,7 @@ class _PetToysPageState extends State<PetToysPage> {
                           const SizedBox(width: 8),
                           ElevatedButton(
                             onPressed: () {
-                              setState(() {
+                              this.setState(() {
                                 _selectedPetType = dialogPetType;
                                 _selectedCategory = dialogCategory;
                                 _selectedBrand = dialogBrand;
@@ -329,7 +325,6 @@ class _PetToysPageState extends State<PetToysPage> {
                                         dialogMaxPrice < sliderMaxPrice);
                               });
                               Navigator.pop(context);
-                              _filterToys();
                             },
                             style: ElevatedButton.styleFrom(
                               backgroundColor: const Color(0xFF4A6FA5),
@@ -354,211 +349,250 @@ class _PetToysPageState extends State<PetToysPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Pet Toys', style: TextStyle(color: Colors.white)),
-        centerTitle: true,
-        backgroundColor: const Color(0xFF4A6FA5),
-        iconTheme: const IconThemeData(color: Colors.white),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.filter_list, color: Colors.white),
-            onPressed: _showFilterDialog,
-            tooltip: 'Filter',
-          ),
-        ],
-      ),
-      body: Column(
-        children: [
-          // Search Bar
-          Padding(
-            padding: const EdgeInsets.all(16),
-            child: TextField(
-              controller: _searchController,
-              decoration: InputDecoration(
-                hintText: 'Search toys by name, category, or description...',
-                prefixIcon: const Icon(Icons.search),
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                filled: true,
-                fillColor: Colors.grey[50],
-                suffixIcon: _searchController.text.isNotEmpty
-                    ? IconButton(
-                        icon: const Icon(Icons.clear),
-                        onPressed: () {
-                          _searchController.clear();
-                          _filterToys();
-                        },
-                      )
-                    : null,
-              ),
-              onChanged: (value) {
-                _filterToys();
-              },
-            ),
-          ),
+    return StreamBuilder<List<PetToy>>(
+      stream: _toyService.getToysStream(),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const Scaffold(
+            body: Center(child: CircularProgressIndicator()),
+          );
+        }
 
-          // Active Filters (Only show if any filter is active)
-          if (_selectedPetType != 'All' ||
-              _selectedCategory != 'All' ||
-              _selectedBrand != 'All' ||
-              _isPriceFiltered)
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
+        if (snapshot.hasError) {
+          return Scaffold(
+            appBar: AppBar(
+              title: const Text(
+                'Pet Toys',
+                style: TextStyle(color: Colors.white),
+              ),
+              centerTitle: true,
+              backgroundColor: const Color(0xFF4A6FA5),
+              iconTheme: const IconThemeData(color: Colors.white),
+            ),
+            body: Center(
               child: Column(
-                crossAxisAlignment: CrossAxisAlignment.center,
+                mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  const Text(
-                    'Active Filters:',
-                    style: TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w600,
-                      color: Colors.grey,
-                    ),
-                  ),
-                  const SizedBox(height: 8),
-                  Wrap(
-                    spacing: 8,
-                    runSpacing: 8,
-                    children: [
-                      if (_selectedPetType != 'All')
-                        Chip(
-                          label: Text('Pet: $_selectedPetType'),
-                          deleteIcon: const Icon(Icons.close, size: 16),
-                          onDeleted: () {
-                            setState(() {
-                              _selectedPetType = 'All';
-                              _filterToys();
-                            });
-                          },
-                        ),
-                      if (_selectedCategory != 'All')
-                        Chip(
-                          label: Text('Category: $_selectedCategory'),
-                          deleteIcon: const Icon(Icons.close, size: 16),
-                          onDeleted: () {
-                            setState(() {
-                              _selectedCategory = 'All';
-                              _filterToys();
-                            });
-                          },
-                        ),
-                      if (_selectedBrand != 'All')
-                        Chip(
-                          label: Text('Brand: $_selectedBrand'),
-                          deleteIcon: const Icon(Icons.close, size: 16),
-                          onDeleted: () {
-                            setState(() {
-                              _selectedBrand = 'All';
-                              _filterToys();
-                            });
-                          },
-                        ),
-                      if (_isPriceFiltered)
-                        Chip(
-                          label: Text(
-                            'Price: \$${_minPrice.toStringAsFixed(2)} - \$${_maxPrice.toStringAsFixed(2)}',
-                          ),
-                          deleteIcon: const Icon(Icons.close, size: 16),
-                          onDeleted: () {
-                            setState(() {
-                              _minPrice = 0;
-                              final maxPriceInList = petToys
-                                  .map((t) => t.price)
-                                  .reduce((a, b) => a > b ? a : b);
-                              _maxPrice = (maxPriceInList + 20).ceilToDouble();
-                              _isPriceFiltered = false;
-                              _filterToys();
-                            });
-                          },
-                        ),
-                    ],
-                  ),
+                  const Icon(Icons.error, size: 80, color: Colors.red),
                   const SizedBox(height: 16),
+                  const Text('Error loading toys'),
+                  const SizedBox(height: 8),
+                  Text(snapshot.error.toString()),
                 ],
               ),
             ),
+          );
+        }
 
-          // Results Count
-          Padding(
-            padding: const EdgeInsets.all(16),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text(
-                  '${filteredToys.length} Toys Found',
-                  style: const TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w600,
-                    color: Colors.grey,
-                  ),
-                ),
-                if (_selectedPetType != 'All' ||
-                    _selectedCategory != 'All' ||
-                    _selectedBrand != 'All' ||
-                    _isPriceFiltered ||
-                    _searchController.text.isNotEmpty)
-                  TextButton.icon(
-                    onPressed: _resetFilters,
-                    icon: const Icon(Icons.refresh, size: 18),
-                    label: const Text('Clear All Filters'),
-                  ),
-              ],
+        final allToys = snapshot.data ?? [];
+        final sliderMaxPrice = _computeSliderMaxPrice(allToys);
+        final filteredToys = _getFilteredToys(allToys);
+
+        return Scaffold(
+          appBar: AppBar(
+            title: const Text(
+              'Pet Toys',
+              style: TextStyle(color: Colors.white),
             ),
+            centerTitle: true,
+            backgroundColor: const Color(0xFF4A6FA5),
+            iconTheme: const IconThemeData(color: Colors.white),
+            actions: [
+              IconButton(
+                icon: const Icon(Icons.filter_list, color: Colors.white),
+                onPressed: () => _showFilterDialog(allToys),
+                tooltip: 'Filter',
+              ),
+            ],
           ),
+          body: Column(
+            children: [
+              // Search Bar
+              Padding(
+                padding: const EdgeInsets.all(16),
+                child: TextField(
+                  controller: _searchController,
+                  decoration: InputDecoration(
+                    hintText:
+                        'Search toys by name, category, or description...',
+                    prefixIcon: const Icon(Icons.search),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    filled: true,
+                    fillColor: Colors.grey[50],
+                    suffixIcon: _searchController.text.isNotEmpty
+                        ? IconButton(
+                            icon: const Icon(Icons.clear),
+                            onPressed: () {
+                              _searchController.clear();
+                              _updateFilters();
+                            },
+                          )
+                        : null,
+                  ),
+                  onChanged: (_) => _updateFilters(),
+                ),
+              ),
 
-          // Toys Grid
-          Expanded(
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              child: filteredToys.isEmpty
-                  ? const Center(
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
+              // Active Filters (Only show if any filter is active)
+              if (_selectedPetType != 'All' ||
+                  _selectedCategory != 'All' ||
+                  _selectedBrand != 'All' ||
+                  _isPriceFiltered)
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      const Text(
+                        'Active Filters:',
+                        style: TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w600,
+                          color: Colors.grey,
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      Wrap(
+                        spacing: 8,
+                        runSpacing: 8,
                         children: [
-                          Icon(Icons.toys, size: 80, color: Colors.grey),
-                          SizedBox(height: 16),
-                          Text(
-                            'No toys found',
-                            style: TextStyle(fontSize: 18, color: Colors.grey),
-                          ),
-                          Text(
-                            'Try different search terms or filters',
-                            style: TextStyle(color: Colors.grey),
-                          ),
+                          if (_selectedPetType != 'All')
+                            Chip(
+                              label: Text('Pet: $_selectedPetType'),
+                              deleteIcon: const Icon(Icons.close, size: 16),
+                              onDeleted: () {
+                                setState(() {
+                                  _selectedPetType = 'All';
+                                });
+                              },
+                            ),
+                          if (_selectedCategory != 'All')
+                            Chip(
+                              label: Text('Category: $_selectedCategory'),
+                              deleteIcon: const Icon(Icons.close, size: 16),
+                              onDeleted: () {
+                                setState(() {
+                                  _selectedCategory = 'All';
+                                });
+                              },
+                            ),
+                          if (_selectedBrand != 'All')
+                            Chip(
+                              label: Text('Brand: $_selectedBrand'),
+                              deleteIcon: const Icon(Icons.close, size: 16),
+                              onDeleted: () {
+                                setState(() {
+                                  _selectedBrand = 'All';
+                                });
+                              },
+                            ),
+                          if (_isPriceFiltered)
+                            Chip(
+                              label: Text(
+                                'Price: \$${_minPrice.toStringAsFixed(2)} - \$${_maxPrice.toStringAsFixed(2)}',
+                              ),
+                              deleteIcon: const Icon(Icons.close, size: 16),
+                              onDeleted: () {
+                                setState(() {
+                                  _minPrice = 0;
+                                  _maxPrice = sliderMaxPrice;
+                                  _isPriceFiltered = false;
+                                });
+                              },
+                            ),
                         ],
                       ),
-                    )
-                  : GridView.builder(
-                      gridDelegate:
-                          const SliverGridDelegateWithFixedCrossAxisCount(
-                            crossAxisCount: 2,
-                            crossAxisSpacing: 16,
-                            mainAxisSpacing: 16,
-                            childAspectRatio: 0.79,
-                          ),
-                      itemCount: filteredToys.length,
-                      itemBuilder: (context, index) {
-                        final toy = filteredToys[index];
-                        return PetToyCard(
-                          petToy: toy,
-                          onTap: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) =>
-                                    PetToyDetailPage(petToy: toy),
+                      const SizedBox(height: 16),
+                    ],
+                  ),
+                ),
+
+              // Results Count
+              Padding(
+                padding: const EdgeInsets.all(16),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      '${filteredToys.length} Toys Found',
+                      style: const TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w600,
+                        color: Colors.grey,
+                      ),
+                    ),
+                    if (_selectedPetType != 'All' ||
+                        _selectedCategory != 'All' ||
+                        _selectedBrand != 'All' ||
+                        _isPriceFiltered ||
+                        _searchController.text.isNotEmpty)
+                      TextButton.icon(
+                        onPressed: () => _resetFilters(sliderMaxPrice),
+                        icon: const Icon(Icons.refresh, size: 18),
+                        label: const Text('Clear All Filters'),
+                      ),
+                  ],
+                ),
+              ),
+
+              // Toys Grid
+              Expanded(
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  child: filteredToys.isEmpty
+                      ? const Center(
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Icon(Icons.toys, size: 80, color: Colors.grey),
+                              SizedBox(height: 16),
+                              Text(
+                                'No toys found',
+                                style: TextStyle(
+                                  fontSize: 18,
+                                  color: Colors.grey,
+                                ),
                               ),
+                              Text(
+                                'Try different search terms or filters',
+                                style: TextStyle(color: Colors.grey),
+                              ),
+                            ],
+                          ),
+                        )
+                      : GridView.builder(
+                          gridDelegate:
+                              const SliverGridDelegateWithFixedCrossAxisCount(
+                                crossAxisCount: 2,
+                                crossAxisSpacing: 16,
+                                mainAxisSpacing: 16,
+                                childAspectRatio: 0.79,
+                              ),
+                          itemCount: filteredToys.length,
+                          itemBuilder: (context, index) {
+                            final toy = filteredToys[index];
+                            return PetToyCard(
+                              petToy: toy,
+                              onTap: () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) =>
+                                        PetToyDetailPage(petToy: toy),
+                                  ),
+                                );
+                              },
                             );
                           },
-                        );
-                      },
-                    ),
-            ),
+                        ),
+                ),
+              ),
+            ],
           ),
-        ],
-      ),
+        );
+      },
     );
   }
 }

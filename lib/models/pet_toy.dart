@@ -2,7 +2,7 @@
 import 'package:flutter/material.dart';
 
 class PetToy {
-  final int id;
+  final String id;
   final String name;
   final String description;
   final String category;
@@ -79,7 +79,7 @@ class PetToy {
 
 List<PetToy> petToys = [
   PetToy(
-    id: 1,
+    id: '1',
     name: "Interactive Puzzle Feeder",
     description:
         "Stimulating puzzle toy that challenges dogs to find hidden treats. Helps prevent boredom and promotes mental stimulation.",
@@ -109,7 +109,7 @@ List<PetToy> petToys = [
     ageSuitability: "Puppy to Senior",
   ),
   PetToy(
-    id: 2,
+    id: '2',
     name: "Catnip Kickeroo",
     description:
         "Premium catnip-filled toy that encourages kicking and bunny-like movements. Made with organic catnip for maximum attraction.",
@@ -138,7 +138,7 @@ List<PetToy> petToys = [
     ageSuitability: "Kitten to Senior",
   ),
   PetToy(
-    id: 3,
+    id: '3',
     name: "Durable Chew Bone",
     description:
         "Extremely durable chew bone made from natural rubber. Designed for aggressive chewers and lasts 5x longer than regular toys.",
@@ -168,7 +168,7 @@ List<PetToy> petToys = [
     ageSuitability: "Adult dogs only",
   ),
   PetToy(
-    id: 4,
+    id: '4',
     name: "Feather Teaser Wand",
     description:
         "Interactive wand toy with replaceable feathers that mimics bird movements. Perfect for indoor exercise and bonding with your cat.",
@@ -198,7 +198,7 @@ List<PetToy> petToys = [
     ageSuitability: "All ages",
   ),
   PetToy(
-    id: 5,
+    id: '5',
     name: "Squeaky Plush Squirrel",
     description:
         "Adorable plush squirrel with multiple squeakers and crinkle material. Provides auditory stimulation and satisfies chasing instincts.",
@@ -227,7 +227,7 @@ List<PetToy> petToys = [
     ageSuitability: "Gentle chewers only",
   ),
   PetToy(
-    id: 6,
+    id: '6',
     name: "Bird Foraging Tower",
     description:
         "Multi-level foraging toy that encourages natural foraging behavior. Keeps birds mentally stimulated for hours.",
@@ -257,7 +257,7 @@ List<PetToy> petToys = [
     ageSuitability: "Adult birds",
   ),
   PetToy(
-    id: 7,
+    id: '7',
     name: "Automatic Laser Toy",
     description:
         "Programmable laser toy that moves in random patterns to entertain cats when you're away. Multiple pattern settings for variety.",
@@ -287,7 +287,7 @@ List<PetToy> petToys = [
     ageSuitability: "All ages (supervision recommended)",
   ),
   PetToy(
-    id: 8,
+    id: '8',
     name: "Tug-of-War Rope",
     description:
         "Heavy-duty cotton rope toy perfect for interactive play. Promotes dental health and satisfies chewing needs.",

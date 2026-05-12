@@ -16,8 +16,6 @@ class _AddEditToyPageState extends State<AddEditToyPage> {
 
   late TextEditingController _nameController;
   late TextEditingController _descriptionController;
-  late TextEditingController _categoryController;
-  late TextEditingController _petTypeController;
   late TextEditingController _sizeController;
   late TextEditingController _materialController;
   late TextEditingController _safetyFeaturesController;
@@ -28,11 +26,89 @@ class _AddEditToyPageState extends State<AddEditToyPage> {
   late TextEditingController _imageUrlController;
   late TextEditingController _cleaningInstructionsController;
   late TextEditingController _warrantyController;
-  late TextEditingController _ageSuitabilityController;
+
+  // Dropdown values
+  late String _selectedCategory;
+  late String _selectedPetType;
+  late String _selectedAgeSuitability;
+  late String _selectedSize;
+  late String _selectedMaterial;
+  late String _selectedWarranty;
+  late String _selectedManufacturer;
 
   late List<String> _features;
   late bool _isInteractive;
   late bool _isChewResistant;
+
+  // Dropdown options based on the filter image
+  final List<String> _categoryOptions = [
+    'All',
+    'Puzzle Toy',
+    'Kicker Toy',
+    'Chew Toy',
+    'Interactive Wand',
+    'Plush Toy',
+    'Foraging Toy',
+    'Electronic Toy',
+    'Rope Toy',
+  ];
+
+  final List<String> _petTypeOptions = [
+    'All',
+    'Dog',
+    'Cat',
+    'Bird',
+    'Small Animal',
+  ];
+
+  final List<String> _ageSuitabilityOptions = [
+    'Puppy/Kitten (0-1 year)',
+    'Adult (1-7 years)',
+    'Senior (7+ years)',
+    'All Ages',
+  ];
+
+  final List<String> _sizeOptions = [
+    'Extra Small (XS)',
+    'Small (S)',
+    'Medium (M)',
+    'Large (L)',
+    'Extra Large (XL)',
+  ];
+
+  final List<String> _materialOptions = [
+    'Natural Rubber',
+    'BPA-Free Plastic',
+    'Organic Cotton',
+    'Hemp',
+    'Recycled Materials',
+    'Wood',
+    'Silicone',
+    'Nylon',
+    'Rope',
+  ];
+
+  final List<String> _warrantyOptions = [
+    'No Warranty',
+    '30 Days',
+    '90 Days',
+    '6 Months',
+    '1 Year',
+    '2 Years',
+    'Lifetime',
+  ];
+
+  final List<String> _manufacturerOptions = [
+    'Pawfect Play',
+    'Meow Magic',
+    'Happy Paws Co.',
+    'EcoPet Toys',
+    'K9 Creations',
+    'Feline Fun Ltd.',
+    'Birdie Bliss',
+    'Small Pet Paradise',
+    'Other',
+  ];
 
   @override
   void initState() {
@@ -44,8 +120,6 @@ class _AddEditToyPageState extends State<AddEditToyPage> {
     _descriptionController = TextEditingController(
       text: toy?.description ?? '',
     );
-    _categoryController = TextEditingController(text: toy?.category ?? '');
-    _petTypeController = TextEditingController(text: toy?.petType ?? '');
     _sizeController = TextEditingController(text: toy?.size ?? '');
     _materialController = TextEditingController(text: toy?.material ?? '');
     _safetyFeaturesController = TextEditingController(
@@ -62,9 +136,42 @@ class _AddEditToyPageState extends State<AddEditToyPage> {
       text: toy?.cleaningInstructions ?? '',
     );
     _warrantyController = TextEditingController(text: toy?.warranty ?? '');
-    _ageSuitabilityController = TextEditingController(
-      text: toy?.ageSuitability ?? '',
-    );
+
+    // Initialize dropdown selections
+    _selectedCategory = _categoryOptions.contains(toy?.category)
+        ? toy!.category
+        : (toy?.category?.isNotEmpty == true
+              ? toy!.category
+              : _categoryOptions.first);
+    _selectedPetType = _petTypeOptions.contains(toy?.petType)
+        ? toy!.petType
+        : (toy?.petType?.isNotEmpty == true
+              ? toy!.petType
+              : _petTypeOptions.first);
+    _selectedAgeSuitability =
+        _ageSuitabilityOptions.contains(toy?.ageSuitability)
+        ? toy!.ageSuitability
+        : (toy?.ageSuitability?.isNotEmpty == true
+              ? toy!.ageSuitability
+              : _ageSuitabilityOptions.first);
+    _selectedSize = _sizeOptions.contains(toy?.size)
+        ? toy!.size
+        : (toy?.size?.isNotEmpty == true ? toy!.size : _sizeOptions.first);
+    _selectedMaterial = _materialOptions.contains(toy?.material)
+        ? toy!.material
+        : (toy?.material?.isNotEmpty == true
+              ? toy!.material
+              : _materialOptions.first);
+    _selectedWarranty = _warrantyOptions.contains(toy?.warranty)
+        ? toy!.warranty
+        : (toy?.warranty?.isNotEmpty == true
+              ? toy!.warranty
+              : _warrantyOptions.first);
+    _selectedManufacturer = _manufacturerOptions.contains(toy?.manufacturer)
+        ? toy!.manufacturer
+        : (toy?.manufacturer?.isNotEmpty == true
+              ? toy!.manufacturer
+              : _manufacturerOptions.first);
 
     _features = toy?.features ?? [];
     _isInteractive = toy?.isInteractive ?? false;
@@ -77,8 +184,6 @@ class _AddEditToyPageState extends State<AddEditToyPage> {
   void dispose() {
     _nameController.dispose();
     _descriptionController.dispose();
-    _categoryController.dispose();
-    _petTypeController.dispose();
     _sizeController.dispose();
     _materialController.dispose();
     _safetyFeaturesController.dispose();
@@ -89,7 +194,6 @@ class _AddEditToyPageState extends State<AddEditToyPage> {
     _imageUrlController.dispose();
     _cleaningInstructionsController.dispose();
     _warrantyController.dispose();
-    _ageSuitabilityController.dispose();
     _featuresController.dispose();
     super.dispose();
   }
@@ -103,25 +207,27 @@ class _AddEditToyPageState extends State<AddEditToyPage> {
           .toList();
 
       final toy = PetToy(
-        id: widget.toy?.id ?? DateTime.now().millisecondsSinceEpoch,
+        id: widget.toy?.id ?? '',
         name: _nameController.text,
         description: _descriptionController.text,
-        category: _categoryController.text,
-        petType: _petTypeController.text,
-        size: _sizeController.text,
-        material: _materialController.text,
+        category: _selectedCategory,
+        petType: _selectedPetType,
+        size: _selectedSize,
+        material: _selectedMaterial,
         safetyFeatures: _safetyFeaturesController.text,
         features: features,
         price: double.parse(_priceController.text),
         stock: int.parse(_stockController.text),
         brand: _brandController.text,
-        manufacturer: _manufacturerController.text,
+        manufacturer: _selectedManufacturer == 'Other'
+            ? _manufacturerController.text
+            : _selectedManufacturer,
         imageUrl: _imageUrlController.text,
         cleaningInstructions: _cleaningInstructionsController.text,
-        warranty: _warrantyController.text,
+        warranty: _selectedWarranty,
         isInteractive: _isInteractive,
         isChewResistant: _isChewResistant,
-        ageSuitability: _ageSuitabilityController.text,
+        ageSuitability: _selectedAgeSuitability,
       );
 
       Navigator.pop(context, toy);
@@ -202,6 +308,52 @@ class _AddEditToyPageState extends State<AddEditToyPage> {
     );
   }
 
+  Widget _buildDropdownField({
+    required String label,
+    required String value,
+    required List<String> items,
+    required ValueChanged<String?> onChanged,
+    String? Function(String?)? validator,
+    bool showOtherField = false,
+  }) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        DropdownButtonFormField<String>(
+          value: items.contains(value) ? value : null,
+          decoration: InputDecoration(
+            labelText: label,
+            border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
+            contentPadding: const EdgeInsets.symmetric(
+              horizontal: 16,
+              vertical: 12,
+            ),
+          ),
+          items: items.map((item) {
+            return DropdownMenuItem<String>(value: item, child: Text(item));
+          }).toList(),
+          onChanged: onChanged,
+          validator: validator,
+        ),
+        if (showOtherField && value == 'Other' && onChanged != null)
+          Padding(
+            padding: const EdgeInsets.only(top: 8),
+            child: _buildTextField(
+              controller: _manufacturerController,
+              label: 'Specify Manufacturer',
+              hint: 'Enter manufacturer name',
+              validator: (val) {
+                if (value == 'Other' && (val == null || val.isEmpty)) {
+                  return 'Please specify manufacturer';
+                }
+                return null;
+              },
+            ),
+          ),
+      ],
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final isEditing = widget.toy != null;
@@ -264,13 +416,18 @@ class _AddEditToyPageState extends State<AddEditToyPage> {
                   Row(
                     children: [
                       Expanded(
-                        child: _buildTextField(
-                          controller: _categoryController,
+                        child: _buildDropdownField(
                           label: 'Category *',
-                          hint: 'e.g., Puzzle Toy, Chew Toy',
+                          value: _selectedCategory,
+                          items: _categoryOptions,
+                          onChanged: (value) {
+                            setState(() {
+                              _selectedCategory = value!;
+                            });
+                          },
                           validator: (value) {
                             if (value == null || value.isEmpty) {
-                              return 'Please enter category';
+                              return 'Please select category';
                             }
                             return null;
                           },
@@ -278,13 +435,18 @@ class _AddEditToyPageState extends State<AddEditToyPage> {
                       ),
                       const SizedBox(width: 12),
                       Expanded(
-                        child: _buildTextField(
-                          controller: _petTypeController,
+                        child: _buildDropdownField(
                           label: 'Pet Type *',
-                          hint: 'e.g., Dog, Cat, Bird',
+                          value: _selectedPetType,
+                          items: _petTypeOptions,
+                          onChanged: (value) {
+                            setState(() {
+                              _selectedPetType = value!;
+                            });
+                          },
                           validator: (value) {
                             if (value == null || value.isEmpty) {
-                              return 'Please enter pet type';
+                              return 'Please select pet type';
                             }
                             return null;
                           },
@@ -293,13 +455,18 @@ class _AddEditToyPageState extends State<AddEditToyPage> {
                     ],
                   ),
                   const SizedBox(height: 12),
-                  _buildTextField(
-                    controller: _ageSuitabilityController,
+                  _buildDropdownField(
                     label: 'Age Suitability *',
-                    hint: 'e.g., Puppy to Senior, All Ages',
+                    value: _selectedAgeSuitability,
+                    items: _ageSuitabilityOptions,
+                    onChanged: (value) {
+                      setState(() {
+                        _selectedAgeSuitability = value!;
+                      });
+                    },
                     validator: (value) {
                       if (value == null || value.isEmpty) {
-                        return 'Please enter age suitability';
+                        return 'Please select age suitability';
                       }
                       return null;
                     },
@@ -316,13 +483,18 @@ class _AddEditToyPageState extends State<AddEditToyPage> {
                   Row(
                     children: [
                       Expanded(
-                        child: _buildTextField(
-                          controller: _sizeController,
+                        child: _buildDropdownField(
                           label: 'Size *',
-                          hint: 'e.g., Medium (15x15 cm)',
+                          value: _selectedSize,
+                          items: _sizeOptions,
+                          onChanged: (value) {
+                            setState(() {
+                              _selectedSize = value!;
+                            });
+                          },
                           validator: (value) {
                             if (value == null || value.isEmpty) {
-                              return 'Please enter size';
+                              return 'Please select size';
                             }
                             return null;
                           },
@@ -330,13 +502,18 @@ class _AddEditToyPageState extends State<AddEditToyPage> {
                       ),
                       const SizedBox(width: 12),
                       Expanded(
-                        child: _buildTextField(
-                          controller: _materialController,
+                        child: _buildDropdownField(
                           label: 'Material *',
-                          hint: 'e.g., BPA-free plastic, rubber',
+                          value: _selectedMaterial,
+                          items: _materialOptions,
+                          onChanged: (value) {
+                            setState(() {
+                              _selectedMaterial = value!;
+                            });
+                          },
                           validator: (value) {
                             if (value == null || value.isEmpty) {
-                              return 'Please enter material';
+                              return 'Please select material';
                             }
                             return null;
                           },
@@ -490,10 +667,15 @@ class _AddEditToyPageState extends State<AddEditToyPage> {
                     ],
                   ),
                   const SizedBox(height: 12),
-                  _buildTextField(
-                    controller: _warrantyController,
+                  _buildDropdownField(
                     label: 'Warranty',
-                    hint: 'e.g., 1-year manufacturer warranty',
+                    value: _selectedWarranty,
+                    items: _warrantyOptions,
+                    onChanged: (value) {
+                      setState(() {
+                        _selectedWarranty = value!;
+                      });
+                    },
                   ),
                 ],
               ),
@@ -521,16 +703,22 @@ class _AddEditToyPageState extends State<AddEditToyPage> {
                       ),
                       const SizedBox(width: 12),
                       Expanded(
-                        child: _buildTextField(
-                          controller: _manufacturerController,
+                        child: _buildDropdownField(
                           label: 'Manufacturer *',
-                          hint: 'Enter manufacturer',
+                          value: _selectedManufacturer,
+                          items: _manufacturerOptions,
+                          onChanged: (value) {
+                            setState(() {
+                              _selectedManufacturer = value!;
+                            });
+                          },
                           validator: (value) {
                             if (value == null || value.isEmpty) {
-                              return 'Please enter manufacturer';
+                              return 'Please select manufacturer';
                             }
                             return null;
                           },
+                          showOtherField: true,
                         ),
                       ),
                     ],
