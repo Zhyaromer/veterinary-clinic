@@ -1,6 +1,5 @@
 // screens/medicines_page.dart
 import 'package:flutter/material.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import '../../models/medicine.dart';
 import '../../widgets/medicine_card.dart';
 import '../../services/medicine_firestore_service.dart';

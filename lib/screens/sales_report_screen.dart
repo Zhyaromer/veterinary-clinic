@@ -1,9 +1,7 @@
 import 'package:flutter/material.dart';
-import '../models/medicine.dart';
-import '../models/pet_cage.dart';
-import '../models/pet_food.dart';
-import '../models/pet_toy.dart';
 import '../models/sales_report.dart';
+import '../models/purchase.dart';
+import '../services/purchases_firestore_service.dart';
 import '../widgets/report_widgets.dart';
 
 class SalesReportScreen extends StatefulWidget {
@@ -15,30 +13,18 @@ class SalesReportScreen extends StatefulWidget {
 }
 
 class _SalesReportScreenState extends State<SalesReportScreen> {
-  late SalesReport report;
   DateTime selectedStartDate = DateTime.now().subtract(
     const Duration(days: 30),
   );
   DateTime selectedEndDate = DateTime.now();
   String selectedFilter = 'Last 30 Days';
 
+  final PurchasesFirestoreService _purchasesService =
+      PurchasesFirestoreService();
+
   @override
   void initState() {
     super.initState();
-    _generateReport();
-  }
-
-  void _generateReport() {
-    setState(() {
-      report = SalesReport.generate(
-        startDate: selectedStartDate,
-        endDate: selectedEndDate,
-        medicines: medicines,
-        cages: petCages,
-        foods: petFoods,
-        toys: petToys,
-      );
-    });
   }
 
   Future<void> _selectDate(BuildContext context, bool isStartDate) async {
@@ -46,7 +32,7 @@ class _SalesReportScreenState extends State<SalesReportScreen> {
       context: context,
       initialDate: isStartDate ? selectedStartDate : selectedEndDate,
       firstDate: DateTime(2024, 1, 1),
-      lastDate: DateTime(2025, 12, 31),
+      lastDate: DateTime.now().add(const Duration(days: 365 * 5)),
     );
 
     if (picked != null) {
@@ -57,7 +43,6 @@ class _SalesReportScreenState extends State<SalesReportScreen> {
           selectedEndDate = picked;
         }
       });
-      _generateReport();
     }
   }
 
@@ -69,15 +54,19 @@ class _SalesReportScreenState extends State<SalesReportScreen> {
       switch (filter) {
         case 'Last 7 Days':
           selectedStartDate = now.subtract(const Duration(days: 7));
+          selectedEndDate = now;
           break;
         case 'Last 30 Days':
           selectedStartDate = now.subtract(const Duration(days: 30));
+          selectedEndDate = now;
           break;
         case 'Last 90 Days':
           selectedStartDate = now.subtract(const Duration(days: 90));
+          selectedEndDate = now;
           break;
         case 'This Month':
           selectedStartDate = DateTime(now.year, now.month, 1);
+          selectedEndDate = now;
           break;
         case 'Last Month':
           final firstDayLastMonth = DateTime(now.year, now.month - 1, 1);
@@ -89,9 +78,7 @@ class _SalesReportScreenState extends State<SalesReportScreen> {
           // Keep existing dates for custom range
           break;
       }
-      selectedEndDate = now;
     });
-    _generateReport();
   }
 
   String _getPeriodName() {
@@ -125,7 +112,7 @@ class _SalesReportScreenState extends State<SalesReportScreen> {
         actions: [
           IconButton(
             icon: const Icon(Icons.refresh),
-            onPressed: _generateReport,
+            onPressed: () => setState(() {}),
             tooltip: 'Refresh Report',
           ),
           IconButton(
@@ -135,71 +122,90 @@ class _SalesReportScreenState extends State<SalesReportScreen> {
           ),
         ],
       ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // Header with stats
-            _buildReportHeader(),
-            const SizedBox(height: 20),
+      body: StreamBuilder<List<Purchase>>(
+        stream: _purchasesService.getPurchasesStream(),
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const Center(child: CircularProgressIndicator());
+          }
+          if (snapshot.hasError) {
+            return Center(child: Text('Error: ${snapshot.error}'));
+          }
 
-            // Date Range Selector
-            _buildDateSelector(),
-            const SizedBox(height: 20),
+          final purchases = snapshot.data ?? <Purchase>[];
+          final report = SalesReport.fromPurchases(
+            startDate: selectedStartDate,
+            endDate: selectedEndDate,
+            purchases: purchases,
+          );
 
-            // Performance Metrics
-            _buildPerformanceMetrics(),
-            const SizedBox(height: 20),
-
-            // Category Analysis
-            _buildCategoryAnalysis(),
-            const SizedBox(height: 20),
-
-            if (showWeekly) ...[
-              WeeklyRevenueWidget(weeklyRevenue: report.weeklyRevenue),
-              const SizedBox(height: 20),
-            ],
-
-            // Inventory & Growth Analysis
-            Row(
+          return SingleChildScrollView(
+            padding: const EdgeInsets.all(16),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Expanded(
-                  child: InventoryAnalysisWidget(
-                    inventoryTurnover: report.inventoryTurnover,
-                    rating: report.getInventoryRating(),
-                    products: report.productSales,
-                  ),
+                // Header with stats
+                _buildReportHeader(report),
+                const SizedBox(height: 20),
+
+                // Date Range Selector
+                _buildDateSelector(),
+                const SizedBox(height: 20),
+
+                // Performance Metrics
+                _buildPerformanceMetrics(report),
+                const SizedBox(height: 20),
+
+                // Category Analysis
+                _buildCategoryAnalysis(report),
+                const SizedBox(height: 20),
+
+                if (showWeekly) ...[
+                  WeeklyRevenueWidget(weeklyRevenue: report.weeklyRevenue),
+                  const SizedBox(height: 20),
+                ],
+
+                // Inventory & Growth Analysis
+                Row(
+                  children: [
+                    Expanded(
+                      child: InventoryAnalysisWidget(
+                        inventoryTurnover: report.inventoryTurnover,
+                        rating: report.getInventoryRating(),
+                        products: report.productSales,
+                      ),
+                    ),
+                    const SizedBox(width: 16),
+                    Expanded(
+                      child: GrowthIndicatorWidget(
+                        growthPercentage: report.growthPercentage,
+                        period: _getPeriodName(),
+                      ),
+                    ),
+                  ],
                 ),
-                const SizedBox(width: 16),
-                Expanded(
-                  child: GrowthIndicatorWidget(
-                    growthPercentage: report.growthPercentage,
-                    period: _getPeriodName(),
-                  ),
-                ),
+                const SizedBox(height: 20),
+
+                // Category Growth
+                CategoryGrowthWidget(categoryGrowth: report.categoryGrowth),
+                const SizedBox(height: 20),
+
+                // Profit Margins
+                ProfitMarginWidget(products: report.productSales),
+                const SizedBox(height: 20),
+
+                // Top Products
+                TopProductsCard(products: report.productSales),
+                const SizedBox(height: 20),
               ],
             ),
-            const SizedBox(height: 20),
-
-            // Category Growth
-            CategoryGrowthWidget(categoryGrowth: report.categoryGrowth),
-            const SizedBox(height: 20),
-
-            // Profit Margins
-            ProfitMarginWidget(products: report.productSales),
-            const SizedBox(height: 20),
-
-            // Top Products
-            TopProductsCard(products: report.productSales),
-            const SizedBox(height: 20),
-          ],
-        ),
+          );
+        },
       ),
     );
   }
 
-  Widget _buildReportHeader() {
+  Widget _buildReportHeader(SalesReport report) {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
@@ -383,7 +389,7 @@ class _SalesReportScreenState extends State<SalesReportScreen> {
     );
   }
 
-  Widget _buildPerformanceMetrics() {
+  Widget _buildPerformanceMetrics(SalesReport report) {
     return GridView.count(
       crossAxisCount: 2,
       crossAxisSpacing: 16,
@@ -424,7 +430,7 @@ class _SalesReportScreenState extends State<SalesReportScreen> {
     );
   }
 
-  Widget _buildCategoryAnalysis() {
+  Widget _buildCategoryAnalysis(SalesReport report) {
     final categorySummaries = report.categorySales.entries.map((entry) {
       return CategorySummary(
         category: entry.key,

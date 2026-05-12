@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:vet_clinic/main.dart';
 import '../../models/medicine.dart';
 import '../../models/cart_item.dart';
-import '../../services/medicine_firestore_service.dart';
 
 class MedicineDetailPage extends StatefulWidget {
   final Medicine medicine;

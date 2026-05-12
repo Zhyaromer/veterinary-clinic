@@ -140,36 +140,36 @@ class _AddEditToyPageState extends State<AddEditToyPage> {
     // Initialize dropdown selections
     _selectedCategory = _categoryOptions.contains(toy?.category)
         ? toy!.category
-        : (toy?.category?.isNotEmpty == true
+        : (toy?.category.isNotEmpty == true
               ? toy!.category
               : _categoryOptions.first);
     _selectedPetType = _petTypeOptions.contains(toy?.petType)
         ? toy!.petType
-        : (toy?.petType?.isNotEmpty == true
+        : (toy?.petType.isNotEmpty == true
               ? toy!.petType
               : _petTypeOptions.first);
     _selectedAgeSuitability =
         _ageSuitabilityOptions.contains(toy?.ageSuitability)
         ? toy!.ageSuitability
-        : (toy?.ageSuitability?.isNotEmpty == true
+        : (toy?.ageSuitability.isNotEmpty == true
               ? toy!.ageSuitability
               : _ageSuitabilityOptions.first);
     _selectedSize = _sizeOptions.contains(toy?.size)
         ? toy!.size
-        : (toy?.size?.isNotEmpty == true ? toy!.size : _sizeOptions.first);
+        : (toy?.size.isNotEmpty == true ? toy!.size : _sizeOptions.first);
     _selectedMaterial = _materialOptions.contains(toy?.material)
         ? toy!.material
-        : (toy?.material?.isNotEmpty == true
+        : (toy?.material.isNotEmpty == true
               ? toy!.material
               : _materialOptions.first);
     _selectedWarranty = _warrantyOptions.contains(toy?.warranty)
         ? toy!.warranty
-        : (toy?.warranty?.isNotEmpty == true
+        : (toy?.warranty.isNotEmpty == true
               ? toy!.warranty
               : _warrantyOptions.first);
     _selectedManufacturer = _manufacturerOptions.contains(toy?.manufacturer)
         ? toy!.manufacturer
-        : (toy?.manufacturer?.isNotEmpty == true
+        : (toy?.manufacturer.isNotEmpty == true
               ? toy!.manufacturer
               : _manufacturerOptions.first);
 
@@ -335,7 +335,7 @@ class _AddEditToyPageState extends State<AddEditToyPage> {
           onChanged: onChanged,
           validator: validator,
         ),
-        if (showOtherField && value == 'Other' && onChanged != null)
+        if (showOtherField && value == 'Other')
           Padding(
             padding: const EdgeInsets.only(top: 8),
             child: _buildTextField(

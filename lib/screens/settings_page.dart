@@ -1,7 +1,6 @@
 //settings_page.dart
 
 import 'package:flutter/material.dart';
-import 'package:vet_clinic/main.dart';
 import 'package:vet_clinic/screens/login_screen.dart';
 
 class SettingsPage extends StatefulWidget {

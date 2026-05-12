@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import 'purchase.dart';
+
 class ProductSale {
   final String name;
   final String category;
@@ -40,7 +42,7 @@ class CategorySummary {
     required this.color,
   });
 
-  double get percentageOfTotal => 0.0; 
+  double get percentageOfTotal => 0.0;
   String get revenueFormatted => '\$${revenue.toStringAsFixed(2)}';
 }
 
@@ -74,7 +76,7 @@ class SalesReport {
   final Map<String, int> categoryUnits;
   final double totalRevenue;
   final int totalUnits;
-  final double averageSaleValue;
+  final int averageSaleValue;
   final String bestSellingCategory;
   final String bestSellingProduct;
   final Map<String, double> dailyRevenue;
@@ -125,9 +127,9 @@ class SalesReport {
     } else if (days <= 30) {
       timeScaleFactor = 1.0;
     } else if (days <= 90) {
-      timeScaleFactor = 3.0; 
+      timeScaleFactor = 3.0;
     } else {
-      timeScaleFactor = 4.0; 
+      timeScaleFactor = 4.0;
     }
 
     for (var medicine in medicines) {
@@ -228,8 +230,8 @@ class SalesReport {
 
       final dayOfWeekFactor = date.weekday == 6 || date.weekday == 7
           ? 1.5
-          : 1.0; 
-      final dailyFactor = (1 + (i % 7) * 0.1); 
+          : 1.0;
+      final dailyFactor = (1 + (i % 7) * 0.1);
 
       final dailyTotal = allProducts.fold(
         0.0,
@@ -289,7 +291,9 @@ class SalesReport {
     final totalUnits =
         allProducts.fold(0, (sum, sale) => sum + sale.unitsSold) *
         timeScaleFactor.toInt();
-    final averageSaleValue = totalUnits > 0 ? totalRevenue / totalUnits : 0;
+    final int averageSaleValue = totalUnits > 0
+        ? (totalRevenue / totalUnits).round()
+        : 0;
 
     final bestSellingCategory = categorySales.entries.isNotEmpty
         ? categorySales.entries.reduce((a, b) => a.value > b.value ? a : b).key
@@ -331,7 +335,7 @@ class SalesReport {
       categoryUnits: categoryUnits,
       totalRevenue: totalRevenue,
       totalUnits: totalUnits,
-      averageSaleValue: averageSaleValue as double,
+      averageSaleValue: averageSaleValue,
       bestSellingCategory: bestSellingCategory,
       bestSellingProduct: bestSellingProduct,
       dailyRevenue: dailyRevenue,
@@ -339,6 +343,209 @@ class SalesReport {
       growthPercentage: growthPercentage,
       profitMargin: profitMargin as double,
       inventoryTurnover: inventoryTurnover as double,
+      weeklyRevenue: weeklyRevenue,
+      categoryGrowth: categoryGrowth,
+    );
+  }
+
+  static DateTime _dayStart(DateTime date) =>
+      DateTime(date.year, date.month, date.day);
+
+  static DateTime _dayEnd(DateTime date) =>
+      DateTime(date.year, date.month, date.day, 23, 59, 59, 999);
+
+  static String _dateKey(DateTime date) => '${date.day}/${date.month}';
+
+  static String _categoryFromItemType(String itemType) {
+    switch (itemType) {
+      case 'medicine':
+        return 'Medicine';
+      case 'cage':
+        return 'Cage';
+      case 'food':
+        return 'Food';
+      case 'toy':
+        return 'Toy';
+      default:
+        return 'Other';
+    }
+  }
+
+  static double _profitRateForCategory(String category) {
+    switch (category) {
+      case 'Medicine':
+        return 0.35;
+      case 'Cage':
+        return 0.40;
+      case 'Food':
+        return 0.30;
+      case 'Toy':
+        return 0.45;
+      default:
+        return 0.30;
+    }
+  }
+
+  factory SalesReport.fromPurchases({
+    required DateTime startDate,
+    required DateTime endDate,
+    required List<Purchase> purchases,
+  }) {
+    final start = _dayStart(startDate);
+    final end = _dayEnd(endDate);
+    final days = end.difference(start).inDays + 1;
+
+    bool inRange(DateTime d) => !d.isBefore(start) && !d.isAfter(end);
+
+    final current = purchases.where((p) => inRange(p.purchasedAt)).toList();
+
+    final previousStart = start.subtract(Duration(days: days));
+    final previousEnd = start.subtract(const Duration(milliseconds: 1));
+    bool inPrevious(DateTime d) =>
+        !d.isBefore(previousStart) && !d.isAfter(previousEnd);
+    final previous = purchases.where((p) => inPrevious(p.purchasedAt)).toList();
+
+    // Group product sales
+    final Map<String, ProductSale> byProduct = {};
+
+    // Daily buckets (fill all days for chart widgets)
+    final dailyRevenue = <String, double>{};
+    final dailyUnits = <String, int>{};
+    for (var i = 0; i < days; i++) {
+      final date = start.add(Duration(days: i));
+      final key = _dateKey(date);
+      dailyRevenue[key] = 0;
+      dailyUnits[key] = 0;
+    }
+
+    // Weekly buckets
+    final weeks = (days / 7).ceil().clamp(1, 10000);
+    final weeklyRevenue = <String, double>{
+      for (var i = 0; i < weeks; i++) 'Week ${i + 1}': 0,
+    };
+
+    for (final p in current) {
+      final category = _categoryFromItemType(p.itemType);
+      final key = '$category||${p.itemName}';
+
+      final existing = byProduct[key];
+      final revenue = p.subtotal;
+      final units = p.quantity;
+      final profit = revenue * _profitRateForCategory(category);
+
+      if (existing == null) {
+        byProduct[key] = ProductSale(
+          name: p.itemName,
+          category: category,
+          subCategory: '',
+          unitsSold: units,
+          revenue: revenue,
+          profit: profit,
+          // We don't have reliable stock remaining from purchases alone.
+          stockRemaining: 10,
+          productType: category,
+        );
+      } else {
+        byProduct[key] = ProductSale(
+          name: existing.name,
+          category: existing.category,
+          subCategory: existing.subCategory,
+          unitsSold: existing.unitsSold + units,
+          revenue: existing.revenue + revenue,
+          profit: existing.profit + profit,
+          stockRemaining: existing.stockRemaining,
+          productType: existing.productType,
+        );
+      }
+
+      final dateKey = _dateKey(p.purchasedAt);
+      dailyRevenue[dateKey] = (dailyRevenue[dateKey] ?? 0) + revenue;
+      dailyUnits[dateKey] = (dailyUnits[dateKey] ?? 0) + units;
+
+      final weekIndex = (p.purchasedAt.difference(start).inDays ~/ 7) + 1;
+      final weekKey = 'Week $weekIndex';
+      weeklyRevenue[weekKey] = (weeklyRevenue[weekKey] ?? 0) + revenue;
+    }
+
+    final productSales = byProduct.values.toList()
+      ..sort((a, b) => b.revenue.compareTo(a.revenue));
+
+    final categorySales = <String, double>{};
+    final categoryUnits = <String, int>{};
+
+    for (final sale in productSales) {
+      categorySales.update(
+        sale.category,
+        (v) => v + sale.revenue,
+        ifAbsent: () => sale.revenue,
+      );
+      categoryUnits.update(
+        sale.category,
+        (v) => v + sale.unitsSold,
+        ifAbsent: () => sale.unitsSold,
+      );
+    }
+
+    final totalRevenue = productSales.fold(0.0, (s, p) => s + p.revenue);
+    final totalUnits = productSales.fold(0, (s, p) => s + p.unitsSold);
+    final int averageSaleValue = totalUnits > 0
+        ? (totalRevenue / totalUnits).round()
+        : 0;
+
+    final bestSellingCategory = categorySales.entries.isNotEmpty
+        ? categorySales.entries.reduce((a, b) => a.value > b.value ? a : b).key
+        : 'No Data';
+
+    final bestSellingProduct = productSales.isNotEmpty
+        ? productSales.reduce((a, b) => a.unitsSold > b.unitsSold ? a : b).name
+        : 'No Data';
+
+    // Growth vs previous equal-length period
+    final prevRevenue = previous.fold(0.0, (s, p) => s + p.subtotal);
+    final growthPercentage = prevRevenue == 0
+        ? (totalRevenue > 0 ? 100.0 : 0.0)
+        : ((totalRevenue - prevRevenue) / prevRevenue) * 100;
+
+    final totalProfit = productSales.fold(0.0, (s, p) => s + p.profit);
+    final double profitMargin = totalRevenue > 0
+        ? (totalProfit / totalRevenue) * 100
+        : 0;
+
+    // Inventory turnover can't be derived from purchases alone.
+    final inventoryTurnover = 0.0;
+
+    // Category growth (fraction; widget multiplies by 100)
+    final prevByCat = <String, double>{};
+    for (final p in previous) {
+      final cat = _categoryFromItemType(p.itemType);
+      prevByCat.update(cat, (v) => v + p.subtotal, ifAbsent: () => p.subtotal);
+    }
+    final categoryGrowth = <String, double>{};
+    final allCats = <String>{...categorySales.keys, ...prevByCat.keys};
+    for (final cat in allCats) {
+      final curr = categorySales[cat] ?? 0;
+      final prev = prevByCat[cat] ?? 0;
+      categoryGrowth[cat] = prev == 0
+          ? (curr > 0 ? 1.0 : 0.0)
+          : (curr - prev) / prev;
+    }
+
+    return SalesReport(
+      startDate: start,
+      endDate: end,
+      productSales: productSales,
+      categorySales: categorySales,
+      categoryUnits: categoryUnits,
+      totalRevenue: totalRevenue,
+      totalUnits: totalUnits,
+      averageSaleValue: averageSaleValue,
+      bestSellingCategory: bestSellingCategory,
+      bestSellingProduct: bestSellingProduct,
+      dailyRevenue: dailyRevenue,
+      dailyUnits: dailyUnits,
+      growthPercentage: growthPercentage,
+      profitMargin: profitMargin,
+      inventoryTurnover: inventoryTurnover,
       weeklyRevenue: weeklyRevenue,
       categoryGrowth: categoryGrowth,
     );
